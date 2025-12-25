@@ -1,0 +1,108 @@
+/* pages/report/report.wxss */
+.loading {
+  text-align: center;
+  padding: 100rpx;
+  color: #999;
+}
+
+.score-card {
+  text-align: center;
+  padding: 60rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.score-title {
+  font-size: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.score-value {
+  font-size: 120rpx;
+  font-weight: bold;
+  margin-bottom: 15rpx;
+}
+
+.score-level {
+  font-size: 32rpx;
+}
+
+.dimensions-card {
+  margin-top: 20rpx;
+}
+
+.dimension-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25rpx;
+}
+
+.dimension-name {
+  width: 140rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.dimension-bar {
+  flex: 1;
+  height: 20rpx;
+  background: #f0f0f0;
+  border-radius: 10rpx;
+  overflow: hidden;
+  margin: 0 15rpx;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.5s;
+}
+
+.dimension-score {
+  width: 80rpx;
+  text-align: right;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.suggestions-card {
+  margin-top: 20rpx;
+}
+
+.suggestion-item {
+  display: flex;
+  margin-bottom: 20rpx;
+  line-height: 1.6;
+}
+
+.suggestion-number {
+  width: 40rpx;
+  height: 40rpx;
+  background: #667eea;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  margin-right: 15rpx;
+  flex-shrink: 0;
+}
+
+.suggestion-text {
+  flex: 1;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 40rpx;
+  padding-bottom: 30rpx;
+}
+
+.action-buttons button {
+  flex: 1;
+}

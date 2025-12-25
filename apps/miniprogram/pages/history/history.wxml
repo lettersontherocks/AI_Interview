@@ -1,0 +1,67 @@
+<!-- pages/history/history.wxml -->
+<view class="container">
+  <view class="header">
+    <text class="header-title">面试记录</text>
+    <text class="header-subtitle">查看你的所有面试历史</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:elif="{{historyList.length === 0}}" class="empty-state">
+    <text class="empty-icon">📝</text>
+    <text class="empty-text">暂无面试记录</text>
+    <text class="empty-hint">开始你的第一次面试练习吧</text>
+    <button class="start-btn primary-btn" bindtap="goToIndex">开始练习</button>
+  </view>
+
+  <!-- 面试记录列表 -->
+  <scroll-view wx:else scroll-y class="history-scroll" enable-back-to-top>
+    <view class="history-item" wx:for="{{historyList}}" wx:key="session_id">
+      <view class="item-header">
+        <view class="tags">
+          <text class="position-tag">{{item.position}}</text>
+          <text class="round-tag">{{item.round}}</text>
+        </view>
+        <view class="level-badge {{item.is_finished ? 'completed' : 'unfinished'}}">
+          {{item.level}}
+        </view>
+      </view>
+
+      <view class="item-content">
+        <view class="score-row">
+          <text class="label">总分</text>
+          <text class="score-value">{{item.score}}</text>
+        </view>
+        <view class="date-row">
+          <text class="label">时间</text>
+          <text class="date-value">{{item.date}}</text>
+        </view>
+      </view>
+
+      <view class="item-footer">
+        <button
+          wx:if="{{!item.is_finished}}"
+          class="action-btn continue-btn"
+          bindtap="continueInterview"
+          data-session-id="{{item.session_id}}"
+        >
+          <text class="btn-icon">▶</text>
+          <text class="btn-text">继续面试</text>
+        </button>
+        <button
+          wx:else
+          class="action-btn view-btn"
+          bindtap="viewReport"
+          data-session-id="{{item.session_id}}"
+        >
+          <text class="btn-icon">📊</text>
+          <text class="btn-text">查看报告</text>
+        </button>
+      </view>
+    </view>
+  </scroll-view>
+</view>

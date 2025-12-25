@@ -1,0 +1,104 @@
+<!-- pages/profile/profile.wxml -->
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <image class="avatar" src="{{userInfo.avatar || '/assets/default-avatar.png'}}" mode="aspectFill"></image>
+    <view class="user-info">
+      <text class="nickname">{{userInfo.nickname || '未登录'}}</text>
+      <view class="vip-badge" wx:if="{{userInfo.is_vip}}">
+        <text class="vip-icon">👑</text>
+        <text class="vip-text">VIP会员</text>
+      </view>
+      <text class="quota-text" wx:else>今日剩余: {{userInfo.free_count_today || 0}}/{{freeLimit}}次</text>
+    </view>
+  </view>
+
+  <!-- VIP购买卡片 -->
+  <view class="vip-card" wx:if="{{!userInfo.is_vip}}">
+    <view class="vip-header">
+      <text class="vip-title">开通VIP 无限练习</text>
+      <text class="vip-subtitle">专业模拟 · 即时反馈 · 职业提升</text>
+    </view>
+    <view class="price-options">
+      <view class="price-item {{selectedPrice === 'month' ? 'active' : ''}}" bindtap="selectPrice" data-type="month">
+        <text class="price-label">月度会员</text>
+        <text class="price-value">¥29.9</text>
+        <text class="price-desc">无限次练习</text>
+      </view>
+      <view class="price-item {{selectedPrice === 'single' ? 'active' : ''}}" bindtap="selectPrice" data-type="single">
+        <text class="price-label">单次购买</text>
+        <text class="price-value">¥9.9</text>
+        <text class="price-desc">1次完整面试</text>
+      </view>
+    </view>
+    <button class="purchase-btn" bindtap="purchaseVip">立即开通</button>
+  </view>
+
+  <!-- 面试记录 -->
+  <view class="history-card">
+    <view class="card-header">
+      <text class="card-title">面试记录</text>
+      <text class="view-all" bindtap="viewAllHistory">查看全部 ></text>
+    </view>
+
+    <view wx:if="{{historyList.length === 0}}" class="empty-state">
+      <text class="empty-text">暂无面试记录</text>
+      <button class="start-practice-btn" bindtap="goToIndex">开始练习</button>
+    </view>
+
+    <scroll-view wx:else scroll-y class="history-list">
+      <view class="history-item" wx:for="{{historyList}}" wx:key="session_id">
+        <view class="history-header">
+          <text class="position-tag">{{item.position}}</text>
+          <text class="round-tag">{{item.round}}</text>
+        </view>
+        <view class="history-content">
+          <text class="score-text">总分: {{item.score}}分</text>
+          <text class="date-text">{{item.date}}</text>
+        </view>
+        <view class="history-footer">
+          <view class="level-badge {{item.is_finished ? 'completed' : 'unfinished'}}">
+            {{item.level}}
+          </view>
+          <button
+            wx:if="{{!item.is_finished}}"
+            class="action-btn continue-btn"
+            bindtap="continueInterview"
+            data-session-id="{{item.session_id}}"
+          >
+            <text class="btn-icon">▶</text>
+            <text class="btn-text">继续面试</text>
+          </button>
+          <button
+            wx:else
+            class="action-btn view-btn"
+            bindtap="viewReport"
+            data-session-id="{{item.session_id}}"
+          >
+            <text class="btn-icon">📊</text>
+            <text class="btn-text">查看报告</text>
+          </button>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 设置选项 -->
+  <view class="settings-card">
+    <view class="setting-item" bindtap="clearCache">
+      <text class="setting-label">清除缓存</text>
+      <text class="setting-arrow">></text>
+    </view>
+    <view class="setting-item" bindtap="contactSupport">
+      <text class="setting-label">联系客服</text>
+      <text class="setting-arrow">></text>
+    </view>
+    <view class="setting-item" bindtap="aboutUs">
+      <text class="setting-label">关于我们</text>
+      <text class="setting-arrow">></text>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <button class="logout-btn" bindtap="logout" wx:if="{{userInfo.nickname}}">退出登录</button>
+</view>

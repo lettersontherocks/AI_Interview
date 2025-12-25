@@ -1,0 +1,61 @@
+<!-- pages/report/report.wxml -->
+<view class="container">
+  <view wx:if="{{loading}}" class="loading">加载中...</view>
+
+  <view wx:else class="report-content">
+    <!-- 总分卡片 -->
+    <view class="score-card card">
+      <view class="score-title">综合评分</view>
+      <view class="score-value">{{report.total_score}}</view>
+      <view class="score-level">{{scoreLevel}}</view>
+    </view>
+
+    <!-- 各项评分 -->
+    <view class="dimensions-card card">
+      <view class="card-title">能力维度</view>
+      <view class="dimension-item">
+        <view class="dimension-name">技术能力</view>
+        <view class="dimension-bar">
+          <view class="bar-fill" style="width: {{report.technical_skill}}%"></view>
+        </view>
+        <view class="dimension-score">{{report.technical_skill}}</view>
+      </view>
+      <view class="dimension-item">
+        <view class="dimension-name">表达能力</view>
+        <view class="dimension-bar">
+          <view class="bar-fill" style="width: {{report.communication}}%"></view>
+        </view>
+        <view class="dimension-score">{{report.communication}}</view>
+      </view>
+      <view class="dimension-item">
+        <view class="dimension-name">逻辑思维</view>
+        <view class="dimension-bar">
+          <view class="bar-fill" style="width: {{report.logic_thinking}}%"></view>
+        </view>
+        <view class="dimension-score">{{report.logic_thinking}}</view>
+      </view>
+      <view class="dimension-item">
+        <view class="dimension-name">项目经验</view>
+        <view class="dimension-bar">
+          <view class="bar-fill" style="width: {{report.experience}}%"></view>
+        </view>
+        <view class="dimension-score">{{report.experience}}</view>
+      </view>
+    </view>
+
+    <!-- 改进建议 -->
+    <view class="suggestions-card card">
+      <view class="card-title">改进建议</view>
+      <view class="suggestion-item" wx:for="{{report.suggestions}}" wx:key="index">
+        <view class="suggestion-number">{{index + 1}}</view>
+        <view class="suggestion-text">{{item}}</view>
+      </view>
+    </view>
+
+    <!-- 底部按钮 -->
+    <view class="action-buttons">
+      <button class="secondary-btn" bindtap="backToHome">返回首页</button>
+      <button class="primary-btn" bindtap="shareReport">分享报告</button>
+    </view>
+  </view>
+</view>

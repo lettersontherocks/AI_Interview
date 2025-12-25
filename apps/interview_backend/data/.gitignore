@@ -1,0 +1,8 @@
+# 数据库文件不提交到git
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# 但保留这个目录
+!.gitignore

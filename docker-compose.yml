@@ -1,0 +1,49 @@
+services:
+  # Claude API网关服务 (Port 8002)
+  claude-api-service:
+    build: ./api_service
+    ports:
+      - "8002:8000"
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    volumes:
+      - ./api_service/logs:/app/logs
+    networks:
+      - ai-interview-network
+
+  # 面试后端服务 (Port 8003)
+  interview-backend:
+    build: ./apps/interview_backend
+    ports:
+      - "8003:8003"
+    environment:
+      - CLAUDE_API_URL=http://claude-api-service:8000/v1/chat
+      - DATABASE_URL=sqlite:///./data/ai_interview.db
+      - FREE_DAILY_LIMIT=1
+      - VIP_MONTHLY_PRICE=29.9
+      - SINGLE_INTERVIEW_PRICE=9.9
+    depends_on:
+      - claude-api-service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ./apps/interview_backend/data:/app/data
+    networks:
+      - ai-interview-network
+
+networks:
+  ai-interview-network:
+    driver: bridge

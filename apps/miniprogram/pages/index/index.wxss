@@ -1,0 +1,161 @@
+/* pages/index/index.wxss */
+.welcome-section {
+  text-align: center;
+  padding: 40rpx 0;
+}
+
+.welcome-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20rpx;
+}
+
+.welcome-subtitle {
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 30rpx;
+}
+
+.quota-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 30rpx;
+}
+
+.quota-text {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.login-btn {
+  background: #667eea;
+  color: white;
+  font-size: 26rpx;
+  padding: 10rpx 30rpx;
+  border-radius: 30rpx;
+}
+
+.section {
+  margin-bottom: 40rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.optional {
+  font-size: 24rpx;
+  color: #999;
+  font-weight: normal;
+  margin-left: 10rpx;
+}
+
+/* 岗位网格 */
+.position-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+}
+
+.position-item {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx 20rpx;
+  text-align: center;
+  border: 2rpx solid #e0e0e0;
+  transition: all 0.3s;
+}
+
+.position-item.active {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.position-icon {
+  font-size: 60rpx;
+  margin-bottom: 10rpx;
+}
+
+.position-name {
+  font-size: 26rpx;
+  color: #333;
+}
+
+/* 轮次列表 */
+.round-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.round-item {
+  background: white;
+  border-radius: 15rpx;
+  padding: 25rpx;
+  border: 2rpx solid #e0e0e0;
+  transition: all 0.3s;
+}
+
+.round-item.active {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.round-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.round-desc {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 简历输入 */
+.resume-input {
+  width: 100%;
+  min-height: 200rpx;
+  background: white;
+  border-radius: 15rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  border: 2rpx solid #e0e0e0;
+  box-sizing: border-box;
+}
+
+.char-count {
+  text-align: right;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+/* 开始按钮区域 */
+.start-section {
+  margin-top: 60rpx;
+  text-align: center;
+}
+
+.start-btn {
+  width: 100%;
+  margin-bottom: 20rpx;
+}
+
+.start-btn[disabled] {
+  opacity: 0.5;
+  background: #ccc;
+}
+
+.hint-text {
+  font-size: 24rpx;
+  color: #999;
+}

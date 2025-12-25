@@ -1,0 +1,108 @@
+<!-- pages/index/index.wxml -->
+<view class="container">
+  <!-- 顶部欢迎区域 -->
+  <view class="welcome-section">
+    <view class="welcome-title">AI面试练习</view>
+    <view class="welcome-subtitle">智能模拟真实面试，提升面试技巧</view>
+
+    <view class="quota-info card">
+      <view class="quota-text">
+        <text wx:if="{{!userInfo}}">请先登录</text>
+        <text wx:elif="{{userInfo.is_vip}}">VIP会员 · 无限次</text>
+        <text wx:else>今日剩余: {{userInfo.free_count_today}}/1 次</text>
+      </view>
+      <button wx:if="{{!userInfo}}" class="login-btn" bindtap="handleLogin">
+        点击登录
+      </button>
+    </view>
+  </view>
+
+  <!-- 推荐路径卡片 -->
+  <view class="recommend-card" wx:if="{{recommendedRound}}">
+    <view class="recommend-header">
+      <text class="recommend-icon">🎯</text>
+      <view class="recommend-info">
+        <text class="recommend-title">推荐练习路径</text>
+        <text class="recommend-subtitle">循序渐进，稳步提升</text>
+      </view>
+    </view>
+    <view class="recommend-content">
+      <view class="progress-dots">
+        <view class="dot {{item.completed ? 'completed' : ''}} {{item.current ? 'current' : ''}}"
+              wx:for="{{roundProgress}}" wx:key="index">
+          <text class="dot-label">{{item.label}}</text>
+        </view>
+      </view>
+      <view class="recommend-action">
+        <text class="next-round">下一步：{{recommendedRound.label}}</text>
+        <button class="quick-start-btn" bindtap="quickStartRecommended">
+          快速开始
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 岗位选择 -->
+  <view class="section">
+    <view class="section-title">选择面试岗位</view>
+    <view class="position-grid">
+      <view
+        class="position-item {{selectedPosition === item.value ? 'active' : ''}}"
+        wx:for="{{positions}}"
+        wx:key="value"
+        bindtap="selectPosition"
+        data-position="{{item.value}}"
+      >
+        <view class="position-icon">{{item.icon}}</view>
+        <view class="position-name">{{item.label}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 面试轮次选择 -->
+  <view class="section">
+    <view class="section-title">选择面试轮次</view>
+    <view class="round-list">
+      <view
+        class="round-item {{selectedRound === item.value ? 'active' : ''}}"
+        wx:for="{{rounds}}"
+        wx:key="value"
+        bindtap="selectRound"
+        data-round="{{item.value}}"
+      >
+        <view class="round-name">{{item.label}}</view>
+        <view class="round-desc">{{item.desc}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 简历输入（可选） -->
+  <view class="section">
+    <view class="section-title">
+      简历信息
+      <text class="optional">(可选)</text>
+    </view>
+    <textarea
+      class="resume-input"
+      placeholder="简单介绍你的工作经验、技术栈等，AI会根据简历提问..."
+      maxlength="500"
+      bindinput="inputResume"
+      value="{{resume}}"
+    />
+    <view class="char-count">{{resume.length}}/500</view>
+  </view>
+
+  <!-- 开始按钮 -->
+  <view class="start-section">
+    <button
+      class="start-btn primary-btn"
+      bindtap="startInterview"
+      disabled="{{!selectedPosition || !selectedRound || !userInfo}}"
+    >
+      开始面试
+    </button>
+    <view class="hint-text">
+      预计用时 15-20 分钟
+    </view>
+  </view>
+</view>
