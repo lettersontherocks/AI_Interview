@@ -139,16 +139,33 @@ Page({
 
   // 执行搜索
   searchPositions(keyword) {
+    const url = `${app.globalData.baseUrl}/positions/search?keyword=${encodeURIComponent(keyword)}`
+    console.log('[搜索岗位] 请求URL:', url)
+    console.log('[搜索岗位] 关键词:', keyword)
+
     wx.request({
-      url: `${app.globalData.baseUrl}/positions/search?keyword=${encodeURIComponent(keyword)}`,
+      url: url,
       method: 'GET',
       success: (res) => {
+        console.log('[搜索岗位] 响应状态码:', res.statusCode)
+        console.log('[搜索岗位] 响应数据:', res.data)
         if (res.statusCode === 200) {
           this.setData({ searchResults: res.data })
+          console.log('[搜索岗位] 搜索结果数量:', res.data.length)
+        } else {
+          console.error('[搜索岗位] 请求失败:', res)
+          wx.showToast({
+            title: '搜索失败',
+            icon: 'none'
+          })
         }
       },
       fail: (err) => {
-        console.error('搜索失败:', err)
+        console.error('[搜索岗位] 网络错误:', err)
+        wx.showToast({
+          title: '网络错误',
+          icon: 'none'
+        })
       }
     })
   },
