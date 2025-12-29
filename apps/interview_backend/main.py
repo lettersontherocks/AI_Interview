@@ -45,8 +45,7 @@ async def root():
     return {
         "message": "AI面试系统后端API",
         "version": "1.0.0",
-        "docs": "/docs",
-        "claude_api": settings.claude_api_url
+        "docs": "/docs"
     }
 
 
@@ -55,8 +54,7 @@ async def health_check():
     """健康检查"""
     return {
         "status": "healthy",
-        "service": "interview-backend",
-        "claude_api": settings.claude_api_url
+        "service": "interview-backend"
     }
 
 

@@ -25,37 +25,61 @@ asr_service = ASRService()
 wechat_service = WechatService()
 
 
+@router.get("/interview/start")
+async def start_interview_get_debug():
+    """调试用：记录 GET 请求"""
+    print("[DEBUG] 收到 GET 请求到 /interview/start - 这是错误的！应该使用 POST")
+    raise HTTPException(status_code=405, detail="请使用 POST 方法。GET 请求不被支持。请检查小程序代码是否正确设置了 method: 'POST'")
+
+
 @router.post("/interview/start", response_model=InterviewStartResponse)
 async def start_interview(request: InterviewStartRequest, db: Session = Depends(get_db)):
     """开始面试"""
     try:
-        # 检查用户配额
-        user = db.query(User).filter(User.user_id == request.user_id).first()
-        if not user:
-            raise HTTPException(status_code=404, detail="用户不存在")
+        print(f"[DEBUG] 收到开始面试请求: position={request.position}, round={request.round}")
 
-        # 检查今日免费次数
-        today = date.today()
-        if user.last_free_date and user.last_free_date.date() == today:
-            if user.free_count_today >= settings.free_daily_limit and not user.is_vip:
-                raise HTTPException(status_code=403, detail="今日免费次数已用完，请购买会员或单次面试")
-        else:
-            # 重置今日计数
-            user.free_count_today = 0
-            user.last_free_date = datetime.utcnow()
+        # 检查用户配额（仅对已登录用户）
+        user = None
+        if request.user_id:
+            user = db.query(User).filter(User.user_id == request.user_id).first()
 
-        # 开始面试
-        response = interview_service.start_interview(request, db)
+            if user:
+                # 检查今日免费次数
+                today = date.today()
+                if user.last_free_date and user.last_free_date.date() == today:
+                    if user.free_count_today >= settings.free_daily_limit and not user.is_vip:
+                        raise HTTPException(status_code=403, detail="今日免费次数已用完，请购买会员或单次面试")
+                else:
+                    # 重置今日计数
+                    user.free_count_today = 0
+                    user.last_free_date = datetime.utcnow()
 
-        # 更新免费次数
-        if not user.is_vip:
+        print(f"[DEBUG] 开始调用 interview_service.start_interview")
+        # 开始面试（允许未登录用户，如果没有指定风格则自动选择）
+        response = interview_service.start_interview(
+            request,
+            db,
+            interviewer_style=request.interviewer_style  # None时会自动选择
+        )
+        print(f"[DEBUG] interview_service.start_interview 返回成功")
+
+        # 更新免费次数（仅对已登录用户）
+        if user and not user.is_vip:
             user.free_count_today += 1
-        db.commit()
+            db.commit()
 
+        print(f"[DEBUG] 准备返回响应: session_id={response.session_id}")
         return response
+    except HTTPException:
+        # HTTPException 直接向上抛出，不做处理
+        raise
     except ValueError as e:
+        print(f"[ERROR] ValueError: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        print(f"[ERROR] Exception: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"服务器错误: {str(e)}")
 
 
@@ -63,11 +87,16 @@ async def start_interview(request: InterviewStartRequest, db: Session = Depends(
 async def submit_answer(request: AnswerRequest, db: Session = Depends(get_db)):
     """提交回答"""
     try:
+        print(f"收到回答请求 - session_id: {request.session_id}, answer长度: {len(request.answer)}")
         response = interview_service.process_answer(request, db)
         return response
     except ValueError as e:
+        print(f"ValueError in submit_answer: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        print(f"Exception in submit_answer: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"服务器错误: {str(e)}")
 
 
@@ -273,17 +302,23 @@ async def recognize_voice(audio: UploadFile = File(...)):
         audio_data = await audio.read()
 
         # 保存到临时文件
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
-            temp_file.write(audio_data)
-            temp_path = temp_file.name
+        import tempfile
+        import time
+
+        # 使用系统临时目录
+        temp_dir = tempfile.gettempdir()
+        temp_filename = f"voice_{int(time.time())}.mp3"
+        temp_path = os.path.join(temp_dir, temp_filename)
+
+        with open(temp_path, 'wb') as f:
+            f.write(audio_data)
 
         try:
             # 调用ASR服务识别
             text = asr_service.recognize(temp_path)
-
             return {"text": text}
         finally:
-            # 删除临时文件
+            # 识别完成后删除临时文件
             if os.path.exists(temp_path):
                 os.remove(temp_path)
 

@@ -41,6 +41,7 @@ logs/
 
 # Docker
 docker-compose.override.yml
+*.tar
 
 # macOS
 .DS_Store

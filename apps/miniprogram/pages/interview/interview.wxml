@@ -2,9 +2,9 @@
 <view class="container">
   <!-- 顶部进度 -->
   <view class="progress-bar">
-    <view class="progress-fill" style="width: {{progress}}%"></view>
+    <view class="progress-fill animated" style="width: {{progress}}%"></view>
   </view>
-  <view class="progress-text">问题 {{currentQuestion}}/10</view>
+  <view class="progress-text">{{finished ? '面试已完成' : '面试进行中'}}</view>
 
   <!-- 对话记录 -->
   <scroll-view class="chat-area" scroll-y scroll-into-view="{{scrollToView}}" scroll-with-animation>

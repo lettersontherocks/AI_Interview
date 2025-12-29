@@ -9,7 +9,7 @@
       <view class="quota-text">
         <text wx:if="{{!userInfo}}">请先登录</text>
         <text wx:elif="{{userInfo.is_vip}}">VIP会员 · 无限次</text>
-        <text wx:else>今日剩余: {{userInfo.free_count_today}}/1 次</text>
+        <text wx:else>今日剩余: {{userInfo.free_count_today}}/2 次</text>
       </view>
       <button wx:if="{{!userInfo}}" class="login-btn" bindtap="handleLogin">
         点击登录
@@ -97,12 +97,38 @@
     <button
       class="start-btn primary-btn"
       bindtap="startInterview"
-      disabled="{{!selectedPosition || !selectedRound || !userInfo}}"
+      disabled="{{!selectedPosition || !selectedRound}}"
     >
       开始面试
     </button>
     <view class="hint-text">
       预计用时 15-20 分钟
+    </view>
+  </view>
+
+  <!-- 加载遮罩层 -->
+  <view class="loading-overlay" wx:if="{{isPreparingInterview}}">
+    <view class="loading-content">
+      <view class="loading-icon">
+        <view class="spinner">
+          <view class="spinner-blade"></view>
+          <view class="spinner-blade"></view>
+          <view class="spinner-blade"></view>
+          <view class="spinner-blade"></view>
+          <view class="spinner-blade"></view>
+          <view class="spinner-blade"></view>
+          <view class="spinner-blade"></view>
+          <view class="spinner-blade"></view>
+        </view>
+      </view>
+      <view class="loading-text">正在准备您的面试</view>
+      <view class="loading-subtitle">AI面试官正在为您定制面试方案...</view>
+      <view class="loading-tips">
+        <view class="tip-item" wx:for="{{loadingTips}}" wx:key="index">
+          <text class="tip-dot">•</text>
+          <text class="tip-text">{{item}}</text>
+        </view>
+      </view>
     </view>
   </view>
 </view>

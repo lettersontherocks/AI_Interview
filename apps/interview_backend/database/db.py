@@ -36,11 +36,12 @@ class InterviewSession(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(String(100), unique=True, index=True, nullable=False)
-    user_id = Column(String(50), index=True, nullable=False)
+    user_id = Column(String(50), index=True, nullable=True)  # 允许未登录用户
     position = Column(String(50), nullable=False)  # 岗位类型
     round = Column(String(50), nullable=False)  # 面试轮次
     resume = Column(Text)  # 简历
     transcript = Column(JSON, default=list)  # 对话记录 [{role, content, timestamp, score}]
+    interview_plan = Column(JSON, default=dict)  # 面试计划 {topics: [], current_topic: "", planned_questions: [], completed_topics: []}
     current_question = Column(Text)  # 当前问题
     question_count = Column(Integer, default=0)  # 已提问数量
     is_finished = Column(Boolean, default=False)
@@ -54,7 +55,7 @@ class InterviewReport(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(String(100), unique=True, index=True, nullable=False)
-    user_id = Column(String(50), index=True, nullable=False)
+    user_id = Column(String(50), index=True, nullable=True)  # 允许未登录用户
     total_score = Column(Float)  # 总分
     technical_skill = Column(Float)  # 技术能力
     communication = Column(Float)  # 表达能力

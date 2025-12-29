@@ -121,6 +121,9 @@ App({
     wx.request({
       url: url,
       method: 'POST',
+      header: {
+        'content-type': 'application/json'
+      },
       data: {
         code: code,
         nickname: nickname,

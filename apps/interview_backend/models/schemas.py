@@ -24,12 +24,21 @@ class InterviewRound(str, Enum):
     DIRECTOR = "总监面"
 
 
+class InterviewerStyle(str, Enum):
+    """面试官风格"""
+    FRIENDLY = "friendly"      # 友好型
+    PROFESSIONAL = "professional"  # 专业型
+    CHALLENGING = "challenging"   # 挑战型
+    MENTOR = "mentor"          # 导师型
+
+
 class InterviewStartRequest(BaseModel):
     """开始面试请求"""
     position: PositionType
     round: InterviewRound
-    user_id: str
+    user_id: Optional[str] = None  # 可选：允许未登录用户使用
     resume: Optional[str] = None  # 可选：用户简历
+    interviewer_style: Optional[str] = None  # 可选：面试官风格（None时自动选择）
 
 
 class InterviewStartResponse(BaseModel):
@@ -43,6 +52,7 @@ class AnswerRequest(BaseModel):
     """提交回答请求"""
     session_id: str
     answer: str
+    finish_interview: bool = False  # 用户是否主动结束面试
 
 
 class AnswerResponse(BaseModel):

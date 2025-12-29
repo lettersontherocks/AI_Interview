@@ -7,6 +7,12 @@ Page({
     selectedPosition: '',
     selectedRound: '',
     resume: '',
+    isPreparingInterview: false,
+    loadingTips: [
+      '根据您的岗位生成面试题库',
+      '智能匹配面试官风格',
+      '制定个性化面试流程'
+    ],
     positions: [
       { label: '前端工程师', value: '前端工程师', icon: '💻' },
       { label: '后端工程师', value: '后端工程师', icon: '⚙️' },
@@ -48,6 +54,9 @@ Page({
     wx.request({
       url: `${app.globalData.baseUrl}/user/register`,
       method: 'POST',
+      header: {
+        'content-type': 'application/json'
+      },
       data: {
         openid: 'user_' + Date.now(),
         nickname: '用户' + Math.floor(Math.random() * 10000),
@@ -103,14 +112,6 @@ Page({
   startInterview() {
     const { selectedPosition, selectedRound, resume, userInfo } = this.data
 
-    if (!userInfo) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none'
-      })
-      return
-    }
-
     if (!selectedPosition || !selectedRound) {
       wx.showToast({
         title: '请选择岗位和轮次',
@@ -119,8 +120,8 @@ Page({
       return
     }
 
-    // 检查配额
-    if (!userInfo.is_vip && userInfo.free_count_today >= 1) {
+    // 检查配额（仅对已登录用户）
+    if (userInfo && !userInfo.is_vip && userInfo.free_count_today >= 2) {
       wx.showModal({
         title: '次数不足',
         content: '今日免费次数已用完，是否购买？',
@@ -137,20 +138,40 @@ Page({
       return
     }
 
-    wx.showLoading({ title: '准备中...' })
+    // 显示加载界面
+    this.setData({
+      isPreparingInterview: true
+    })
 
     // 调用开始面试接口
+    const requestUrl = `${app.globalData.baseUrl}/interview/start`
+    const requestData = {
+      position: selectedPosition,
+      round: selectedRound,
+      user_id: app.globalData.userId || null,
+      resume: resume || null
+    }
+
+    console.log('[开始面试] 请求URL:', requestUrl)
+    console.log('[开始面试] 请求数据:', requestData)
+
     wx.request({
-      url: `${app.globalData.baseUrl}/interview/start`,
+      url: requestUrl,
       method: 'POST',
-      data: {
-        position: selectedPosition,
-        round: selectedRound,
-        user_id: app.globalData.userId,
-        resume: resume || null
+      timeout: 180000, // 超时时间设置为180秒（3分钟）- 真机调试需要更长时间
+      header: {
+        'content-type': 'application/json'
       },
+      data: requestData,
       success: (res) => {
-        wx.hideLoading()
+        console.log('[开始面试] 响应状态码:', res.statusCode)
+        console.log('[开始面试] 响应数据:', res.data)
+
+        // 隐藏加载界面
+        this.setData({
+          isPreparingInterview: false
+        })
+
         if (res.statusCode === 200) {
           const { session_id, question } = res.data
 
@@ -159,17 +180,26 @@ Page({
             url: `/pages/interview/interview?sessionId=${session_id}&firstQuestion=${encodeURIComponent(question)}`
           })
         } else {
+          console.error('[开始面试] 请求失败:', res)
           wx.showToast({
             title: res.data.detail || '启动失败',
-            icon: 'none'
+            icon: 'none',
+            duration: 3000
           })
         }
       },
-      fail: () => {
-        wx.hideLoading()
+      fail: (err) => {
+        console.error('[开始面试] 网络错误:', err)
+
+        // 隐藏加载界面
+        this.setData({
+          isPreparingInterview: false
+        })
+
         wx.showToast({
-          title: '网络错误',
-          icon: 'none'
+          title: `网络错误: ${err.errMsg}`,
+          icon: 'none',
+          duration: 3000
         })
       }
     })

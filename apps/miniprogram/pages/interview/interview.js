@@ -8,7 +8,7 @@ Page({
     currentAnswer: '',
     canSend: false,  // 添加发送按钮状态标志
     currentQuestion: 1,
-    progress: 10,
+    progress: 0,  // 初始进度改为0
     loading: false,
     finished: false,
     scrollToView: '',
@@ -20,6 +20,18 @@ Page({
   },
 
   recorderManager: null,
+
+  // 计算动态进度（使用渐进式进度条，而不是固定百分比）
+  calculateProgress(questionCount) {
+    // 使用对数曲线，让进度条平滑增长但永远不会到100%（除非面试结束）
+    // 前几个问题进度较快，后面逐渐变慢
+    if (questionCount <= 0) return 0
+
+    // 使用公式: progress = 100 * (1 - 1 / (1 + questionCount * 0.15))
+    // 这样第1题约13%，第5题约43%，第10题约60%，第20题约75%
+    const progress = 100 * (1 - 1 / (1 + questionCount * 0.15))
+    return Math.min(progress, 95) // 最多到95%，100%留给完成状态
+  },
 
   onLoad(options) {
     const { sessionId, firstQuestion, resume } = options
@@ -189,8 +201,8 @@ Page({
           this.setData({
             sessionId: session.session_id,
             messages: messages,
-            currentQuestion: session.question_count + 1,
-            progress: ((session.question_count + 1) / 10) * 100
+            currentQuestion: session.question_count,
+            progress: this.calculateProgress(session.question_count)
           })
 
           // 滚动到底部
@@ -305,6 +317,10 @@ Page({
     wx.request({
       url: `${app.globalData.baseUrl}/interview/answer`,
       method: 'POST',
+      timeout: 120000, // 超时时间设置为120秒（2分钟）
+      header: {
+        'content-type': 'application/json'
+      },
       data: {
         session_id: sessionId,
         answer: text.trim()
@@ -339,7 +355,7 @@ Page({
             this.setData({
               messages: newMessages,
               currentQuestion: nextQuestionNum,
-              progress: (nextQuestionNum / 10) * 100
+              progress: this.calculateProgress(nextQuestionNum)
             })
 
             // 滚动到最新消息

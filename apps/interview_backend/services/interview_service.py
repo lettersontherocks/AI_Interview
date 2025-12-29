@@ -1,5 +1,4 @@
 """面试服务逻辑"""
-import requests
 import json
 import uuid
 from datetime import datetime
@@ -13,44 +12,98 @@ from models.schemas import (
     AnswerRequest, AnswerResponse, InterviewReport as InterviewReportSchema
 )
 from config import settings
+from services.qwen_service import QwenService
 
 
 class InterviewService:
     """面试服务"""
 
-    def __init__(self, claude_api_url: str = None):
-        self.claude_api_url = claude_api_url or settings.claude_api_url
+    def __init__(self):
+        # 初始化 Qwen 服务
+        self.qwen_service = QwenService(api_key=settings.dashscope_api_key)
 
-    def _call_claude(self, messages: List[dict], system: str = None, temperature: float = 0.8) -> str:
-        """调用Claude API"""
-        data = {
-            "messages": messages,
-            "max_tokens": 2000,
-            "temperature": temperature
-        }
-        if system:
-            data["system"] = system
-
+    def _call_llm(self, messages: List[dict], system: str = None, temperature: float = 0.8) -> str:
+        """调用大模型 API（使用 Qwen）"""
         try:
-            response = requests.post(self.claude_api_url, json=data, timeout=30)
-            response.raise_for_status()
-            result = response.json()
-            return result.get("content", "")
+            return self.qwen_service.chat(
+                messages=messages,
+                system=system,
+                temperature=temperature,
+                max_tokens=2000
+            )
         except Exception as e:
-            raise Exception(f"调用Claude API失败: {str(e)}")
+            raise Exception(f"调用 Qwen API 失败: {str(e)}")
 
-    def _get_system_prompt(self, position: str, round: str, resume: Optional[str] = None) -> str:
+    def _auto_select_interviewer_style(self, round: str) -> str:
+        """根据面试轮次智能选择面试官风格"""
+        import random
+
+        # 根据面试轮次设定可能的风格组合，模拟真实场景
+        style_mapping = {
+            "HR面": ["friendly", "mentor"],  # HR更倾向友好和引导
+            "技术一面": ["friendly", "professional"],  # 基础面试，友好或专业
+            "技术二面": ["professional", "challenging"],  # 深度面试，专业或有压力
+            "总监面": ["professional", "challenging", "mentor"]  # 高层面试，各种可能
+        }
+
+        candidates = style_mapping.get(round, ["friendly", "professional"])
+        selected = random.choice(candidates)
+
+        print(f"[面试官分配] {round} -> 自动选择: {selected}")
+        return selected
+
+    def _get_interviewer_style(self, style: str = "friendly") -> dict:
+        """获取面试官风格配置"""
+        styles = {
+            "friendly": {
+                "name": "友好型",
+                "description": "温和友善，鼓励性强，适合缓解紧张",
+                "personality": "你是一位温和友善的面试官，善于鼓励候选人，营造轻松氛围。",
+                "feedback_examples": ["很好！", "不错的回答", "我明白了", "嗯，继续说", "很有意思"]
+            },
+            "professional": {
+                "name": "专业型",
+                "description": "严谨专业，注重深度，追求技术细节",
+                "personality": "你是一位严谨专业的技术专家，注重技术深度和细节，善于深入追问。",
+                "feedback_examples": ["好的", "明白", "继续", "嗯", "我了解了"]
+            },
+            "challenging": {
+                "name": "挑战型",
+                "description": "有压力感，善于提出尖锐问题",
+                "personality": "你是一位经验丰富的高级面试官，善于通过挑战性问题考察候选人的应变能力和深度思考。",
+                "feedback_examples": ["有意思", "这个答案还不够深入", "继续", "然后呢", "还有吗"]
+            },
+            "mentor": {
+                "name": "导师型",
+                "description": "像导师一样引导，善于启发思考",
+                "personality": "你是一位像导师一样的面试官，善于通过引导和启发帮助候选人展现最佳状态。",
+                "feedback_examples": ["很好，我们换个角度想想", "不错的思路", "明白了", "有道理", "继续深入说说"]
+            }
+        }
+        return styles.get(style, styles["friendly"])
+
+    def _get_system_prompt(self, position: str, round: str, interviewer_style: str = "friendly", resume: Optional[str] = None) -> str:
         """生成系统提示词"""
+        style_config = self._get_interviewer_style(interviewer_style)
+
         base_prompt = f"""你是一位经验丰富的{position}面试官，正在进行{round}。
 
-面试要求：
+【面试官风格】
+{style_config['personality']}
+
+【重要交互要求】
+1. 在候选人回答后，你必须先给出简短的互动反馈（如："{style_config['feedback_examples'][0]}"、"{style_config['feedback_examples'][1]}"等），让对话更自然流畅
+2. 互动反馈要简短（1-5个字），不要过长，模拟真实面试的节奏
+3. 反馈后再进行评分和提出下一个问题
+
+【面试要求】
 1. 提问要专业、有针对性，根据候选人的回答深入追问
 2. 问题难度要循序渐进，从基础到进阶
 3. 关注候选人的技术深度、项目经验、逻辑思维和沟通能力
 4. 每次只问一个问题，等待候选人回答后再继续
-5. 根据候选人的回答给出即时评分（0-10分）和简短提示
+5. 根据候选人的回答给出即时评分（0-10分）和改进提示
 
-面试流程：
+【面试流程】
 - 开场：简单自我介绍和热身问题（1-2个）
 - 基础知识：考察核心技术栈（2-3个）
 - 深入探讨：项目经验和解决方案（2-3个）
@@ -60,7 +113,7 @@ class InterviewService:
 总计8-10个问题，控制在15-20分钟内。"""
 
         if resume:
-            base_prompt += f"\n\n候选人简历信息：\n{resume}\n\n请根据简历内容针对性提问。"
+            base_prompt += f"\n\n【候选人简历】\n{resume}\n\n请根据简历内容针对性提问。"
 
         return base_prompt
 
@@ -77,14 +130,83 @@ class InterviewService:
         }
         return questions_guide.get(position, "")
 
-    def start_interview(self, request: InterviewStartRequest, db: Session) -> InterviewStartResponse:
+    def _generate_interview_plan(self, position: str, round: str, resume: Optional[str] = None) -> dict:
+        """生成动态面试计划"""
+        messages = [{
+            "role": "user",
+            "content": f"""作为{position}的{round}面试官，请为本次面试制定一个灵活的面试计划。
+
+{"候选人简历：" + resume if resume else "无简历信息"}
+
+请设计面试主题和大致方向，但保持灵活性以便根据候选人表现调整。
+
+请按以下JSON格式输出面试计划：
+{{
+    "topics": ["开场热身", "基础技能", "项目经验", "深入技术", "场景问题"],
+    "topic_descriptions": {{
+        "开场热身": "简单介绍，缓解紧张",
+        "基础技能": "考察核心技术栈基础知识",
+        "项目经验": "了解实际项目经验和成果",
+        "深入技术": "深入探讨技术细节和原理",
+        "场景问题": "考察实际问题解决能力"
+    }},
+    "estimated_duration": "15-25分钟",
+    "flexibility_note": "根据候选人回答质量动态调整深度和广度"
+}}"""
+        }]
+
+        response_text = self._call_llm(messages, temperature=0.7)
+
+        try:
+            import re
+            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if json_match:
+                plan = json.loads(json_match.group())
+            else:
+                plan = json.loads(response_text)
+
+            # 添加运行时状态
+            plan["current_topic_index"] = 0
+            plan["completed_topics"] = []
+            plan["should_continue"] = True
+
+            return plan
+        except Exception as e:
+            print(f"[ERROR] 生成面试计划失败: {e}")
+            # 返回默认计划
+            return {
+                "topics": ["开场热身", "核心技能", "项目经验", "综合评估"],
+                "topic_descriptions": {
+                    "开场热身": "简单介绍",
+                    "核心技能": "技术基础",
+                    "项目经验": "实践经验",
+                    "综合评估": "综合能力"
+                },
+                "current_topic_index": 0,
+                "completed_topics": [],
+                "should_continue": True
+            }
+
+    def start_interview(self, request: InterviewStartRequest, db: Session, interviewer_style: str = None) -> InterviewStartResponse:
         """开始面试"""
         # 生成会话ID
         session_id = f"session_{uuid.uuid4().hex[:16]}"
 
-        # 生成系统提示词
-        system_prompt = self._get_system_prompt(request.position, request.round, request.resume)
+        # 如果没有指定风格，自动选择（智能随机分配）
+        if not interviewer_style:
+            interviewer_style = self._auto_select_interviewer_style(request.round)
+
+        # 生成面试计划
+        interview_plan = self._generate_interview_plan(request.position, request.round, request.resume)
+        print(f"[面试计划] {interview_plan}")
+
+        # 生成系统提示词（使用面试官风格）
+        system_prompt = self._get_system_prompt(request.position, request.round, interviewer_style, request.resume)
         questions_guide = self._get_position_questions(request.position)
+
+        # 获取当前主题
+        current_topic = interview_plan["topics"][0] if interview_plan["topics"] else "开场"
+        topic_desc = interview_plan.get("topic_descriptions", {}).get(current_topic, "")
 
         # 生成开场问题
         messages = [
@@ -93,6 +215,8 @@ class InterviewService:
                 "content": f"""现在开始{request.position}的{request.round}。
 
 {questions_guide}
+
+当前主题：{current_topic} - {topic_desc}
 
 请提出第一个开场问题，要求：
 1. 友好、专业的开场白
@@ -103,7 +227,7 @@ class InterviewService:
             }
         ]
 
-        first_question = self._call_claude(messages, system=system_prompt, temperature=0.7)
+        first_question = self._call_llm(messages, system=system_prompt, temperature=0.7)
 
         # 创建会话记录
         session = InterviewSession(
@@ -112,6 +236,7 @@ class InterviewService:
             position=request.position,
             round=request.round,
             resume=request.resume,
+            interview_plan=interview_plan,  # 保存面试计划
             current_question=first_question,
             question_count=1,
             transcript=[
@@ -119,7 +244,9 @@ class InterviewService:
                     "role": "interviewer",
                     "content": first_question,
                     "timestamp": datetime.utcnow().isoformat(),
-                    "question_number": 1
+                    "question_number": 1,
+                    "style": interviewer_style,  # 保存面试官风格
+                    "topic": current_topic  # 保存当前主题
                 }
             ]
         )
@@ -154,42 +281,88 @@ class InterviewService:
         })
         flag_modified(session, "transcript")
 
+        # 检查用户是否主动结束面试
+        if request.finish_interview:
+            print(f"[面试结束] 用户主动结束面试")
+            session.is_finished = True
+            session.finished_at = datetime.utcnow()
+            db.commit()
+
+            return AnswerResponse(
+                next_question=None,
+                instant_score=None,
+                hint="感谢您参加本次面试，报告已生成",
+                is_finished=True
+            )
+
         # 构建对话历史
         messages = []
         for item in session.transcript[-6:]:  # 最近3轮对话
             role = "assistant" if item["role"] == "interviewer" else "user"
             messages.append({"role": role, "content": item["content"]})
 
-        # 判断是否继续面试（8-10个问题）
-        should_continue = session.question_count < 10
+        # 获取面试计划
+        interview_plan = session.interview_plan or {}
+        topics = interview_plan.get("topics", [])
+        current_topic_index = interview_plan.get("current_topic_index", 0)
+        completed_topics = interview_plan.get("completed_topics", [])
 
-        if should_continue:
-            # 生成下一个问题
-            system_prompt = self._get_system_prompt(session.position, session.round, session.resume)
+        # 判断是否完成所有主题
+        all_topics_completed = current_topic_index >= len(topics)
+
+        if not all_topics_completed:
+            # 继续面试
+            # 生成下一个问题（使用会话中保存的面试官风格，默认为 friendly）
+            interviewer_style = session.transcript[0].get("style", "friendly") if session.transcript else "friendly"
+            system_prompt = self._get_system_prompt(session.position, session.round, interviewer_style, session.resume)
+
+            # 获取当前主题信息
+            current_topic = topics[current_topic_index] if current_topic_index < len(topics) else "综合评估"
+            topic_desc = interview_plan.get("topic_descriptions", {}).get(current_topic, "")
+
             messages.append({
                 "role": "user",
                 "content": f"""候选人已回答问题{session.question_count}。
 
-请执行以下任务：
-1. 对候选人的回答进行评分（0-10分）
-2. 给出简短的即时反馈或提示（1-2句话）
-3. 提出下一个问题（第{session.question_count + 1}个问题）
+【面试计划状态】
+- 当前主题：{current_topic} - {topic_desc}
+- 已完成主题：{', '.join(completed_topics) if completed_topics else '无'}
+- 剩余主题：{', '.join(topics[current_topic_index+1:]) if current_topic_index+1 < len(topics) else '无'}
 
-要求：
-- 根据候选人回答质量调整问题难度
-- 如果回答不够深入，可以追问
-- 如果回答很好，可以提升难度
-- 确保问题多样性，不要重复
+【重要】请严格按照你的面试官风格进行互动！
+
+请执行以下任务：
+1. 先给出简短的互动反馈（2-8个字，如："好的"、"明白了"、"不错"等），让对话更自然
+2. 对候选人的回答进行评分（0-10分）
+3. 给出改进提示（1-2句话，指出可以改进的地方）
+4. **决定下一步动作**：
+   - 如果候选人回答值得深入探讨，可以选择"延伸追问"（follow_up）
+   - 如果候选人回答已经足够，选择"进入下一个问题"（next_topic）
+
+【延伸追问的场景】（可选，不是必须）：
+- 候选人提到了有趣的技术细节，值得深挖
+- 回答不够具体，需要追问实现方式
+- 发现了潜在的知识盲区，想要确认
+- 候选人表现出色，想要挑战更高难度
+
+【进入下一个问题的场景】：
+- 当前主题已经考察充分
+- 候选人回答清晰完整
+- 需要推进面试进度
 
 请按以下JSON格式输出：
 {{
+    "feedback": "好的",
     "score": 8.5,
-    "hint": "回答不错，但可以更深入",
-    "next_question": "下一个问题内容"
+    "hint": "回答不错，但可以更深入探讨具体的实现细节",
+    "action": "follow_up",  // 或 "next_topic"
+    "next_question": "问题内容",
+    "topic_completed": false  // 当前主题是否已完成（如果action是next_topic，设为true）
 }}"""
             })
 
-            response_text = self._call_claude(messages, system=system_prompt, temperature=0.8)
+            response_text = self._call_llm(messages, system=system_prompt, temperature=0.8)
+            print(f"[DEBUG] Qwen 原始响应: {response_text}")
 
             # 解析响应
             try:
@@ -201,34 +374,82 @@ class InterviewService:
                 else:
                     response_data = json.loads(response_text)
 
+                print(f"[DEBUG] 解析后的数据: {response_data}")
+                feedback = response_data.get("feedback", "好的")
                 instant_score = response_data.get("score", 7.0)
                 hint = response_data.get("hint", "")
                 next_question = response_data.get("next_question", "")
-            except:
+                action = response_data.get("action", "next_topic")  # follow_up 或 next_topic
+                topic_completed = response_data.get("topic_completed", False)
+
+                print(f"[DEBUG] feedback={feedback}, score={instant_score}, action={action}, topic_completed={topic_completed}")
+            except Exception as e:
                 # 如果解析失败，使用默认值
+                print(f"[DEBUG] JSON解析失败: {e}")
+                feedback = "好的"
                 instant_score = 7.0
                 hint = ""
                 next_question = response_text
+                action = "next_topic"
+                topic_completed = False
 
-            # 更新最后一条候选人回答的评分
+            # 更新最后一条候选人回答的评分和反馈
             session.transcript[-1]["score"] = instant_score
             session.transcript[-1]["hint"] = hint
+            session.transcript[-1]["feedback"] = feedback
+
+            # 更新面试计划状态
+            if topic_completed and action == "next_topic":
+                # 当前主题完成，移动到下一个主题
+                if current_topic not in completed_topics:
+                    completed_topics.append(current_topic)
+                interview_plan["current_topic_index"] = current_topic_index + 1
+                interview_plan["completed_topics"] = completed_topics
+
+                # 获取新主题
+                new_topic_index = interview_plan["current_topic_index"]
+                if new_topic_index < len(topics):
+                    new_topic = topics[new_topic_index]
+                    print(f"[面试进度] 完成主题：{current_topic}，进入新主题：{new_topic}")
+                else:
+                    print(f"[面试进度] 所有主题已完成")
+            else:
+                # 延伸追问，保持当前主题
+                print(f"[面试进度] 延伸追问，继续主题：{current_topic}")
+
+            # 保存更新后的计划
+            session.interview_plan = interview_plan
+            flag_modified(session, "interview_plan")
+
+            # 将反馈和问题组合（如果有反馈的话）
+            if feedback:
+                full_response = f"{feedback}\n\n{next_question}"
+            else:
+                full_response = next_question
 
             # 记录下一个问题
             session.question_count += 1
-            session.current_question = next_question
+            session.current_question = full_response
+
+            # 确定当前所在主题
+            active_topic_index = interview_plan.get("current_topic_index", 0)
+            active_topic = topics[active_topic_index] if active_topic_index < len(topics) else current_topic
+
             session.transcript.append({
                 "role": "interviewer",
-                "content": next_question,
+                "content": full_response,
                 "timestamp": datetime.utcnow().isoformat(),
-                "question_number": session.question_count
+                "question_number": session.question_count,
+                "feedback": feedback,  # 单独保存反馈用于统计
+                "topic": active_topic,  # 保存当前主题
+                "action": action  # 保存动作类型
             })
             flag_modified(session, "transcript")
 
             db.commit()
 
             return AnswerResponse(
-                next_question=next_question,
+                next_question=full_response,
                 instant_score=instant_score,
                 hint=hint,
                 is_finished=False
@@ -277,7 +498,7 @@ class InterviewService:
                 created_at=existing_report.created_at
             )
 
-        # 使用Claude分析面试表现
+        # 使用大模型分析面试表现
         system_prompt = f"""你是一位专业的{session.position}面试评估专家。
 请根据以下面试对话记录，生成详细的面试评估报告。"""
 
@@ -317,7 +538,7 @@ class InterviewService:
 suggestions要包含3-5条具体的改进建议。"""
         }]
 
-        response_text = self._call_claude(messages, system=system_prompt, temperature=0.5)
+        response_text = self._call_llm(messages, system=system_prompt, temperature=0.5)
 
         # 解析报告
         try:

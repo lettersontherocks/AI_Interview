@@ -4,7 +4,7 @@ const app = getApp()
 Page({
   data: {
     userInfo: {},
-    freeLimit: 1,
+    freeLimit: 2,
     selectedPrice: 'month',
     historyList: []
   },
@@ -121,6 +121,9 @@ Page({
     wx.request({
       url: `${app.globalData.baseUrl}/payment/create`,
       method: 'POST',
+      header: {
+        'content-type': 'application/json'
+      },
       data: {
         user_id: app.globalData.userId,
         package: type,

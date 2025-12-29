@@ -1,37 +1,36 @@
 services:
-  # Claude API网关服务 (Port 8002)
-  claude-api-service:
-    build: ./api_service
-    ports:
-      - "8002:8000"
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:15-alpine
     environment:
-      - API_HOST=0.0.0.0
-      - API_PORT=8000
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
+      POSTGRES_DB: ai_interview
+      POSTGRES_USER: interview_user
+      POSTGRES_PASSWORD: interview_pass_2024
     volumes:
-      - ./api_service/logs:/app/logs
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - ai-interview-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U interview_user -d ai_interview"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # 面试后端服务 (Port 8003)
   interview-backend:
-    build: ./apps/interview_backend
+    build:
+      context: ./apps/interview_backend
+      platforms:
+        - linux/amd64
     ports:
       - "8003:8003"
     environment:
-      - CLAUDE_API_URL=http://claude-api-service:8000/v1/chat
-      - DATABASE_URL=sqlite:///./data/ai_interview.db
-      - FREE_DAILY_LIMIT=1
+      - DASHSCOPE_API_KEY=sk-088194a0fd464b2199940e165f9ae1ac
+      - DATABASE_URL=postgresql://interview_user:interview_pass_2024@postgres:5432/ai_interview
+      - FREE_DAILY_LIMIT=2
       - VIP_MONTHLY_PRICE=29.9
       - SINGLE_INTERVIEW_PRICE=9.9
-    depends_on:
-      - claude-api-service
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
@@ -39,10 +38,14 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-    volumes:
-      - ./apps/interview_backend/data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - ai-interview-network
+
+volumes:
+  postgres_data:
 
 networks:
   ai-interview-network:
