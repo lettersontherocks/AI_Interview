@@ -112,15 +112,16 @@ async def start_interview(request: InterviewStartRequest, db: Session = Depends(
             user = db.query(User).filter(User.user_id == request.user_id).first()
 
             if user:
-                # 检查今日免费次数
-                today = date.today()
-                if user.last_free_date and user.last_free_date.date() == today:
+                # 检查今日免费次数（统一使用 UTC 时间进行日期比较）
+                today_utc = datetime.utcnow().date()
+                if user.last_free_date and user.last_free_date.date() == today_utc:
                     if user.free_count_today >= settings.free_daily_limit and not user.is_vip:
                         raise HTTPException(status_code=403, detail="今日免费次数已用完，请购买会员或单次面试")
                 else:
                     # 重置今日计数
                     user.free_count_today = 0
                     user.last_free_date = datetime.utcnow()
+                    db.commit()  # 立即提交重置，避免后续异常导致未保存
 
         print(f"[DEBUG] 开始调用 interview_service.start_interview")
         # 开始面试（允许未登录用户，如果没有指定风格则自动选择）

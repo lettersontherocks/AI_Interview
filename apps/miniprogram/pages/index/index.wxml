@@ -181,14 +181,17 @@
       <view class="char-count">{{resume.length}}/2000</view>
     </view>
 
-    <!-- 已上传简历显示 -->
-    <view wx:if="{{resume && !showManualInput}}" class="resume-display">
-      <view class="resume-header">
-        <text class="resume-label">已上传简历</text>
-        <text class="resume-clear" bindtap="clearResume">清除</text>
-      </view>
-      <view class="resume-content">{{resume}}</view>
-      <view class="char-count">共{{resume.length}}字</view>
+    <!-- 已上传简历提示 -->
+    <view wx:if="{{resumeUploaded && !showManualInput}}" class="resume-uploaded-hint">
+      <text class="upload-success-icon">✓</text>
+      <text class="upload-success-text">简历已上传</text>
+      <text class="resume-clear" bindtap="clearResume">清除</text>
+    </view>
+
+    <!-- 手动输入的简历显示字数 -->
+    <view wx:if="{{resume && showManualInput}}" class="resume-manual-hint">
+      <text class="manual-success-icon">✓</text>
+      <text class="manual-success-text">已输入 {{resume.length}} 字</text>
     </view>
   </view>
 

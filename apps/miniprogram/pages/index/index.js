@@ -9,6 +9,7 @@ Page({
     selectedRound: '',
     resume: '',
     showManualInput: false,  // 是否显示手动输入框
+    resumeUploaded: false,   // 是否已上传简历
     isPreparingInterview: false,
     loadingTips: [
       '根据您的岗位生成面试题库',
@@ -278,14 +279,15 @@ Page({
             if (uploadRes.statusCode === 200) {
               const data = JSON.parse(uploadRes.data)
 
-              // 设置简历内容
+              // 设置简历内容（不显示，仅作为上下文）
               self.setData({
                 resume: data.text,
-                showManualInput: false
+                showManualInput: false,
+                resumeUploaded: true  // 标记简历已上传
               })
 
               wx.showToast({
-                title: `解析成功(${data.length}字)`,
+                title: '简历上传成功',
                 icon: 'success'
               })
             } else {
@@ -321,7 +323,8 @@ Page({
   clearResume() {
     this.setData({
       resume: '',
-      showManualInput: false
+      showManualInput: false,
+      resumeUploaded: false
     })
   },
 
