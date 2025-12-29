@@ -20,10 +20,11 @@
       </view>
       <view class="message-content">
         <view class="message-text">{{item.content}}</view>
-        <view wx:if="{{item.score}}" class="message-feedback">
+        <!-- 隐藏实时分数，只在最终报告中显示 -->
+        <!-- <view wx:if="{{item.score}}" class="message-feedback">
           <view class="score">评分: {{item.score}}/10</view>
           <view wx:if="{{item.hint}}" class="hint">{{item.hint}}</view>
-        </view>
+        </view> -->
       </view>
     </view>
 
