@@ -4,7 +4,8 @@ const app = getApp()
 Page({
   data: {
     userInfo: null,
-    selectedPosition: '',
+    selectedPositionId: '',
+    selectedPositionName: '',
     selectedRound: '',
     resume: '',
     isPreparingInterview: false,
@@ -13,15 +14,9 @@ Page({
       '智能匹配面试官风格',
       '制定个性化面试流程'
     ],
-    positions: [
-      { label: '前端工程师', value: '前端工程师', icon: '💻' },
-      { label: '后端工程师', value: '后端工程师', icon: '⚙️' },
-      { label: '产品经理', value: '产品经理', icon: '📊' },
-      { label: '算法工程师', value: '算法工程师', icon: '🤖' },
-      { label: '数据分析师', value: '数据分析师', icon: '📈' },
-      { label: '销售', value: '销售', icon: '💼' },
-      { label: '市场运营', value: '市场运营', icon: '📢' }
-    ],
+    categories: [],
+    searchKeyword: '',
+    searchResults: [],
     rounds: [
       { label: 'HR面', value: 'HR面', desc: '了解基本情况、沟通能力' },
       { label: '技术一面', value: '技术一面', desc: '基础技术能力考察' },
@@ -32,6 +27,7 @@ Page({
 
   onLoad() {
     this.loadUserInfo()
+    this.loadPositions()
   },
 
   onShow() {
@@ -45,6 +41,31 @@ Page({
         userInfo: app.globalData.userInfo
       })
     }
+  },
+
+  // 加载岗位列表
+  loadPositions() {
+    wx.request({
+      url: `${app.globalData.baseUrl}/positions`,
+      method: 'GET',
+      success: (res) => {
+        if (res.statusCode === 200) {
+          // 默认展开第一个分类（技术类）
+          const categories = res.data.categories.map((cat, index) => ({
+            ...cat,
+            expanded: index === 0  // 第一个分类默认展开
+          }))
+          this.setData({ categories })
+        }
+      },
+      fail: (err) => {
+        console.error('加载岗位失败:', err)
+        wx.showToast({
+          title: '加载岗位失败',
+          icon: 'none'
+        })
+      }
+    })
   },
 
   // 登录（简化版 - 不使用微信授权）
@@ -91,10 +112,98 @@ Page({
     })
   },
 
-  // 选择岗位
+  // 搜索输入
+  onSearchInput(e) {
+    const keyword = e.detail.value
+    this.setData({ searchKeyword: keyword })
+
+    if (keyword.trim().length === 0) {
+      this.setData({ searchResults: [] })
+      return
+    }
+
+    // 防抖搜索
+    clearTimeout(this.searchTimer)
+    this.searchTimer = setTimeout(() => {
+      this.searchPositions(keyword)
+    }, 300)
+  },
+
+  // 搜索确认
+  onSearchConfirm(e) {
+    const keyword = e.detail.value
+    if (keyword.trim().length > 0) {
+      this.searchPositions(keyword)
+    }
+  },
+
+  // 执行搜索
+  searchPositions(keyword) {
+    wx.request({
+      url: `${app.globalData.baseUrl}/positions/search?keyword=${encodeURIComponent(keyword)}`,
+      method: 'GET',
+      success: (res) => {
+        if (res.statusCode === 200) {
+          this.setData({ searchResults: res.data })
+        }
+      },
+      fail: (err) => {
+        console.error('搜索失败:', err)
+      }
+    })
+  },
+
+  // 从搜索结果选择岗位
+  selectPositionFromSearch(e) {
+    const { id, name } = e.currentTarget.dataset
+    this.setData({
+      selectedPositionId: id,
+      selectedPositionName: name,
+      searchKeyword: '',
+      searchResults: []
+    })
+  },
+
+  // 展开/收起分类
+  toggleCategory(e) {
+    const index = e.currentTarget.dataset.index
+    const categories = this.data.categories
+    categories[index].expanded = !categories[index].expanded
+    this.setData({ categories })
+  },
+
+  // 选择岗位（父级）
   selectPosition(e) {
-    const position = e.currentTarget.dataset.position
-    this.setData({ selectedPosition: position })
+    const { id, name, hasChildren } = e.currentTarget.dataset
+
+    if (hasChildren === 'true' || hasChildren === true) {
+      // 有子岗位，展开子岗位列表
+      const categories = this.data.categories
+      for (let cat of categories) {
+        for (let pos of cat.positions) {
+          if (pos.id === id) {
+            pos.showSub = !pos.showSub
+            break
+          }
+        }
+      }
+      this.setData({ categories })
+    } else {
+      // 无子岗位，直接选择
+      this.setData({
+        selectedPositionId: id,
+        selectedPositionName: name
+      })
+    }
+  },
+
+  // 选择子岗位
+  selectSubPosition(e) {
+    const { id, name, parentName } = e.currentTarget.dataset
+    this.setData({
+      selectedPositionId: id,
+      selectedPositionName: `${parentName} - ${name}`
+    })
   },
 
   // 选择轮次
@@ -110,9 +219,9 @@ Page({
 
   // 开始面试
   startInterview() {
-    const { selectedPosition, selectedRound, resume, userInfo } = this.data
+    const { selectedPositionId, selectedPositionName, selectedRound, resume, userInfo } = this.data
 
-    if (!selectedPosition || !selectedRound) {
+    if (!selectedPositionId || !selectedRound) {
       wx.showToast({
         title: '请选择岗位和轮次',
         icon: 'none'
@@ -124,16 +233,9 @@ Page({
     if (userInfo && !userInfo.is_vip && userInfo.free_count_today >= 2) {
       wx.showModal({
         title: '次数不足',
-        content: '今日免费次数已用完，是否购买？',
-        confirmText: '购买会员',
-        cancelText: '取消',
-        success: (res) => {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: '/pages/profile/profile'
-            })
-          }
-        }
+        content: '今日免费次数已用完，会员功能即将上线，敬请期待！',
+        showCancel: false,
+        confirmText: '知道了'
       })
       return
     }
@@ -146,7 +248,8 @@ Page({
     // 调用开始面试接口
     const requestUrl = `${app.globalData.baseUrl}/interview/start`
     const requestData = {
-      position: selectedPosition,
+      position_id: selectedPositionId,
+      position_name: selectedPositionName,
       round: selectedRound,
       user_id: app.globalData.userId || null,
       resume: resume || null

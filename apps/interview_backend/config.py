@@ -9,11 +9,11 @@ class Settings(BaseSettings):
     # 数据库配置（默认 PostgreSQL，支持环境变量覆盖）
     database_url: str = "postgresql://interview_user:interview_pass_2024@postgres:5432/ai_interview"
 
-    # 微信小程序配置
+    # 微信小程序配置（暂未配置）
     wechat_app_id: str = ""
     wechat_app_secret: str = ""
 
-    # 支付配置
+    # 支付配置（支付功能未实现，仅保留配置字段）
     wechat_mch_id: str = ""
     wechat_pay_key: str = ""
 

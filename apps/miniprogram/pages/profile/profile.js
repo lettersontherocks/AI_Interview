@@ -98,62 +98,13 @@ Page({
     this.setData({ selectedPrice: type })
   },
 
-  // 购买VIP
+  // 购买VIP（暂未开通）
   purchaseVip() {
-    const { selectedPrice } = this.data
-    const amount = selectedPrice === 'month' ? 29.9 : 9.9
-
     wx.showModal({
-      title: '确认购买',
-      content: `确认支付 ¥${amount} 开通${selectedPrice === 'month' ? '月度会员' : '单次练习'}？`,
-      success: (res) => {
-        if (res.confirm) {
-          this.processPurchase(selectedPrice, amount)
-        }
-      }
-    })
-  },
-
-  // 处理购买
-  processPurchase(type, amount) {
-    wx.showLoading({ title: '处理中...' })
-
-    wx.request({
-      url: `${app.globalData.baseUrl}/payment/create`,
-      method: 'POST',
-      header: {
-        'content-type': 'application/json'
-      },
-      data: {
-        user_id: app.globalData.userId,
-        package: type,
-        amount: amount
-      },
-      success: (res) => {
-        wx.hideLoading()
-        if (res.statusCode === 200) {
-          // 实际项目中这里应该调用微信支付API
-          wx.showModal({
-            title: '支付提示',
-            content: '这是演示版本，实际需要接入微信支付。开发环境下自动开通成功。',
-            success: () => {
-              this.loadUserInfo()
-            }
-          })
-        } else {
-          wx.showToast({
-            title: '购买失败',
-            icon: 'none'
-          })
-        }
-      },
-      fail: () => {
-        wx.hideLoading()
-        wx.showToast({
-          title: '网络错误',
-          icon: 'none'
-        })
-      }
+      title: '即将上线',
+      content: '会员功能正在开发中，敬请期待！',
+      showCancel: false,
+      confirmText: '知道了'
     })
   },
 

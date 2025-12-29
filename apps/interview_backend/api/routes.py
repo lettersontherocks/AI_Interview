@@ -16,6 +16,7 @@ from models.schemas import (
 from services.interview_service import InterviewService
 from services.asr_service import ASRService
 from services.wechat_service import WechatService
+from services.position_service import position_service
 from config import settings
 from datetime import datetime, date
 
@@ -23,6 +24,20 @@ router = APIRouter()
 interview_service = InterviewService()
 asr_service = ASRService()
 wechat_service = WechatService()
+
+
+@router.get("/positions")
+async def get_positions():
+    """获取所有岗位分类和岗位列表"""
+    return position_service.get_all_categories()
+
+
+@router.get("/positions/search")
+async def search_positions(keyword: str):
+    """根据关键词搜索岗位"""
+    if not keyword or len(keyword.strip()) == 0:
+        raise HTTPException(status_code=400, detail="搜索关键词不能为空")
+    return position_service.search_positions(keyword.strip())
 
 
 @router.get("/interview/start")
@@ -36,7 +51,11 @@ async def start_interview_get_debug():
 async def start_interview(request: InterviewStartRequest, db: Session = Depends(get_db)):
     """开始面试"""
     try:
-        print(f"[DEBUG] 收到开始面试请求: position={request.position}, round={request.round}")
+        print(f"[DEBUG] 收到开始面试请求: position_id={request.position_id}, position_name={request.position_name}, round={request.round}")
+
+        # 验证岗位ID有效性
+        if not position_service.validate_position_id(request.position_id):
+            raise HTTPException(status_code=400, detail=f"无效的岗位ID: {request.position_id}")
 
         # 检查用户配额（仅对已登录用户）
         user = None

@@ -1,0 +1,339 @@
+{
+  "categories": [
+    {
+      "id": "tech",
+      "name": "技术类",
+      "icon": "💻",
+      "positions": [
+        {
+          "id": "frontend",
+          "name": "前端工程师",
+          "icon": "🎨",
+          "selectable": true,
+          "description": "负责Web/移动端界面开发",
+          "keywords": ["前端", "Web", "UI"],
+          "sub_positions": [
+            {
+              "id": "web_frontend",
+              "name": "Web前端开发",
+              "description": "PC端和H5页面开发",
+              "keywords": ["React", "Vue", "Angular", "JavaScript", "TypeScript"]
+            },
+            {
+              "id": "mobile_dev",
+              "name": "移动端开发",
+              "description": "iOS/Android原生或跨平台开发",
+              "keywords": ["React Native", "Flutter", "iOS", "Android", "Swift", "Kotlin"]
+            },
+            {
+              "id": "miniprogram_dev",
+              "name": "小程序开发",
+              "description": "微信/支付宝等小程序开发",
+              "keywords": ["微信小程序", "支付宝小程序", "uni-app", "Taro"]
+            },
+            {
+              "id": "frontend_architect",
+              "name": "前端架构师",
+              "description": "前端技术选型、工程化、性能优化",
+              "keywords": ["架构设计", "工程化", "性能优化", "微前端"]
+            }
+          ]
+        },
+        {
+          "id": "backend",
+          "name": "后端工程师",
+          "icon": "⚙️",
+          "selectable": true,
+          "description": "负责服务端逻辑和API开发",
+          "keywords": ["后端", "服务端", "API"],
+          "sub_positions": [
+            {
+              "id": "java_backend",
+              "name": "Java后端",
+              "description": "使用Java/Spring生态开发",
+              "keywords": ["Java", "Spring Boot", "Spring Cloud", "MyBatis"]
+            },
+            {
+              "id": "python_backend",
+              "name": "Python后端",
+              "description": "使用Python/Django/FastAPI开发",
+              "keywords": ["Python", "Django", "FastAPI", "Flask"]
+            },
+            {
+              "id": "go_backend",
+              "name": "Go后端",
+              "description": "使用Go语言开发高性能服务",
+              "keywords": ["Go", "Golang", "Gin", "gRPC"]
+            },
+            {
+              "id": "nodejs_backend",
+              "name": "Node.js后端",
+              "description": "使用Node.js开发服务端",
+              "keywords": ["Node.js", "Express", "Nest.js", "Koa"]
+            },
+            {
+              "id": "backend_architect",
+              "name": "后端架构师",
+              "description": "分布式系统、微服务架构设计",
+              "keywords": ["架构设计", "微服务", "分布式", "高并发"]
+            }
+          ]
+        },
+        {
+          "id": "fullstack",
+          "name": "全栈工程师",
+          "icon": "🔧",
+          "selectable": true,
+          "description": "前后端全面开发能力",
+          "keywords": ["全栈", "Full Stack"],
+          "sub_positions": []
+        },
+        {
+          "id": "algorithm",
+          "name": "算法工程师",
+          "icon": "🤖",
+          "selectable": true,
+          "description": "机器学习、深度学习算法研发",
+          "keywords": ["算法", "AI", "机器学习"],
+          "sub_positions": [
+            {
+              "id": "ml_engineer",
+              "name": "机器学习工程师",
+              "description": "传统机器学习算法应用",
+              "keywords": ["机器学习", "特征工程", "模型训练", "scikit-learn"]
+            },
+            {
+              "id": "dl_engineer",
+              "name": "深度学习工程师",
+              "description": "神经网络模型设计与训练",
+              "keywords": ["深度学习", "神经网络", "PyTorch", "TensorFlow"]
+            },
+            {
+              "id": "nlp_engineer",
+              "name": "NLP算法工程师",
+              "description": "自然语言处理方向",
+              "keywords": ["NLP", "自然语言处理", "BERT", "GPT", "LLM"]
+            },
+            {
+              "id": "cv_engineer",
+              "name": "计算机视觉工程师",
+              "description": "图像识别、目标检测等",
+              "keywords": ["计算机视觉", "图像处理", "目标检测", "图像分割"]
+            }
+          ]
+        },
+        {
+          "id": "data",
+          "name": "数据工程师",
+          "icon": "📊",
+          "selectable": true,
+          "description": "数据分析、数据科学、大数据处理",
+          "keywords": ["数据", "分析"],
+          "sub_positions": [
+            {
+              "id": "data_analyst",
+              "name": "数据分析师",
+              "description": "业务数据分析与洞察",
+              "keywords": ["数据分析", "SQL", "Excel", "数据可视化", "BI"]
+            },
+            {
+              "id": "data_scientist",
+              "name": "数据科学家",
+              "description": "数据建模与预测分析",
+              "keywords": ["数据科学", "统计学", "Python", "R", "机器学习"]
+            },
+            {
+              "id": "bigdata_engineer",
+              "name": "大数据工程师",
+              "description": "大数据平台开发与维护",
+              "keywords": ["大数据", "Hadoop", "Spark", "Flink", "数据仓库"]
+            }
+          ]
+        },
+        {
+          "id": "qa",
+          "name": "测试工程师",
+          "icon": "🧪",
+          "selectable": true,
+          "description": "软件质量保障与测试",
+          "keywords": ["测试", "QA"],
+          "sub_positions": [
+            {
+              "id": "test_dev",
+              "name": "测试开发",
+              "description": "测试工具和平台开发",
+              "keywords": ["测试开发", "自动化测试", "测试平台", "Python"]
+            },
+            {
+              "id": "automation_test",
+              "name": "自动化测试",
+              "description": "UI和接口自动化测试",
+              "keywords": ["自动化测试", "Selenium", "Appium", "接口测试"]
+            }
+          ]
+        },
+        {
+          "id": "devops",
+          "name": "运维工程师",
+          "icon": "🔨",
+          "selectable": true,
+          "description": "系统运维、DevOps",
+          "keywords": ["运维", "DevOps"],
+          "sub_positions": [
+            {
+              "id": "sre",
+              "name": "SRE工程师",
+              "description": "站点可靠性工程",
+              "keywords": ["SRE", "可靠性", "监控", "应急响应"]
+            },
+            {
+              "id": "devops_engineer",
+              "name": "DevOps工程师",
+              "description": "CI/CD、容器化、自动化部署",
+              "keywords": ["DevOps", "Docker", "Kubernetes", "Jenkins", "CI/CD"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "product",
+      "name": "产品类",
+      "icon": "📱",
+      "positions": [
+        {
+          "id": "product_manager",
+          "name": "产品经理",
+          "icon": "📋",
+          "selectable": true,
+          "description": "产品规划、需求管理",
+          "keywords": ["产品", "PM", "需求"],
+          "sub_positions": [
+            {
+              "id": "b2c_pm",
+              "name": "C端产品经理",
+              "description": "面向消费者的产品设计",
+              "keywords": ["C端", "用户体验", "增长", "留存"]
+            },
+            {
+              "id": "b2b_pm",
+              "name": "B端产品经理",
+              "description": "面向企业的产品设计",
+              "keywords": ["B端", "SaaS", "企业服务", "效率工具"]
+            },
+            {
+              "id": "data_pm",
+              "name": "数据产品经理",
+              "description": "数据平台和分析工具产品",
+              "keywords": ["数据产品", "BI", "数据可视化", "数据平台"]
+            }
+          ]
+        },
+        {
+          "id": "product_operations",
+          "name": "产品运营",
+          "icon": "📈",
+          "selectable": true,
+          "description": "产品推广与用户增长",
+          "keywords": ["产品运营", "增长"],
+          "sub_positions": []
+        },
+        {
+          "id": "ui_designer",
+          "name": "UI设计师",
+          "icon": "🎨",
+          "selectable": true,
+          "description": "界面设计、视觉设计",
+          "keywords": ["UI", "设计", "界面"],
+          "sub_positions": []
+        },
+        {
+          "id": "ux_designer",
+          "name": "UX设计师",
+          "icon": "✨",
+          "selectable": true,
+          "description": "用户体验设计、交互设计",
+          "keywords": ["UX", "交互", "用户体验"],
+          "sub_positions": []
+        }
+      ]
+    },
+    {
+      "id": "operations",
+      "name": "运营类",
+      "icon": "📢",
+      "positions": [
+        {
+          "id": "user_operations",
+          "name": "用户运营",
+          "icon": "👥",
+          "selectable": true,
+          "description": "用户增长、留存、活跃",
+          "keywords": ["用户运营", "增长", "留存"],
+          "sub_positions": []
+        },
+        {
+          "id": "content_operations",
+          "name": "内容运营",
+          "icon": "📝",
+          "selectable": true,
+          "description": "内容策划、生产、分发",
+          "keywords": ["内容运营", "文案", "内容"],
+          "sub_positions": []
+        },
+        {
+          "id": "activity_operations",
+          "name": "活动运营",
+          "icon": "🎉",
+          "selectable": true,
+          "description": "活动策划与执行",
+          "keywords": ["活动运营", "活动策划", "营销"],
+          "sub_positions": []
+        },
+        {
+          "id": "data_operations",
+          "name": "数据运营",
+          "icon": "📊",
+          "selectable": true,
+          "description": "数据分析驱动运营决策",
+          "keywords": ["数据运营", "数据分析", "增长"],
+          "sub_positions": []
+        }
+      ]
+    },
+    {
+      "id": "sales",
+      "name": "销售类",
+      "icon": "💼",
+      "positions": [
+        {
+          "id": "sales_rep",
+          "name": "销售代表",
+          "icon": "🤝",
+          "selectable": true,
+          "description": "客户开发与销售",
+          "keywords": ["销售", "BD"],
+          "sub_positions": []
+        },
+        {
+          "id": "key_account",
+          "name": "大客户销售",
+          "icon": "👔",
+          "selectable": true,
+          "description": "企业级客户销售",
+          "keywords": ["大客户", "企业销售", "KA"],
+          "sub_positions": []
+        },
+        {
+          "id": "sales_manager",
+          "name": "销售管理",
+          "icon": "📊",
+          "selectable": true,
+          "description": "销售团队管理",
+          "keywords": ["销售管理", "团队管理"],
+          "sub_positions": []
+        }
+      ]
+    }
+  ]
+}

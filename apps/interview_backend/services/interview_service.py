@@ -13,6 +13,7 @@ from models.schemas import (
 )
 from config import settings
 from services.qwen_service import QwenService
+from services.position_service import position_service
 
 
 class InterviewService:
@@ -117,18 +118,20 @@ class InterviewService:
 
         return base_prompt
 
-    def _get_position_questions(self, position: str) -> str:
+    def _get_position_questions(self, position_id: str) -> str:
         """获取岗位相关问题提示"""
-        questions_guide = {
-            "前端工程师": "重点考察：HTML/CSS/JavaScript、React/Vue等框架、性能优化、工程化、浏览器原理",
-            "后端工程师": "重点考察：编程语言（Python/Java/Go）、数据库、缓存、消息队列、微服务、系统设计",
-            "产品经理": "重点考察：产品思维、需求分析、用户研究、数据分析、项目管理、沟通协调",
-            "算法工程师": "重点考察：机器学习/深度学习算法、数学基础、模型优化、工程实现、论文理解",
-            "数据分析师": "重点考察：SQL、Python/R、统计学、数据可视化、业务理解、A/B测试",
-            "销售": "重点考察：销售经验、客户关系、谈判技巧、目标达成、行业理解",
-            "市场运营": "重点考察：运营策略、数据分析、用户增长、活动策划、内容运营"
-        }
-        return questions_guide.get(position, "")
+        # 从岗位服务获取关键词
+        keywords = position_service.get_position_keywords(position_id)
+        position_info = position_service.get_position_by_id(position_id)
+
+        if not position_info:
+            return ""
+
+        # 构建问题提示
+        keywords_str = "、".join(keywords) if keywords else "相关技能"
+        full_name = position_service.get_position_full_name(position_id)
+
+        return f"重点考察：{keywords_str}（针对{full_name}岗位）"
 
     def _generate_interview_plan(self, position: str, round: str, resume: Optional[str] = None) -> dict:
         """生成动态面试计划"""
@@ -196,13 +199,16 @@ class InterviewService:
         if not interviewer_style:
             interviewer_style = self._auto_select_interviewer_style(request.round)
 
+        # 获取岗位完整名称
+        position_full_name = position_service.get_position_full_name(request.position_id)
+
         # 生成面试计划
-        interview_plan = self._generate_interview_plan(request.position, request.round, request.resume)
+        interview_plan = self._generate_interview_plan(position_full_name, request.round, request.resume)
         print(f"[面试计划] {interview_plan}")
 
         # 生成系统提示词（使用面试官风格）
-        system_prompt = self._get_system_prompt(request.position, request.round, interviewer_style, request.resume)
-        questions_guide = self._get_position_questions(request.position)
+        system_prompt = self._get_system_prompt(position_full_name, request.round, interviewer_style, request.resume)
+        questions_guide = self._get_position_questions(request.position_id)
 
         # 获取当前主题
         current_topic = interview_plan["topics"][0] if interview_plan["topics"] else "开场"
@@ -212,7 +218,7 @@ class InterviewService:
         messages = [
             {
                 "role": "user",
-                "content": f"""现在开始{request.position}的{request.round}。
+                "content": f"""现在开始{position_full_name}的{request.round}。
 
 {questions_guide}
 
@@ -233,7 +239,7 @@ class InterviewService:
         session = InterviewSession(
             session_id=session_id,
             user_id=request.user_id,
-            position=request.position,
+            position=position_full_name,  # 保存完整岗位名称
             round=request.round,
             resume=request.resume,
             interview_plan=interview_plan,  # 保存面试计划

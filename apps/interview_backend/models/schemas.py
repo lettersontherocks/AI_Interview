@@ -1,19 +1,8 @@
 """数据模型定义"""
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum
-
-
-class PositionType(str, Enum):
-    """岗位类型"""
-    FRONTEND = "前端工程师"
-    BACKEND = "后端工程师"
-    PRODUCT = "产品经理"
-    ALGORITHM = "算法工程师"
-    DATA_ANALYST = "数据分析师"
-    SALES = "销售"
-    OPERATIONS = "市场运营"
 
 
 class InterviewRound(str, Enum):
@@ -34,11 +23,20 @@ class InterviewerStyle(str, Enum):
 
 class InterviewStartRequest(BaseModel):
     """开始面试请求"""
-    position: PositionType
+    position_id: str  # 岗位ID（支持父级或子级，如 "backend" 或 "java_backend"）
+    position_name: str  # 岗位名称（用于显示）
     round: InterviewRound
     user_id: Optional[str] = None  # 可选：允许未登录用户使用
     resume: Optional[str] = None  # 可选：用户简历
     interviewer_style: Optional[str] = None  # 可选：面试官风格（None时自动选择）
+
+    @field_validator('position_id')
+    @classmethod
+    def validate_position_id(cls, v: str) -> str:
+        """验证岗位ID格式"""
+        if not v or len(v) == 0:
+            raise ValueError("岗位ID不能为空")
+        return v
 
 
 class InterviewStartResponse(BaseModel):

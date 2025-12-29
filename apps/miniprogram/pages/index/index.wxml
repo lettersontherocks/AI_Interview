@@ -45,17 +45,91 @@
   <!-- 岗位选择 -->
   <view class="section">
     <view class="section-title">选择面试岗位</view>
-    <view class="position-grid">
+
+    <!-- 搜索框 -->
+    <view class="search-box">
+      <input
+        class="search-input"
+        placeholder="搜索岗位，如：Java、前端、产品..."
+        bindinput="onSearchInput"
+        bindconfirm="onSearchConfirm"
+        value="{{searchKeyword}}"
+      />
+      <view class="search-icon">🔍</view>
+    </view>
+
+    <!-- 搜索结果 -->
+    <view wx:if="{{searchResults.length > 0}}" class="search-results">
       <view
-        class="position-item {{selectedPosition === item.value ? 'active' : ''}}"
-        wx:for="{{positions}}"
-        wx:key="value"
-        bindtap="selectPosition"
-        data-position="{{item.value}}"
+        class="search-result-item {{selectedPositionId === item.id ? 'active' : ''}}"
+        wx:for="{{searchResults}}"
+        wx:key="id"
+        bindtap="selectPositionFromSearch"
+        data-id="{{item.id}}"
+        data-name="{{item.name}}"
       >
-        <view class="position-icon">{{item.icon}}</view>
-        <view class="position-name">{{item.label}}</view>
+        <view class="result-name">{{item.name}}</view>
+        <view class="result-desc">{{item.description}}</view>
       </view>
+    </view>
+
+    <!-- 分类列表（未搜索时显示） -->
+    <view wx:elif="{{!searchKeyword}}" class="categories">
+      <view
+        class="category"
+        wx:for="{{categories}}"
+        wx:key="id"
+      >
+        <view class="category-header" bindtap="toggleCategory" data-index="{{index}}">
+          <text class="category-icon">{{item.icon}}</text>
+          <text class="category-name">{{item.name}}</text>
+          <text class="expand-icon">{{item.expanded ? '▼' : '▶'}}</text>
+        </view>
+
+        <view wx:if="{{item.expanded}}" class="positions-list">
+          <view
+            class="position-item {{selectedPositionId === position.id ? 'active' : ''}}"
+            wx:for="{{item.positions}}"
+            wx:for-item="position"
+            wx:key="id"
+            bindtap="selectPosition"
+            data-id="{{position.id}}"
+            data-name="{{position.name}}"
+            data-has-children="{{position.sub_positions && position.sub_positions.length > 0}}"
+          >
+            <view class="position-main">
+              <text class="position-icon">{{position.icon}}</text>
+              <view class="position-info">
+                <text class="position-name">{{position.name}}</text>
+                <text class="position-desc">{{position.description}}</text>
+              </view>
+              <text wx:if="{{position.sub_positions && position.sub_positions.length > 0}}" class="has-sub">▶</text>
+            </view>
+
+            <!-- 子岗位（如果有） -->
+            <view wx:if="{{position.showSub && position.sub_positions}}" class="sub-positions">
+              <view
+                class="sub-position-item {{selectedPositionId === sub.id ? 'active' : ''}}"
+                wx:for="{{position.sub_positions}}"
+                wx:for-item="sub"
+                wx:key="id"
+                bindtap="selectSubPosition"
+                data-id="{{sub.id}}"
+                data-name="{{sub.name}}"
+                data-parent-name="{{position.name}}"
+              >
+                <text class="sub-name">{{sub.name}}</text>
+                <text class="sub-desc">{{sub.description}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 已选择提示 -->
+    <view wx:if="{{selectedPositionName}}" class="selected-hint">
+      已选择：{{selectedPositionName}}
     </view>
   </view>
 
@@ -97,7 +171,7 @@
     <button
       class="start-btn primary-btn"
       bindtap="startInterview"
-      disabled="{{!selectedPosition || !selectedRound}}"
+      disabled="{{!selectedPositionId || !selectedRound}}"
     >
       开始面试
     </button>
