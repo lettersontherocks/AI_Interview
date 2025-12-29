@@ -61,9 +61,12 @@
 .search-box {
   position: relative;
   margin-bottom: 20rpx;
+  width: 100%;
+  display: block;
 }
 
 .search-input {
+  display: block;
   width: 100%;
   background: white;
   border: 2rpx solid #e0e0e0;
@@ -71,6 +74,8 @@
   padding: 20rpx 50rpx 20rpx 30rpx;
   font-size: 28rpx;
   box-sizing: border-box;
+  height: 80rpx;
+  line-height: 80rpx;
 }
 
 .search-icon {
