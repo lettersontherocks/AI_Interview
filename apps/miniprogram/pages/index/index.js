@@ -8,6 +8,7 @@ Page({
     selectedPositionName: '',
     selectedRound: '',
     resume: '',
+    showManualInput: false,  // 是否显示手动输入框
     isPreparingInterview: false,
     loadingTips: [
       '根据您的岗位生成面试题库',
@@ -232,6 +233,96 @@ Page({
   // 输入简历
   inputResume(e) {
     this.setData({ resume: e.detail.value })
+  },
+
+  // 手动输入
+  handleManualInput() {
+    this.setData({ showManualInput: true })
+  },
+
+  // 上传文件
+  handleUploadFile() {
+    const self = this
+    wx.chooseMessageFile({
+      count: 1,
+      type: 'file',
+      extension: ['pdf', 'doc', 'docx', 'jpg', 'png', 'jpeg'],
+      success(res) {
+        const file = res.tempFiles[0]
+        console.log('[文件选择] 文件信息:', file)
+
+        // 检查文件大小(10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          wx.showToast({
+            title: '文件过大,最大10MB',
+            icon: 'none'
+          })
+          return
+        }
+
+        // 显示加载
+        wx.showLoading({
+          title: '解析中...',
+          mask: true
+        })
+
+        // 上传文件到后端
+        wx.uploadFile({
+          url: `${app.globalData.baseUrl}/resume/parse`,
+          filePath: file.path,
+          name: 'file',
+          success(uploadRes) {
+            console.log('[文件上传] 响应:', uploadRes)
+            wx.hideLoading()
+
+            if (uploadRes.statusCode === 200) {
+              const data = JSON.parse(uploadRes.data)
+
+              // 设置简历内容
+              self.setData({
+                resume: data.text,
+                showManualInput: false
+              })
+
+              wx.showToast({
+                title: `解析成功(${data.length}字)`,
+                icon: 'success'
+              })
+            } else {
+              const errorData = JSON.parse(uploadRes.data)
+              wx.showToast({
+                title: errorData.detail || '解析失败',
+                icon: 'none',
+                duration: 3000
+              })
+            }
+          },
+          fail(err) {
+            console.error('[文件上传] 失败:', err)
+            wx.hideLoading()
+            wx.showToast({
+              title: '上传失败',
+              icon: 'none'
+            })
+          }
+        })
+      },
+      fail(err) {
+        console.error('[文件选择] 失败:', err)
+        wx.showToast({
+          title: '取消选择',
+          icon: 'none'
+        })
+      }
+    })
+  },
+
+  // 清除简历
+  clearResume() {
+    this.setData({
+      resume: '',
+      showManualInput: false
+    })
   },
 
   // 开始面试

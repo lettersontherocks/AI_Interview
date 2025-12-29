@@ -17,6 +17,7 @@ from services.interview_service import InterviewService
 from services.asr_service import ASRService
 from services.wechat_service import WechatService
 from services.position_service import position_service
+from services.resume_parser_service import resume_parser_service
 from config import settings
 from datetime import datetime, date
 
@@ -38,6 +39,54 @@ async def search_positions(keyword: str):
     if not keyword or len(keyword.strip()) == 0:
         raise HTTPException(status_code=400, detail="搜索关键词不能为空")
     return position_service.search_positions(keyword.strip())
+
+
+@router.post("/resume/parse")
+async def parse_resume(file: UploadFile = File(...)):
+    """
+    解析简历文件
+    支持: PDF、Word(doc/docx)、图片(jpg/png)
+    """
+    print(f"[简历上传] 收到文件: {file.filename}, 类型: {file.content_type}")
+
+    # 检查文件大小(限制10MB)
+    file_content = await file.read()
+    file_size_mb = len(file_content) / (1024 * 1024)
+
+    if file_size_mb > 10:
+        raise HTTPException(status_code=400, detail=f"文件过大({file_size_mb:.1f}MB),最大支持10MB")
+
+    # 检查文件格式
+    allowed_extensions = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.bmp']
+    file_ext = os.path.splitext(file.filename.lower())[1]
+
+    if file_ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=400,
+            detail=f"不支持的文件格式: {file_ext}。支持格式: {', '.join(allowed_extensions)}"
+        )
+
+    try:
+        # 解析简历
+        text = await resume_parser_service.parse_resume(file_content, file.filename)
+
+        if not text or len(text.strip()) == 0:
+            raise HTTPException(status_code=400, detail="未能从文件中提取到文字内容")
+
+        print(f"[简历上传] 解析成功,提取{len(text)}字")
+
+        return {
+            "success": True,
+            "text": text,
+            "length": len(text)
+        }
+
+    except ValueError as e:
+        print(f"[简历上传] 解析失败: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(f"[简历上传] 未知错误: {e}")
+        raise HTTPException(status_code=500, detail="简历解析失败,请稍后重试")
 
 
 @router.get("/interview/start")

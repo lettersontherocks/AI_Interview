@@ -74,7 +74,7 @@
     </view>
 
     <!-- 分类列表 -->
-    <view wx:elif="{{!searchKeyword}}" class="categories">
+    <view wx:if="{{!searchKeyword}}" class="categories">
       <view
         class="category"
         wx:for="{{categories}}"
@@ -156,14 +156,40 @@
       简历信息
       <text class="optional">(可选)</text>
     </view>
-    <textarea
-      class="resume-input"
-      placeholder="简单介绍你的工作经验、技术栈等，AI会根据简历提问..."
-      maxlength="500"
-      bindinput="inputResume"
-      value="{{resume}}"
-    />
-    <view class="char-count">{{resume.length}}/500</view>
+
+    <!-- 上传按钮区 -->
+    <view class="resume-upload-btns">
+      <button class="upload-btn" bindtap="handleManualInput">
+        <text class="btn-icon">📝</text>
+        <text class="btn-text">手动输入</text>
+      </button>
+      <button class="upload-btn" bindtap="handleUploadFile">
+        <text class="btn-icon">📄</text>
+        <text class="btn-text">上传文件</text>
+      </button>
+    </view>
+
+    <!-- 手动输入区域 -->
+    <view wx:if="{{showManualInput}}" class="resume-input-area">
+      <textarea
+        class="resume-input"
+        placeholder="简单介绍你的工作经验、技术栈等，AI会根据简历提问..."
+        maxlength="2000"
+        bindinput="inputResume"
+        value="{{resume}}"
+      />
+      <view class="char-count">{{resume.length}}/2000</view>
+    </view>
+
+    <!-- 已上传简历显示 -->
+    <view wx:if="{{resume && !showManualInput}}" class="resume-display">
+      <view class="resume-header">
+        <text class="resume-label">已上传简历</text>
+        <text class="resume-clear" bindtap="clearResume">清除</text>
+      </view>
+      <view class="resume-content">{{resume}}</view>
+      <view class="char-count">共{{resume.length}}字</view>
+    </view>
   </view>
 
   <!-- 开始按钮 -->
