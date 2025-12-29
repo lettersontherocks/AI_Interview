@@ -56,24 +56,24 @@
         value="{{searchKeyword}}"
       />
       <view class="search-icon">🔍</view>
-    </view>
 
-    <!-- 搜索结果 -->
-    <view wx:if="{{searchResults.length > 0}}" class="search-results">
-      <view
-        class="search-result-item {{selectedPositionId === item.id ? 'active' : ''}}"
-        wx:for="{{searchResults}}"
-        wx:key="id"
-        bindtap="selectPositionFromSearch"
-        data-id="{{item.id}}"
-        data-name="{{item.name}}"
-      >
-        <view class="result-name">{{item.name}}</view>
-        <view class="result-desc">{{item.description}}</view>
+      <!-- 下拉搜索结果 -->
+      <view wx:if="{{searchResults.length > 0}}" class="search-dropdown">
+        <view
+          class="dropdown-item {{selectedPositionId === item.id ? 'active' : ''}}"
+          wx:for="{{searchResults}}"
+          wx:key="id"
+          bindtap="selectPositionFromSearch"
+          data-id="{{item.id}}"
+          data-name="{{item.name}}"
+        >
+          <view class="dropdown-name">{{item.name}}</view>
+          <view class="dropdown-desc">{{item.description}}</view>
+        </view>
       </view>
     </view>
 
-    <!-- 分类列表（未搜索时显示） -->
+    <!-- 分类列表 -->
     <view wx:elif="{{!searchKeyword}}" class="categories">
       <view
         class="category"
