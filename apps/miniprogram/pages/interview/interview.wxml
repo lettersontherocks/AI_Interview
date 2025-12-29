@@ -57,13 +57,12 @@
         maxlength="1000"
         disabled="{{loading}}"
       />
-      <button
-        class="send-btn primary-btn"
+      <view
+        class="send-btn {{(!canSend || loading) ? 'send-btn-disabled' : ''}}"
         bindtap="submitAnswer"
-        disabled="{{!canSend || loading}}"
       >
-        发送
-      </button>
+        ▲
+      </view>
     </view>
 
     <!-- 语音输入模式 -->
