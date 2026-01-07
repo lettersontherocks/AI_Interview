@@ -19,10 +19,7 @@ services:
 
   # 面试后端服务 (Port 8003)
   interview-backend:
-    build:
-      context: ./apps/interview_backend
-      platforms:
-        - linux/amd64
+    image: ai_interview-interview-backend:latest
     ports:
       - "8003:8003"
     environment:

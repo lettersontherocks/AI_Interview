@@ -30,7 +30,7 @@ wechat_service = WechatService()
 @router.get("/positions")
 async def get_positions():
     """获取所有岗位分类和岗位列表"""
-    return position_service.get_all_categories()
+    return {"categories": position_service.get_all_categories()}
 
 
 @router.get("/positions/search")

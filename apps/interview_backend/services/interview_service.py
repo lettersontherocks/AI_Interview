@@ -14,6 +14,7 @@ from models.schemas import (
 from config import settings
 from services.qwen_service import QwenService
 from services.position_service import position_service
+from services.knowledge_service import knowledge_service
 
 
 class InterviewService:
@@ -52,6 +53,36 @@ class InterviewService:
 
         print(f"[面试官分配] {round} -> 自动选择: {selected}")
         return selected
+
+    def _extract_tech_keywords(self, answer: str) -> str:
+        """从候选人回答中提取技术关键词
+
+        Args:
+            answer: 候选人回答
+
+        Returns:
+            提取的关键词字符串
+        """
+        # 简单实现：提取常见技术词汇
+        # 可以使用更复杂的 NLP 方法，但这里保持简单
+        import re
+
+        # 常见技术词汇模式（中英文）
+        tech_patterns = [
+            r'\b[A-Z][a-z]+(?:[A-Z][a-z]+)*\b',  # 驼峰命名（如：ArrayList, HashMap）
+            r'\b[A-Z]{2,}\b',  # 全大写缩写（如：API, HTTP, SQL）
+            r'\b(?:Python|Java|JavaScript|React|Vue|Django|Flask|Redis|MySQL|MongoDB|Docker|Kubernetes|Git)\b',  # 常见技术栈
+            r'[\u4e00-\u9fa5]{2,}(?:算法|模式|协议|框架|库|方法|函数|类|接口)',  # 中文技术词
+        ]
+
+        keywords = set()
+        for pattern in tech_patterns:
+            matches = re.findall(pattern, answer)
+            keywords.update(matches)
+
+        # 限制关键词数量，避免查询过长
+        keywords_list = list(keywords)[:5]
+        return " ".join(keywords_list) if keywords_list else ""
 
     def _get_interviewer_style(self, style: str = "friendly") -> dict:
         """获取面试官风格配置"""
@@ -118,30 +149,68 @@ class InterviewService:
 
         return base_prompt
 
-    def _get_position_questions(self, position_id: str) -> str:
-        """获取岗位相关问题提示"""
+    def _get_position_questions(self, position_id: str, round_name: str = None) -> tuple[str, List[Dict]]:
+        """获取岗位相关问题提示和知识库参考题目
+
+        Returns:
+            (提示文本, 参考题目列表)
+        """
         # 从岗位服务获取关键词
         keywords = position_service.get_position_keywords(position_id)
         position_info = position_service.get_position_by_id(position_id)
 
         if not position_info:
-            return ""
+            return "", []
 
         # 构建问题提示
         keywords_str = "、".join(keywords) if keywords else "相关技能"
         full_name = position_service.get_position_full_name(position_id)
 
-        return f"重点考察：{keywords_str}（针对{full_name}岗位）"
+        # 从知识库获取参考题目（获取较多题目作为题库池）
+        reference_questions = []
+        try:
+            reference_questions = knowledge_service.search_by_position(
+                position=full_name,
+                limit=50  # 获取50条作为参考池
+            )
+            print(f"[知识库] 为 {full_name} 获取了 {len(reference_questions)} 条参考题目")
+        except Exception as e:
+            print(f"[知识库] 获取参考题目失败: {e}")
 
-    def _generate_interview_plan(self, position: str, round: str, resume: Optional[str] = None) -> dict:
-        """生成动态面试计划"""
+        hint = f"重点考察：{keywords_str}（针对{full_name}岗位）"
+        return hint, reference_questions
+
+    def _generate_interview_plan(self, position: str, round: str, resume: Optional[str] = None, reference_questions: List[Dict] = None) -> dict:
+        """生成动态面试计划
+
+        Args:
+            position: 岗位名称
+            round: 面试轮次
+            resume: 简历（可选）
+            reference_questions: 知识库参考题目（可选）
+        """
+        # 构建知识库参考信息
+        knowledge_context = ""
+        if reference_questions:
+            # 随机选择10条参考题目展示给LLM
+            import random
+            sample_questions = random.sample(reference_questions, min(10, len(reference_questions)))
+            questions_preview = "\n".join([f"- {q.get('question', '')}" for q in sample_questions])
+            knowledge_context = f"\n\n【知识库参考题目示例】（仅供参考，不要照搬，要结合候选人情况改编和延伸）：\n{questions_preview}"
+
         messages = [{
             "role": "user",
             "content": f"""作为{position}的{round}面试官，请为本次面试制定一个灵活的面试计划。
 
 {"候选人简历：" + resume if resume else "无简历信息"}
+{knowledge_context}
 
 请设计面试主题和大致方向，但保持灵活性以便根据候选人表现调整。
+
+【重要】如果有知识库参考题目，请理解其考察方向和知识点，但不要直接照搬，要：
+1. 根据候选人简历个性化调整
+2. 用自己的方式重新组织问题
+3. 结合实际项目场景延伸
 
 请按以下JSON格式输出面试计划：
 {{
@@ -202,17 +271,28 @@ class InterviewService:
         # 获取岗位完整名称
         position_full_name = position_service.get_position_full_name(request.position_id)
 
-        # 生成面试计划
-        interview_plan = self._generate_interview_plan(position_full_name, request.round, request.resume)
+        # 获取知识库参考题目
+        questions_guide, reference_questions = self._get_position_questions(request.position_id, request.round)
+
+        # 生成面试计划（传入参考题目）
+        interview_plan = self._generate_interview_plan(position_full_name, request.round, request.resume, reference_questions)
         print(f"[面试计划] {interview_plan}")
 
         # 生成系统提示词（使用面试官风格）
         system_prompt = self._get_system_prompt(position_full_name, request.round, interviewer_style, request.resume)
-        questions_guide = self._get_position_questions(request.position_id)
 
         # 获取当前主题
         current_topic = interview_plan["topics"][0] if interview_plan["topics"] else "开场"
         topic_desc = interview_plan.get("topic_descriptions", {}).get(current_topic, "")
+
+        # 构建知识库参考（仅用于开场阶段，选择简单题目）
+        knowledge_hint = ""
+        if reference_questions:
+            # 随机选择3条简单的参考题目
+            import random
+            sample = random.sample(reference_questions, min(3, len(reference_questions)))
+            sample_text = "\n".join([f"- {q.get('question', '')}" for q in sample])
+            knowledge_hint = f"\n\n【参考方向】（不要照搬，要自然改编）：\n{sample_text}"
 
         # 生成开场问题
         messages = [
@@ -223,17 +303,22 @@ class InterviewService:
 {questions_guide}
 
 当前主题：{current_topic} - {topic_desc}
+{knowledge_hint}
 
 请提出第一个开场问题，要求：
 1. 友好、专业的开场白
 2. 一个简单的热身问题
 3. 让候选人放松并进入状态
+4. 如果有参考题目，理解其考察点，但要用自己的方式表达
 
 直接输出问题，不要输出其他内容。"""
             }
         ]
 
         first_question = self._call_llm(messages, system=system_prompt, temperature=0.7)
+
+        # 将参考题目保存到面试计划中
+        interview_plan["reference_questions"] = reference_questions
 
         # 创建会话记录
         session = InterviewSession(
@@ -242,7 +327,7 @@ class InterviewService:
             position=position_full_name,  # 保存完整岗位名称
             round=request.round,
             resume=request.resume,
-            interview_plan=interview_plan,  # 保存面试计划
+            interview_plan=interview_plan,  # 保存面试计划（包含参考题目）
             current_question=first_question,
             question_count=1,
             transcript=[
@@ -326,6 +411,37 @@ class InterviewService:
             current_topic = topics[current_topic_index] if current_topic_index < len(topics) else "综合评估"
             topic_desc = interview_plan.get("topic_descriptions", {}).get(current_topic, "")
 
+            # 动态知识库检索：根据候选人回答提取关键词并搜索相关题目
+            dynamic_references = []
+            try:
+                # 简单关键词提取（从回答中提取技术词汇）
+                answer_keywords = self._extract_tech_keywords(request.answer)
+                if answer_keywords:
+                    print(f"[知识库] 从回答中提取关键词: {answer_keywords}")
+                    dynamic_references = knowledge_service.search_related_questions(
+                        keywords=answer_keywords,
+                        position=session.position,
+                        limit=5
+                    )
+                    print(f"[知识库] 动态检索到 {len(dynamic_references)} 条相关题目")
+            except Exception as e:
+                print(f"[知识库] 动态检索失败: {e}")
+
+            # 构建知识库参考提示
+            knowledge_hint = ""
+            if dynamic_references:
+                # 使用动态检索结果
+                ref_text = "\n".join([f"- {q.get('question', '')}" for q in dynamic_references[:3]])
+                knowledge_hint = f"\n\n【相关参考题目】（可作为追问方向，但要自然延伸，不要照搬）：\n{ref_text}"
+            else:
+                # 使用初始参考题库
+                reference_questions = interview_plan.get("reference_questions", [])
+                if reference_questions:
+                    import random
+                    sample = random.sample(reference_questions, min(3, len(reference_questions)))
+                    ref_text = "\n".join([f"- {q.get('question', '')}" for q in sample])
+                    knowledge_hint = f"\n\n【参考题库】（可作为提问方向）：\n{ref_text}"
+
             messages.append({
                 "role": "user",
                 "content": f"""候选人已回答问题{session.question_count}。
@@ -334,6 +450,7 @@ class InterviewService:
 - 当前主题：{current_topic} - {topic_desc}
 - 已完成主题：{', '.join(completed_topics) if completed_topics else '无'}
 - 剩余主题：{', '.join(topics[current_topic_index+1:]) if current_topic_index+1 < len(topics) else '无'}
+{knowledge_hint}
 
 【重要】请严格按照你的面试官风格进行互动！
 

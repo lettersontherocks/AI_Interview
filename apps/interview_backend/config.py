@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     vip_monthly_price: float = 9.98  # 月度会员价格
     single_interview_price: float = 0.99  # 单次面试价格
 
+    # Elasticsearch 知识库配置（直接连接 ES）
+    es_host: str = "http://47.93.141.137:9200"  # ES 服务地址
+    es_index: str = "interview_questions"  # ES 索引名
+
     class Config:
         env_file = ".env"
 
