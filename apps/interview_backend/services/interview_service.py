@@ -114,6 +114,55 @@ class InterviewService:
         }
         return styles.get(style, styles["friendly"])
 
+    def get_all_interviewer_styles(self) -> List[Dict]:
+        """获取所有面试官风格（供前端选择）"""
+        styles_config = {
+            "friendly": {
+                "name": "友好型",
+                "description": "温和友善，鼓励性强，适合缓解紧张",
+                "icon": "😊"
+            },
+            "professional": {
+                "name": "专业型",
+                "description": "严谨专业，注重深度，追求技术细节",
+                "icon": "💼"
+            },
+            "challenging": {
+                "name": "挑战型",
+                "description": "有压力感，善于提出尖锐问题",
+                "icon": "🔥"
+            },
+            "mentor": {
+                "name": "导师型",
+                "description": "像导师一样引导，善于启发思考",
+                "icon": "🎓"
+            }
+        }
+
+        result = []
+        for style_id, config in styles_config.items():
+            result.append({
+                "id": style_id,
+                "name": config["name"],
+                "description": config["description"],
+                "icon": config["icon"]
+            })
+
+        return result
+
+    def get_recommended_style(self, round: str) -> str:
+        """根据面试轮次获取推荐的面试官风格"""
+        # 推荐映射（基于之前的智能分配逻辑）
+        recommendations = {
+            "技术一面": "friendly",
+            "技术二面": "professional",
+            "技术三面": "challenging",
+            "HR面": "friendly",
+            "总监面": "challenging",
+            "终面": "professional"
+        }
+        return recommendations.get(round, "friendly")
+
     def _get_system_prompt(self, position: str, round: str, interviewer_style: str = "friendly", resume: Optional[str] = None) -> str:
         """生成系统提示词"""
         style_config = self._get_interviewer_style(interviewer_style)
@@ -259,14 +308,18 @@ class InterviewService:
                 "should_continue": True
             }
 
-    def start_interview(self, request: InterviewStartRequest, db: Session, interviewer_style: str = None) -> InterviewStartResponse:
+    def start_interview(self, request: InterviewStartRequest, db: Session) -> InterviewStartResponse:
         """开始面试"""
         # 生成会话ID
         session_id = f"session_{uuid.uuid4().hex[:16]}"
 
-        # 如果没有指定风格，自动选择（智能随机分配）
+        # 获取面试官风格（优先使用用户选择，否则智能推荐）
+        interviewer_style = request.interviewer_style
         if not interviewer_style:
             interviewer_style = self._auto_select_interviewer_style(request.round)
+            print(f"[面试官分配] 用户未选择，自动推荐: {interviewer_style}")
+        else:
+            print(f"[面试官分配] 用户选择: {interviewer_style}")
 
         # 获取岗位完整名称
         position_full_name = position_service.get_position_full_name(request.position_id)

@@ -150,6 +150,32 @@
     </view>
   </view>
 
+  <!-- 面试官风格选择 -->
+  <view class="section" wx:if="{{selectedRound}}">
+    <view class="section-title">
+      选择面试官风格
+      <text class="optional">(可选，不选则自动推荐)</text>
+    </view>
+    <view class="style-list">
+      <view
+        class="style-item {{selectedInterviewerStyle === item.id ? 'active' : ''}} {{recommendedStyle === item.id && !selectedInterviewerStyle ? 'recommended' : ''}}"
+        wx:for="{{interviewerStyles}}"
+        wx:key="id"
+        bindtap="selectInterviewerStyle"
+        data-style="{{item.id}}"
+      >
+        <view class="style-icon">{{item.icon}}</view>
+        <view class="style-info">
+          <view class="style-name">
+            {{item.name}}
+            <text wx:if="{{recommendedStyle === item.id}}" class="recommend-badge">推荐</text>
+          </view>
+          <view class="style-desc">{{item.description}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- 简历输入（可选） -->
   <view class="section">
     <view class="section-title">

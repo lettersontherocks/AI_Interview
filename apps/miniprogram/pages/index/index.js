@@ -7,6 +7,9 @@ Page({
     selectedPositionId: '',
     selectedPositionName: '',
     selectedRound: '',
+    selectedInterviewerStyle: '',  // 选中的面试官风格
+    interviewerStyles: [],  // 面试官风格列表
+    recommendedStyle: '',  // 推荐的面试官风格
     resume: '',
     showManualInput: false,  // 是否显示手动输入框
     resumeUploaded: false,   // 是否已上传简历
@@ -30,6 +33,7 @@ Page({
   onLoad() {
     this.loadUserInfo()
     this.loadPositions()
+    this.loadInterviewerStyles()
   },
 
   onShow() {
@@ -65,6 +69,87 @@ Page({
         wx.showToast({
           title: '加载岗位失败',
           icon: 'none'
+        })
+      }
+    })
+  },
+
+  // 加载面试官风格列表
+  loadInterviewerStyles() {
+    console.log('[加载面试官风格] 请求URL:', `${app.globalData.baseUrl}/interviewer-styles`)
+
+    // 临时fallback数据（后端部署后可以移除）
+    const fallbackStyles = [
+      { id: 'friendly', name: '友好型', description: '温和友善，鼓励性强，适合缓解紧张', icon: '😊' },
+      { id: 'professional', name: '专业型', description: '严谨专业，注重深度，追求技术细节', icon: '💼' },
+      { id: 'challenging', name: '挑战型', description: '有压力感，善于提出尖锐问题', icon: '🔥' },
+      { id: 'mentor', name: '导师型', description: '像导师一样引导，善于启发思考', icon: '🎓' }
+    ]
+
+    wx.request({
+      url: `${app.globalData.baseUrl}/interviewer-styles`,
+      method: 'GET',
+      success: (res) => {
+        console.log('[加载面试官风格] 响应状态码:', res.statusCode)
+        console.log('[加载面试官风格] 响应数据:', res.data)
+        if (res.statusCode === 200 && res.data && res.data.styles) {
+          this.setData({
+            interviewerStyles: res.data.styles
+          })
+          console.log('[加载面试官风格] 从API加载成功，数量:', res.data.styles.length)
+        } else {
+          // API失败，使用fallback
+          console.log('[加载面试官风格] API失败，使用fallback数据')
+          this.setData({
+            interviewerStyles: fallbackStyles
+          })
+        }
+      },
+      fail: (err) => {
+        console.error('[加载面试官风格] 网络错误，使用fallback数据:', err)
+        this.setData({
+          interviewerStyles: fallbackStyles
+        })
+      }
+    })
+  },
+
+  // 更新推荐的面试官风格
+  updateRecommendedStyle() {
+    const { selectedRound } = this.data
+    if (!selectedRound) {
+      this.setData({ recommendedStyle: '' })
+      return
+    }
+
+    // Fallback推荐映射（与后端保持一致）
+    const fallbackRecommendations = {
+      'HR面': 'friendly',
+      '技术一面': 'friendly',
+      '技术二面': 'professional',
+      '总监面': 'challenging'
+    }
+
+    wx.request({
+      url: `${app.globalData.baseUrl}/interviewer-styles?round=${encodeURIComponent(selectedRound)}`,
+      method: 'GET',
+      success: (res) => {
+        console.log('[推荐风格] 响应:', res)
+        if (res.statusCode === 200 && res.data && res.data.recommended) {
+          this.setData({
+            recommendedStyle: res.data.recommended
+          })
+        } else {
+          // 使用fallback
+          this.setData({
+            recommendedStyle: fallbackRecommendations[selectedRound] || 'friendly'
+          })
+        }
+      },
+      fail: (err) => {
+        console.error('[推荐风格] 网络错误，使用fallback:', err)
+        this.setData({
+          recommendedStyle: fallbackRecommendations[selectedRound] || 'friendly'
         })
       }
     })
@@ -229,6 +314,14 @@ Page({
   selectRound(e) {
     const round = e.currentTarget.dataset.round
     this.setData({ selectedRound: round })
+    // 选择轮次后，更新推荐的面试官风格
+    this.updateRecommendedStyle()
+  },
+
+  // 选择面试官风格
+  selectInterviewerStyle(e) {
+    const style = e.currentTarget.dataset.style
+    this.setData({ selectedInterviewerStyle: style })
   },
 
   // 输入简历
@@ -330,7 +423,7 @@ Page({
 
   // 开始面试
   startInterview() {
-    const { selectedPositionId, selectedPositionName, selectedRound, resume, userInfo } = this.data
+    const { selectedPositionId, selectedPositionName, selectedRound, selectedInterviewerStyle, resume, userInfo } = this.data
 
     if (!selectedPositionId || !selectedRound) {
       wx.showToast({
@@ -363,7 +456,8 @@ Page({
       position_name: selectedPositionName,
       round: selectedRound,
       user_id: app.globalData.userId || null,
-      resume: resume || null
+      resume: resume || null,
+      interviewer_style: selectedInterviewerStyle || null  // 添加面试官风格参数
     }
 
     console.log('[开始面试] 请求URL:', requestUrl)

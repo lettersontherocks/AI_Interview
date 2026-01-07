@@ -41,6 +41,32 @@ async def search_positions(keyword: str):
     return position_service.search_positions(keyword.strip())
 
 
+@router.get("/interviewer-styles")
+async def get_interviewer_styles(round: str = None):
+    """
+    获取面试官风格列表
+
+    Args:
+        round: 面试轮次（可选），如果提供则返回推荐风格
+
+    Returns:
+        {
+            "styles": [...],
+            "recommended": "friendly"  // 如果提供了round
+        }
+    """
+    styles = interview_service.get_all_interviewer_styles()
+
+    result = {"styles": styles}
+
+    # 如果提供了轮次，返回推荐风格
+    if round:
+        recommended = interview_service.get_recommended_style(round)
+        result["recommended"] = recommended
+
+    return result
+
+
 @router.post("/resume/parse")
 async def parse_resume(file: UploadFile = File(...)):
     """
