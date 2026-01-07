@@ -58,7 +58,7 @@
   </view>
 
   <!-- 岗位选择 -->
-  <view class="section">
+  <view class="section position-section">
     <view class="section-title">选择面试岗位</view>
 
     <!-- 已选择提示或展开按钮 -->
@@ -75,8 +75,9 @@
       <text class="expand-icon">{{showPositionList ? '▲' : '▼'}}</text>
     </view>
 
-    <!-- 可展开的岗位选择区域 -->
-    <view wx:if="{{showPositionList}}" class="expandable-content">
+    <!-- 可展开的岗位选择区域（浮层覆盖模式） -->
+    <view wx:if="{{showPositionList}}" class="position-overlay" bindtap="togglePositionList">
+      <view class="position-dropdown" catchtap="stopPropagation">
       <!-- 搜索框 -->
       <view class="search-box">
         <input
@@ -157,6 +158,7 @@
         </view>
       </view>
     </view>
+      </view>
     </view>
   </view>
 
@@ -178,7 +180,7 @@
   </view>
 
   <!-- 面试官风格选择 -->
-  <view class="section" wx:if="{{selectedRound}}">
+  <view class="section style-section" wx:if="{{selectedRound}}">
     <view class="section-title">
       选择面试官风格
       <text class="optional">(可选，不选则自动推荐)</text>
@@ -200,8 +202,9 @@
       </view>
     </view>
 
-    <!-- 可展开的风格选择区域 -->
-    <view wx:if="{{showStyleList}}" class="expandable-content">
+    <!-- 可展开的风格选择区域（浮层覆盖模式） -->
+    <view wx:if="{{showStyleList}}" class="style-overlay" bindtap="toggleStyleList">
+      <view class="style-dropdown" catchtap="stopPropagation">
       <view class="style-list">
         <view
           class="style-item {{selectedInterviewerStyle === item.id ? 'active' : ''}} {{recommendedStyle === item.id && !selectedInterviewerStyle ? 'recommended' : ''}}"
@@ -219,6 +222,7 @@
             <view class="style-desc">{{item.description}}</view>
           </view>
         </view>
+      </view>
       </view>
     </view>
   </view>

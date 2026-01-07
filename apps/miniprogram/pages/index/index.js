@@ -338,6 +338,11 @@ Page({
     })
   },
 
+  // 阻止事件冒泡（用于浮层内容区）
+  stopPropagation() {
+    // 空函数，仅用于阻止事件冒泡
+  },
+
   // 切换风格列表展开/收起
   toggleStyleList() {
     this.setData({
