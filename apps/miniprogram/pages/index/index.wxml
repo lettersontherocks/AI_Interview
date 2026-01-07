@@ -1,4 +1,19 @@
 <!-- pages/index/index.wxml -->
+<wxs module="utils">
+  var getStyleName = function(styleId, styles) {
+    for (var i = 0; i < styles.length; i++) {
+      if (styles[i].id === styleId) {
+        return styles[i].name;
+      }
+    }
+    return '';
+  };
+
+  module.exports = {
+    getStyleName: getStyleName
+  };
+</wxs>
+
 <view class="container">
   <!-- 顶部欢迎区域 -->
   <view class="welcome-section">
@@ -46,35 +61,51 @@
   <view class="section">
     <view class="section-title">选择面试岗位</view>
 
-    <!-- 搜索框 -->
-    <view class="search-box">
-      <input
-        class="search-input"
-        placeholder="搜索岗位，如：Java、前端、产品..."
-        bindinput="onSearchInput"
-        bindconfirm="onSearchConfirm"
-        value="{{searchKeyword}}"
-      />
-      <view class="search-icon">🔍</view>
-
-      <!-- 下拉搜索结果 -->
-      <view wx:if="{{searchResults.length > 0}}" class="search-dropdown">
-        <view
-          class="dropdown-item {{selectedPositionId === item.id ? 'active' : ''}}"
-          wx:for="{{searchResults}}"
-          wx:key="id"
-          bindtap="selectPositionFromSearch"
-          data-id="{{item.id}}"
-          data-name="{{item.name}}"
-        >
-          <view class="dropdown-name">{{item.name}}</view>
-          <view class="dropdown-desc">{{item.description}}</view>
-        </view>
+    <!-- 已选择提示或展开按钮 -->
+    <view wx:if="{{selectedPositionName}}" class="selected-display" bindtap="togglePositionList">
+      <view class="selected-content">
+        <text class="selected-label">已选择：{{selectedPositionName}}</text>
+        <text class="change-btn">更换</text>
       </view>
     </view>
 
-    <!-- 分类列表 -->
-    <view wx:if="{{!searchKeyword}}" class="categories">
+    <!-- 展开按钮（未选择时） -->
+    <view wx:else class="expand-trigger" bindtap="togglePositionList">
+      <text class="expand-text">{{showPositionList ? '收起岗位列表' : '点击选择岗位'}}</text>
+      <text class="expand-icon">{{showPositionList ? '▲' : '▼'}}</text>
+    </view>
+
+    <!-- 可展开的岗位选择区域 -->
+    <view wx:if="{{showPositionList}}" class="expandable-content">
+      <!-- 搜索框 -->
+      <view class="search-box">
+        <input
+          class="search-input"
+          placeholder="搜索岗位，如：Java、前端、产品..."
+          bindinput="onSearchInput"
+          bindconfirm="onSearchConfirm"
+          value="{{searchKeyword}}"
+        />
+        <view class="search-icon">🔍</view>
+
+        <!-- 下拉搜索结果 -->
+        <view wx:if="{{searchResults.length > 0}}" class="search-dropdown">
+          <view
+            class="dropdown-item {{selectedPositionId === item.id ? 'active' : ''}}"
+            wx:for="{{searchResults}}"
+            wx:key="id"
+            bindtap="selectPositionFromSearch"
+            data-id="{{item.id}}"
+            data-name="{{item.name}}"
+          >
+            <view class="dropdown-name">{{item.name}}</view>
+            <view class="dropdown-desc">{{item.description}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 分类列表 -->
+      <view wx:if="{{!searchKeyword}}" class="categories">
       <view
         class="category"
         wx:for="{{categories}}"
@@ -126,10 +157,6 @@
         </view>
       </view>
     </view>
-
-    <!-- 已选择提示 -->
-    <view wx:if="{{selectedPositionName}}" class="selected-hint">
-      已选择：{{selectedPositionName}}
     </view>
   </view>
 
@@ -156,21 +183,41 @@
       选择面试官风格
       <text class="optional">(可选，不选则自动推荐)</text>
     </view>
-    <view class="style-list">
-      <view
-        class="style-item {{selectedInterviewerStyle === item.id ? 'active' : ''}} {{recommendedStyle === item.id && !selectedInterviewerStyle ? 'recommended' : ''}}"
-        wx:for="{{interviewerStyles}}"
-        wx:key="id"
-        bindtap="selectInterviewerStyle"
-        data-style="{{item.id}}"
-      >
-        <view class="style-icon">{{item.icon}}</view>
-        <view class="style-info">
-          <view class="style-name">
-            {{item.name}}
-            <text wx:if="{{recommendedStyle === item.id}}" class="recommend-badge">推荐</text>
+
+    <!-- 已选择提示或默认推荐 -->
+    <view wx:if="{{selectedInterviewerStyle}}" class="selected-display" bindtap="toggleStyleList">
+      <view class="selected-content">
+        <text class="selected-label">已选择：{{utils.getStyleName(selectedInterviewerStyle, interviewerStyles)}}</text>
+        <text class="change-btn">更换</text>
+      </view>
+    </view>
+
+    <!-- 展开按钮（未选择时显示推荐） -->
+    <view wx:else class="expand-trigger" bindtap="toggleStyleList">
+      <view class="expand-trigger-content">
+        <text class="expand-text">{{showStyleList ? '收起风格列表' : (recommendedStyle ? '推荐：' + utils.getStyleName(recommendedStyle, interviewerStyles) + '（点击更换）' : '点击选择风格')}}</text>
+        <text class="expand-icon">{{showStyleList ? '▲' : '▼'}}</text>
+      </view>
+    </view>
+
+    <!-- 可展开的风格选择区域 -->
+    <view wx:if="{{showStyleList}}" class="expandable-content">
+      <view class="style-list">
+        <view
+          class="style-item {{selectedInterviewerStyle === item.id ? 'active' : ''}} {{recommendedStyle === item.id && !selectedInterviewerStyle ? 'recommended' : ''}}"
+          wx:for="{{interviewerStyles}}"
+          wx:key="id"
+          bindtap="selectInterviewerStyle"
+          data-style="{{item.id}}"
+        >
+          <view class="style-icon">{{item.icon}}</view>
+          <view class="style-info">
+            <view class="style-name">
+              {{item.name}}
+              <text wx:if="{{recommendedStyle === item.id}}" class="recommend-badge">推荐</text>
+            </view>
+            <view class="style-desc">{{item.description}}</view>
           </view>
-          <view class="style-desc">{{item.description}}</view>
         </view>
       </view>
     </view>

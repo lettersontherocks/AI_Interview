@@ -22,6 +22,8 @@ Page({
     categories: [],
     searchKeyword: '',
     searchResults: [],
+    showPositionList: false,  // 是否显示岗位列表
+    showStyleList: false,     // 是否显示风格列表
     rounds: [
       { label: 'HR面', value: 'HR面', desc: '了解基本情况、沟通能力' },
       { label: '技术一面', value: '技术一面', desc: '基础技术能力考察' },
@@ -58,8 +60,7 @@ Page({
         if (res.statusCode === 200) {
           // 默认展开第一个分类（技术类）
           const categories = res.data.categories.map((cat, index) => ({
-            ...cat,
-            expanded: index === 0  // 第一个分类默认展开
+            ...cat
           }))
           this.setData({ categories })
         }
@@ -264,7 +265,8 @@ Page({
       selectedPositionId: id,
       selectedPositionName: name,
       searchKeyword: '',
-      searchResults: []
+      searchResults: [],
+      showPositionList: false  // 选择后自动收起
     })
   },
 
@@ -296,7 +298,8 @@ Page({
       // 无子岗位，直接选择
       this.setData({
         selectedPositionId: id,
-        selectedPositionName: name
+        selectedPositionName: name,
+        showPositionList: false  // 选择后自动收起
       })
     }
   },
@@ -306,7 +309,8 @@ Page({
     const { id, name, parentName } = e.currentTarget.dataset
     this.setData({
       selectedPositionId: id,
-      selectedPositionName: `${parentName} - ${name}`
+      selectedPositionName: `${parentName} - ${name}`,
+      showPositionList: false  // 选择后自动收起
     })
   },
 
@@ -321,7 +325,24 @@ Page({
   // 选择面试官风格
   selectInterviewerStyle(e) {
     const style = e.currentTarget.dataset.style
-    this.setData({ selectedInterviewerStyle: style })
+    this.setData({
+      selectedInterviewerStyle: style,
+      showStyleList: false  // 选择后自动收起
+    })
+  },
+
+  // 切换岗位列表展开/收起
+  togglePositionList() {
+    this.setData({
+      showPositionList: !this.data.showPositionList
+    })
+  },
+
+  // 切换风格列表展开/收起
+  toggleStyleList() {
+    this.setData({
+      showStyleList: !this.data.showStyleList
+    })
   },
 
   // 输入简历
