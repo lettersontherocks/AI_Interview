@@ -2,6 +2,8 @@
 from typing import List, Dict, Optional
 from elasticsearch import Elasticsearch
 from config import settings
+import dashscope
+from dashscope import TextEmbedding
 
 
 class KnowledgeService:
@@ -17,6 +19,32 @@ class KnowledgeService:
         # 创建 ES 客户端
         self.es = Elasticsearch([self.es_host])
 
+        # 配置 DashScope（用于向量化查询）
+        dashscope.api_key = settings.dashscope_api_key
+
+    def _get_query_vector(self, text: str) -> Optional[List[float]]:
+        """将文本转换为向量
+
+        Args:
+            text: 查询文本
+
+        Returns:
+            1536维向量，失败返回None
+        """
+        try:
+            response = TextEmbedding.call(
+                model=TextEmbedding.Models.text_embedding_v2,
+                input=text
+            )
+            if response.status_code == 200:
+                return response.output['embeddings'][0]['embedding']
+            else:
+                print(f"[ERROR] 向量化失败: {response.message}")
+                return None
+        except Exception as e:
+            print(f"[ERROR] 向量化异常: {e}")
+            return None
+
     def search_questions(
         self,
         query: str,
@@ -26,7 +54,7 @@ class KnowledgeService:
         search_type: str = "hybrid"
     ) -> List[Dict]:
         """
-        搜索面试题（直接查询 ES）
+        搜索面试题（支持关键词、向量、混合搜索）
 
         Args:
             query: 搜索关键词（如：Python 列表、HTTP 协议）
@@ -39,36 +67,95 @@ class KnowledgeService:
             问题列表
         """
         try:
-            # 构建查询条件
-            must_clauses = []
-
-            # 关键词搜索
-            if search_type in ["keyword", "hybrid"]:
-                must_clauses.append({
-                    "multi_match": {
-                        "query": query,
-                        "fields": ["question^2", "answer", "category"],
-                        "type": "best_fields"
-                    }
-                })
-
             # 筛选条件
             filter_clauses = []
             if position:
-                filter_clauses.append({"term": {"position.keyword": position}})
+                filter_clauses.append({"term": {"position": position}})
             if round_name:
-                filter_clauses.append({"term": {"round_name.keyword": round_name}})
+                filter_clauses.append({"term": {"round": round_name}})
 
-            # 构建查询
-            body = {
-                "query": {
-                    "bool": {
-                        "must": must_clauses,
-                        "filter": filter_clauses
-                    }
-                },
-                "size": size
-            }
+            # 根据搜索类型构建查询
+            if search_type == "keyword":
+                # 纯关键词搜索
+                body = {
+                    "query": {
+                        "bool": {
+                            "must": {
+                                "multi_match": {
+                                    "query": query,
+                                    "fields": ["question^2", "answer"],
+                                    "type": "best_fields"
+                                }
+                            },
+                            "filter": filter_clauses
+                        }
+                    },
+                    "size": size
+                }
+
+            elif search_type == "vector":
+                # 纯向量搜索
+                query_vector = self._get_query_vector(query)
+                if not query_vector:
+                    # 向量化失败，降级为关键词搜索
+                    print(f"[WARNING] 向量化失败，降级为关键词搜索")
+                    return self.search_questions(query, position, round_name, size, "keyword")
+
+                body = {
+                    "query": {
+                        "script_score": {
+                            "query": {
+                                "bool": {
+                                    "filter": filter_clauses
+                                }
+                            },
+                            "script": {
+                                "source": "cosineSimilarity(params.query_vector, 'question_vector') + 1.0",
+                                "params": {"query_vector": query_vector}
+                            }
+                        }
+                    },
+                    "size": size
+                }
+
+            else:  # hybrid
+                # 混合搜索：关键词 + 向量（RRF融合）
+                query_vector = self._get_query_vector(query)
+                if not query_vector:
+                    # 向量化失败，降级为关键词搜索
+                    print(f"[WARNING] 向量化失败，使用纯关键词搜索")
+                    return self.search_questions(query, position, round_name, size, "keyword")
+
+                # 使用 RRF (Reciprocal Rank Fusion) 混合搜索
+                body = {
+                    "query": {
+                        "bool": {
+                            "should": [
+                                {
+                                    "multi_match": {
+                                        "query": query,
+                                        "fields": ["question^2", "answer"],
+                                        "type": "best_fields",
+                                        "boost": 0.5  # 关键词权重0.5
+                                    }
+                                },
+                                {
+                                    "script_score": {
+                                        "query": {"match_all": {}},
+                                        "script": {
+                                            "source": "cosineSimilarity(params.query_vector, 'question_vector') + 1.0",
+                                            "params": {"query_vector": query_vector}
+                                        },
+                                        "boost": 0.5  # 向量权重0.5
+                                    }
+                                }
+                            ],
+                            "filter": filter_clauses,
+                            "minimum_should_match": 1
+                        }
+                    },
+                    "size": size
+                }
 
             # 执行搜索
             response = self.es.search(index=self.es_index, body=body)
@@ -76,12 +163,17 @@ class KnowledgeService:
             # 解析结果
             results = []
             for hit in response["hits"]["hits"]:
-                results.append(hit["_source"])
+                result = hit["_source"]
+                result["_score"] = hit["_score"]  # 保存相似度分数
+                results.append(result)
 
+            print(f"[知识库] {search_type}搜索 '{query}' 返回 {len(results)} 条结果")
             return results
 
         except Exception as e:
             print(f"[ERROR] ES 查询失败: {e}")
+            import traceback
+            traceback.print_exc()
             return []
 
     def search_by_position(
