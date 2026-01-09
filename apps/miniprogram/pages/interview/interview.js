@@ -51,12 +51,14 @@ Page({
       this.loadSessionData(sessionId)
     } else {
       // 新面试
+      const questionText = decodeURIComponent(firstQuestion)
       this.setData({
         sessionId,
         messages: [{
           role: 'interviewer',
-          content: decodeURIComponent(firstQuestion)
-        }]
+          content: questionText
+        }],
+        currentQuestionText: questionText
       })
     }
   },
@@ -209,8 +211,17 @@ Page({
             sessionId: session.session_id,
             messages: messages,
             currentQuestion: session.question_count,
-            progress: this.calculateProgress(session.question_count)
+            progress: this.calculateProgress(session.question_count),
+            currentQuestionText: session.current_question || '',
+            hasPlayed: false // 新问题时重置播放状态
           })
+
+          // 如果在沉浸模式且开启自动播放，则自动播放新问题
+          if (this.data.viewMode === 'immersive' && this.data.autoPlayEnabled && session.current_question) {
+            setTimeout(() => {
+              this.playQuestion()
+            }, 500)
+          }
 
           // 滚动到底部
           setTimeout(() => {
@@ -428,5 +439,225 @@ Page({
         }
       })
     }
+    // 停止音频播放
+    if (this.audioContext) {
+      this.audioContext.destroy()
+    }
+  },
+
+  // ========== 沉浸模式相关方法 ==========
+
+  audioContext: null, // 音频上下文
+
+  // 切换到沉浸模式
+  switchToImmersive() {
+    console.log('[模式切换] 切换到沉浸模式')
+    this.setData({
+      viewMode: 'immersive'
+    })
+
+    // 如果有当前问题且开启了自动播放，则播放
+    if (this.data.currentQuestionText && this.data.autoPlayEnabled) {
+      this.playQuestion()
+    }
+  },
+
+  // 切换到聊天模式
+  switchToChatMode() {
+    console.log('[模式切换] 切换到聊天模式')
+    this.setData({
+      viewMode: 'chat'
+    })
+    // 停止播放
+    this.stopAudio()
+  },
+
+  // 返回
+  onBack() {
+    this.switchToChatMode()
+  },
+
+  // 播放当前问题
+  playQuestion() {
+    const { currentQuestionText } = this.data
+
+    if (!currentQuestionText) {
+      console.log('[TTS] 无问题文本')
+      return
+    }
+
+    console.log('[TTS] 开始播放:', currentQuestionText)
+
+    wx.showLoading({ title: '合成中...' })
+
+    // 调用TTS API
+    wx.request({
+      url: `${app.globalData.baseUrl}/tts/synthesize`,
+      method: 'POST',
+      header: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
+      data: {
+        text: currentQuestionText,
+        voice: 'zhiyan_emo'
+      },
+      responseType: 'arraybuffer',
+      success: (res) => {
+        wx.hideLoading()
+
+        if (res.statusCode === 200) {
+          // 将arraybuffer转为临时文件
+          const fs = wx.getFileSystemManager()
+          const filePath = `${wx.env.USER_DATA_PATH}/tts_${Date.now()}.mp3`
+
+          fs.writeFile({
+            filePath: filePath,
+            data: res.data,
+            success: () => {
+              console.log('[TTS] 音频文件已保存:', filePath)
+              this.playAudioFile(filePath)
+            },
+            fail: (err) => {
+              console.error('[TTS] 保存音频失败:', err)
+              wx.showToast({
+                title: '播放失败',
+                icon: 'none'
+              })
+            }
+          })
+        } else {
+          console.error('[TTS] 合成失败:', res)
+          wx.showToast({
+            title: '语音合成失败',
+            icon: 'none'
+          })
+        }
+      },
+      fail: (err) => {
+        wx.hideLoading()
+        console.error('[TTS] 请求失败:', err)
+        wx.showToast({
+          title: '网络错误',
+          icon: 'none'
+        })
+      }
+    })
+  },
+
+  // 播放音频文件
+  playAudioFile(filePath) {
+    // 创建音频上下文
+    if (!this.audioContext) {
+      this.audioContext = wx.createInnerAudioContext()
+
+      // 监听播放事件
+      this.audioContext.onPlay(() => {
+        console.log('[音频] 开始播放')
+        this.setData({
+          isPlaying: true,
+          hasPlayed: true
+        })
+      })
+
+      this.audioContext.onEnded(() => {
+        console.log('[音频] 播放结束')
+        this.setData({
+          isPlaying: false
+        })
+      })
+
+      this.audioContext.onError((err) => {
+        console.error('[音频] 播放错误:', err)
+        this.setData({
+          isPlaying: false
+        })
+        wx.showToast({
+          title: '播放失败',
+          icon: 'none'
+        })
+      })
+    }
+
+    // 播放音频
+    this.audioContext.src = filePath
+    this.audioContext.play()
+  },
+
+  // 切换音频播放/暂停
+  toggleAudio() {
+    if (this.data.isPlaying) {
+      // 暂停
+      this.pauseAudio()
+    } else {
+      // 播放
+      if (this.data.hasPlayed && this.audioContext) {
+        // 继续播放
+        this.audioContext.play()
+      } else {
+        // 重新播放
+        this.playQuestion()
+      }
+    }
+  },
+
+  // 暂停音频
+  pauseAudio() {
+    if (this.audioContext) {
+      this.audioContext.pause()
+      this.setData({
+        isPlaying: false
+      })
+    }
+  },
+
+  // 停止音频
+  stopAudio() {
+    if (this.audioContext) {
+      this.audioContext.stop()
+      this.setData({
+        isPlaying: false
+      })
+    }
+  },
+
+  // 切换自动播放
+  toggleAutoPlay() {
+    this.setData({
+      autoPlayEnabled: !this.data.autoPlayEnabled
+    })
+
+    wx.showToast({
+      title: this.data.autoPlayEnabled ? '已开启自动播放' : '已关闭自动播放',
+      icon: 'none'
+    })
+  },
+
+  // 显示历史对话
+  showHistoryDrawer() {
+    this.setData({
+      showHistory: true
+    })
+  },
+
+  // 隐藏历史对话
+  hideHistory() {
+    this.setData({
+      showHistory: false
+    })
+  },
+
+  // 阻止冒泡
+  stopPropagation() {
+    // 空方法，用于阻止事件冒泡
+  },
+
+  // 请求提示（听不清）
+  requestHint() {
+    wx.showModal({
+      title: '当前问题',
+      content: this.data.currentQuestionText,
+      showCancel: false,
+      confirmText: '我知道了'
+    })
   }
 })

@@ -1,13 +1,21 @@
 <!-- pages/interview/interview.wxml -->
 <view class="container">
-  <!-- 顶部进度 -->
-  <view class="progress-bar">
-    <view class="progress-fill animated" style="width: {{progress}}%"></view>
-  </view>
-  <view class="progress-text">
-    <text wx:if="{{finished}}">✅ 面试已完成</text>
-    <text wx:else>💬 第 {{currentQuestion}} 题 · 面试进行中</text>
-  </view>
+  <!-- 模式选择：聊天模式 or 沉浸模式 -->
+  <view wx:if="{{viewMode === 'chat'}}" class="chat-mode">
+    <!-- 顶部进度 -->
+    <view class="progress-bar">
+      <view class="progress-fill animated" style="width: {{progress}}%"></view>
+    </view>
+    <view class="progress-header">
+      <view class="progress-text">
+        <text wx:if="{{finished}}">✅ 面试已完成</text>
+        <text wx:else>💬 第 {{currentQuestion}} 题 · 面试进行中</text>
+      </view>
+      <view class="view-mode-switch" bindtap="switchToImmersive">
+        <text class="switch-icon">🎭</text>
+        <text class="switch-text">沉浸</text>
+      </view>
+    </view>
 
   <!-- 对话记录 -->
   <scroll-view class="chat-area" scroll-y scroll-into-view="{{scrollToView}}" scroll-with-animation>
@@ -102,5 +110,11 @@
     <button class="view-report-btn primary-btn" bindtap="viewReport">
       查看报告
     </button>
+  </view>
+  </view>
+
+  <!-- 沉浸模式 -->
+  <view wx:elif="{{viewMode === 'immersive'}}">
+    <include src="./immersive.wxml" />
   </view>
 </view>

@@ -19,12 +19,44 @@
   transition: width 0.3s;
 }
 
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15rpx 20rpx;
+  background: white;
+}
+
 .progress-text {
-  text-align: center;
-  padding: 15rpx;
   font-size: 26rpx;
   color: #999;
-  background: white;
+  flex: 1;
+}
+
+.view-mode-switch {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 8rpx 16rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20rpx;
+  color: white;
+  font-size: 22rpx;
+  box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.3);
+  transition: all 0.2s;
+}
+
+.view-mode-switch:active {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
+.switch-icon {
+  font-size: 24rpx;
+}
+
+.switch-text {
+  font-weight: 500;
 }
 
 /* 聊天区域 */
@@ -416,3 +448,6 @@
   width: 80%;
   margin: 0 auto;
 }
+
+/* 导入沉浸模式样式 */
+@import "./immersive.wxss";
