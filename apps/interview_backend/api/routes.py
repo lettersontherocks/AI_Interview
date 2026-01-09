@@ -153,8 +153,7 @@ async def start_interview(request: InterviewStartRequest, db: Session = Depends(
         # 开始面试（允许未登录用户，如果没有指定风格则自动选择）
         response = interview_service.start_interview(
             request,
-            db,
-            interviewer_style=request.interviewer_style  # None时会自动选择
+            db
         )
         print(f"[DEBUG] interview_service.start_interview 返回成功")
 

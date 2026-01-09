@@ -4,7 +4,10 @@
   <view class="progress-bar">
     <view class="progress-fill animated" style="width: {{progress}}%"></view>
   </view>
-  <view class="progress-text">{{finished ? '面试已完成' : '面试进行中'}}</view>
+  <view class="progress-text">
+    <text wx:if="{{finished}}">✅ 面试已完成</text>
+    <text wx:else>💬 第 {{currentQuestion}} 题 · 面试进行中</text>
+  </view>
 
   <!-- 对话记录 -->
   <scroll-view class="chat-area" scroll-y scroll-into-view="{{scrollToView}}" scroll-with-animation>
@@ -50,7 +53,8 @@
     <view class="text-input-wrapper" wx:if="{{inputMode === 'text'}}">
       <textarea
         class="answer-input"
-        placeholder="请输入您的回答..."
+        placeholder="输入回答...（也可点击🎤语音输入）"
+        placeholder-class="input-placeholder"
         bindinput="inputAnswer"
         value="{{currentAnswer}}"
         auto-height
