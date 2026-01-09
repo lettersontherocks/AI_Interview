@@ -47,13 +47,8 @@ class TTSService:
             音频二进制数据，失败返回None
         """
         try:
-            # 映射格式字符串到AudioFormat枚举
-            format_map = {
-                "mp3": AudioFormat.MP3_16000HZ_MONO_128KBPS,
-                "wav": AudioFormat.WAV_16000HZ_MONO_16BIT,
-                "pcm": AudioFormat.PCM_16000HZ_MONO_S16LE
-            }
-            audio_format = format_map.get(format, AudioFormat.MP3_16000HZ_MONO_128KBPS)
+            # 统一使用MP3格式（最通用且稳定）
+            audio_format = AudioFormat.MP3_16000HZ_MONO_128KBPS
 
             # 创建语音合成器
             synthesizer = SpeechSynthesizer(
