@@ -487,10 +487,13 @@ Page({
     }
 
     console.log('[TTS] 开始播放:', currentQuestionText)
+    console.log('[TTS] TTS功能暂未启用，跳过语音合成')
 
-    wx.showLoading({ title: '合成中...' })
+    // TTS功能暂时禁用（API Key未开通TTS权限）
+    // 用户可以直接阅读问题文本
+    return
 
-    // 调用TTS API
+    // 调用TTS API（已禁用）
     wx.request({
       url: `${app.globalData.baseUrl}/tts/synthesize`,
       method: 'POST',
