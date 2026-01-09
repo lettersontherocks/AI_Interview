@@ -264,6 +264,12 @@ Page({
     })
   },
 
+  // 输入回答（沉浸模式使用）
+  onInput(e) {
+    // 与 inputAnswer 相同的逻辑
+    this.inputAnswer(e)
+  },
+
   // 切换输入模式
   toggleInputMode() {
     const newMode = this.data.inputMode === 'text' ? 'voice' : 'text'
