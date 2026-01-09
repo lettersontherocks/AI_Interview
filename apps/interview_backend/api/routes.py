@@ -18,13 +18,16 @@ from services.asr_service import ASRService
 from services.wechat_service import WechatService
 from services.position_service import position_service
 from services.resume_parser_service import resume_parser_service
+from services.tts_service import get_tts_service
 from config import settings
 from datetime import datetime, date
+from fastapi.responses import Response
 
 router = APIRouter()
 interview_service = InterviewService()
 asr_service = ASRService()
 wechat_service = WechatService()
+tts_service = get_tts_service(settings.dashscope_api_key)
 
 
 @router.get("/positions")
@@ -418,3 +421,49 @@ async def recognize_voice(audio: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"语音识别失败: {str(e)}")
+
+
+@router.post("/tts/synthesize")
+async def synthesize_speech(
+    text: str = Form(...),
+    voice: str = Form("zhiyan_emo")
+):
+    """
+    文本转语音接口
+
+    Args:
+        text: 要转换的文本
+        voice: 音色选择（zhiyan_emo/zhixiaobai/zhixiaoxia/zhixiaomei/zhitian）
+
+    Returns:
+        MP3音频数据
+    """
+    try:
+        # 调用TTS服务
+        audio_data = tts_service.text_to_speech(text, voice=voice)
+
+        if not audio_data:
+            raise HTTPException(status_code=500, detail="语音合成失败")
+
+        # 返回音频数据
+        return Response(
+            content=audio_data,
+            media_type="audio/mpeg",
+            headers={
+                "Content-Disposition": f"attachment; filename=speech.mp3"
+            }
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"语音合成失败: {str(e)}")
+
+
+@router.get("/tts/voices")
+async def get_voices():
+    """
+    获取可用的音色列表
+
+    Returns:
+        音色信息字典
+    """
+    return tts_service.get_available_voices()
