@@ -1,0 +1,155 @@
+<!-- 沉浸式面试模式 -->
+<view class="immersive-container {{isPlaying ? 'speaking' : ''}}">
+  <!-- 顶部状态栏 -->
+  <view class="top-bar">
+    <view class="back-btn" bindtap="onBack">
+      <text class="back-icon">←</text>
+    </view>
+    <view class="progress-info">
+      <view class="progress-bar-mini">
+        <view class="progress-fill-mini" style="width: {{progress}}%"></view>
+      </view>
+      <text class="progress-label">第 {{currentQuestion}} 题 · {{progress}}%</text>
+    </view>
+    <view class="mode-switch" bindtap="switchToChatMode">
+      <text class="switch-icon">💬</text>
+    </view>
+  </view>
+
+  <!-- 面试官区域 -->
+  <view class="interviewer-section">
+    <!-- 头像 -->
+    <view class="avatar-container {{isPlaying ? 'pulsing' : ''}}">
+      <view class="avatar-outer-ring"></view>
+      <view class="avatar-middle-ring"></view>
+      <view class="avatar">
+        <text class="avatar-icon">👔</text>
+      </view>
+      <!-- 声波动画 -->
+      <view wx:if="{{isPlaying}}" class="sound-waves">
+        <view class="wave wave-1"></view>
+        <view class="wave wave-2"></view>
+        <view class="wave wave-3"></view>
+      </view>
+    </view>
+
+    <!-- 状态提示 -->
+    <view class="status-text">
+      <text wx:if="{{loading}}">🤔 面试官正在思考...</text>
+      <text wx:elif="{{isPlaying}}">🔊 面试官提问中...</text>
+      <text wx:elif="{{!currentQuestion || currentQuestion === 0}}">准备开始面试</text>
+      <text wx:else>💭 等待您的回答</text>
+    </view>
+
+    <!-- 问题文字 -->
+    <scroll-view class="question-text" scroll-y>
+      <text class="question-content">{{currentQuestionText}}</text>
+    </scroll-view>
+
+    <!-- 播放控制 -->
+    <view class="audio-controls" wx:if="{{currentQuestionText && !loading}}">
+      <view class="control-btn" bindtap="toggleAudio">
+        <text class="control-icon">{{isPlaying ? '⏸' : (hasPlayed ? '🔁' : '▶️')}}</text>
+        <text class="control-label">{{isPlaying ? '暂停' : (hasPlayed ? '重听' : '播放')}}</text>
+      </view>
+      <view class="control-btn" bindtap="toggleAutoPlay">
+        <text class="control-icon">{{autoPlayEnabled ? '🔊' : '🔇'}}</text>
+        <text class="control-label">{{autoPlayEnabled ? '自动播放' : '手动播放'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 输入区域 -->
+  <view class="input-section" wx:if="{{!finished && !loading}}">
+    <!-- 快捷操作 -->
+    <view class="quick-actions">
+      <view class="quick-btn" bindtap="showHistory">
+        <text>📋 查看历史</text>
+      </view>
+      <view class="quick-btn" bindtap="requestHint">
+        <text>💡 听不清？</text>
+      </view>
+    </view>
+
+    <!-- 输入框 -->
+    <view class="input-wrapper">
+      <!-- 语音模式切换 -->
+      <view class="voice-toggle" bindtap="toggleInputMode">
+        <text class="voice-icon">{{inputMode === 'text' ? '🎤' : '⌨️'}}</text>
+      </view>
+
+      <!-- 文字输入 -->
+      <view wx:if="{{inputMode === 'text'}}" class="text-input-box">
+        <textarea
+          class="answer-textarea"
+          placeholder="输入您的回答..."
+          value="{{currentAnswer}}"
+          bindinput="onInput"
+          auto-height
+          maxlength="1000"
+        />
+        <view
+          class="send-button {{canSend ? 'active' : ''}}"
+          bindtap="submitAnswer"
+        >
+          <text>发送</text>
+        </view>
+      </view>
+
+      <!-- 语音输入 -->
+      <view wx:else class="voice-input-box">
+        <view class="record-status">
+          <text wx:if="{{!isRecording}}">按住说话</text>
+          <view wx:else class="recording-indicator">
+            <view class="recording-dot"></view>
+            <text>录音中 {{recordDuration}}s</text>
+          </view>
+        </view>
+        <button
+          class="record-button {{isRecording ? 'recording' : ''}}"
+          bindtouchstart="startRecord"
+          bindtouchend="stopRecord"
+          bindtouchcancel="stopRecord"
+        >
+          {{isRecording ? '松开发送' : '按住说话'}}
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 完成状态 -->
+  <view class="finish-overlay" wx:if="{{finished}}">
+    <view class="finish-content">
+      <view class="finish-icon">✅</view>
+      <view class="finish-title">面试完成！</view>
+      <view class="finish-desc">正在生成您的面试报告...</view>
+      <button class="view-report-button" bindtap="viewReport">
+        查看报告
+      </button>
+    </view>
+  </view>
+
+  <!-- 历史对话抽屉 -->
+  <view class="history-drawer {{showHistory ? 'show' : ''}}" catchtap="hideHistory">
+    <view class="drawer-content" catchtap="stopPropagation">
+      <view class="drawer-header">
+        <text class="drawer-title">对话历史</text>
+        <text class="drawer-close" bindtap="hideHistory">×</text>
+      </view>
+      <scroll-view class="drawer-body" scroll-y>
+        <view
+          class="history-item {{item.role}}"
+          wx:for="{{messages}}"
+          wx:key="index"
+        >
+          <view class="history-avatar">
+            <text>{{item.role === 'interviewer' ? '👔' : '👤'}}</text>
+          </view>
+          <view class="history-content">
+            <text>{{item.content}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

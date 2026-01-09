@@ -16,7 +16,14 @@ Page({
     inputMode: 'text', // 'text' | 'voice'
     isRecording: false,
     recordDuration: 0,
-    recognizedText: '' // 识别后的文字
+    recognizedText: '', // 识别后的文字
+    // 沉浸模式相关
+    viewMode: 'chat', // 'chat' | 'immersive'
+    isPlaying: false, // 是否正在播放语音
+    hasPlayed: false, // 当前问题是否已播放过
+    autoPlayEnabled: true, // 是否自动播放
+    showHistory: false, // 是否显示历史对话
+    currentQuestionText: '' // 当前问题文本
   },
 
   recorderManager: null,
