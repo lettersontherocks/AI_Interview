@@ -1,6 +1,6 @@
 """阿里云TTS语音合成服务"""
 import dashscope
-from dashscope.audio.tts_v2 import SpeechSynthesizer
+from dashscope.audio.tts_v2 import SpeechSynthesizer, AudioFormat
 import os
 import uuid
 from typing import Optional
@@ -47,11 +47,19 @@ class TTSService:
             音频二进制数据，失败返回None
         """
         try:
-            # 创建语音合成器（sample_rate参数移除，由API自动处理）
+            # 映射格式字符串到AudioFormat枚举
+            format_map = {
+                "mp3": AudioFormat.MP3_16000HZ_MONO_128KBPS,
+                "wav": AudioFormat.WAV_16000HZ_MONO_256KBPS,
+                "pcm": AudioFormat.PCM_16000HZ_MONO_S16LE
+            }
+            audio_format = format_map.get(format, AudioFormat.MP3_16000HZ_MONO_128KBPS)
+
+            # 创建语音合成器
             synthesizer = SpeechSynthesizer(
                 model="cosyvoice-v1",
                 voice=voice,
-                format=format
+                format=audio_format
             )
 
             # 合成音频
