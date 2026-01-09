@@ -16,17 +16,20 @@ class VolcengineTTSService:
             app_id: 火山引擎应用ID
             access_token: 火山引擎访问令牌
         """
-        self.app_id = app_id or os.getenv("VOLCENGINE_APP_ID")
-        self.access_token = access_token or os.getenv("VOLCENGINE_ACCESS_TOKEN")
+        self.app_id = str(app_id or os.getenv("VOLCENGINE_APP_ID"))
+        self.access_token = str(access_token or os.getenv("VOLCENGINE_ACCESS_TOKEN"))
+        # 使用豆包的语音合成API
         self.api_url = "https://openspeech.bytedance.com/api/v1/tts"
 
         if not self.app_id or not self.access_token:
             print("警告：未配置 VOLCENGINE_APP_ID 或 VOLCENGINE_ACCESS_TOKEN")
+        else:
+            print(f"[TTS] 火山引擎配置: APP_ID={self.app_id}, TOKEN={self.access_token[:10]}...")
 
     def text_to_speech(
         self,
         text: str,
-        voice_type: str = "zh_female_qingxin",
+        voice_type: str = "zh_male_shenyeboke_moon_bigtts",
         encoding: str = "mp3",
         speed_ratio: float = 1.0,
         volume_ratio: float = 1.0,
@@ -38,7 +41,8 @@ class VolcengineTTSService:
         Args:
             text: 要转换的文本
             voice_type: 音色类型
-                - zh_female_qingxin: 清新女声（推荐）
+                - zh_male_shenyeboke_moon_bigtts: 深夜播客（默认）
+                - zh_female_qingxin: 清新女声
                 - zh_female_wanwanxiaohe: 湾湾小何（温柔女声）
                 - zh_male_chunhouxiaoshu: 淳厚小叔（成熟男声）
                 - zh_female_tianmeixiaoyuan: 甜美小媛（甜美女声）
@@ -82,12 +86,18 @@ class VolcengineTTSService:
                 "Authorization": f"Bearer; {self.access_token}"
             }
 
+            print(f"[TTS] 请求URL: {self.api_url}")
+            print(f"[TTS] 请求数据: {json.dumps(request_json, ensure_ascii=False)[:200]}...")
+
             response = requests.post(
                 self.api_url,
                 headers=headers,
                 data=json.dumps(request_json),
                 timeout=30
             )
+
+            print(f"[TTS] 响应状态码: {response.status_code}")
+            print(f"[TTS] 响应内容: {response.text[:500]}")
 
             if response.status_code == 200:
                 result = response.json()
@@ -103,10 +113,12 @@ class VolcengineTTSService:
                     return audio_data
                 else:
                     error_msg = result.get("message", "未知错误")
-                    print(f"[TTS] 火山引擎合成失败: {error_msg}")
+                    error_code = result.get("code", "unknown")
+                    print(f"[TTS] 火山引擎合成失败: code={error_code}, message={error_msg}")
                     return None
             else:
                 print(f"[TTS] HTTP请求失败: {response.status_code}")
+                print(f"[TTS] 错误响应: {response.text}")
                 return None
 
         except Exception as e:

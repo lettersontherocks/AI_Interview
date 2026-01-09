@@ -487,13 +487,10 @@ Page({
     }
 
     console.log('[TTS] 开始播放:', currentQuestionText)
-    console.log('[TTS] TTS功能暂未启用，跳过语音合成')
 
-    // TTS功能暂时禁用（API Key未开通TTS权限）
-    // 用户可以直接阅读问题文本
-    return
+    // 调用火山引擎豆包TTS API
+    wx.showLoading({ title: '生成语音中...', mask: true })
 
-    // 调用TTS API（已禁用）
     wx.request({
       url: `${app.globalData.baseUrl}/tts/synthesize`,
       method: 'POST',
@@ -502,7 +499,7 @@ Page({
       },
       data: {
         text: currentQuestionText,
-        voice: 'zhiyan_emo'
+        voice: 'zh_male_shenyeboke_moon_bigtts'  // 使用火山引擎的深夜播客音色
       },
       responseType: 'arraybuffer',
       success: (res) => {

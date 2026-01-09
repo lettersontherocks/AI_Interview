@@ -427,7 +427,7 @@ async def recognize_voice(audio: UploadFile = File(...)):
 @router.post("/tts/synthesize")
 async def synthesize_speech(
     text: str = Form(...),
-    voice: str = Form("zh_female_qingxin")
+    voice: str = Form("zh_male_shenyeboke_moon_bigtts")
 ):
     """
     文本转语音接口（火山引擎豆包TTS）
@@ -435,6 +435,7 @@ async def synthesize_speech(
     Args:
         text: 要转换的文本
         voice: 音色选择
+            - zh_male_shenyeboke_moon_bigtts: 深夜播客（默认）
             - zh_female_qingxin: 清新女声
             - zh_female_wanwanxiaohe: 湾湾小何（温柔）
             - zh_male_chunhouxiaoshu: 淳厚小叔（成熟男声）
