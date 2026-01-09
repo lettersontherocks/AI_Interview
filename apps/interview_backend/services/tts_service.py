@@ -47,12 +47,11 @@ class TTSService:
             音频二进制数据，失败返回None
         """
         try:
-            # 创建语音合成器
+            # 创建语音合成器（sample_rate参数移除，由API自动处理）
             synthesizer = SpeechSynthesizer(
                 model="cosyvoice-v1",
                 voice=voice,
-                format=format,
-                sample_rate=sample_rate
+                format=format
             )
 
             # 合成音频
