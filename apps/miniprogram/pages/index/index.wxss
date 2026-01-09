@@ -733,56 +733,95 @@
   margin-top: 10rpx;
 }
 
-/* 紧凑型简历信息区域 */
-.resume-section-compact {
-  margin-bottom: 16rpx;
-}
-
-.section-title-inline {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 12rpx;
+/* 简历输入方式选择 */
+.resume-options {
   display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.section-title-inline .optional {
-  font-size: 24rpx;
-  color: #999;
-  font-weight: normal;
-}
-
-.resume-actions {
-  display: flex;
+  flex-direction: column;
   gap: 12rpx;
 }
 
-.resume-btn-compact {
-  flex: 1;
+.resume-option-item {
+  /* 每个选项独立成行 */
+}
+
+/* 简历输入浮层 */
+.resume-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+.resume-dropdown {
+  position: absolute;
+  top: 20%;
+  left: 20rpx;
+  right: 20rpx;
+  max-height: 70%;
   background: white;
-  border: 2rpx solid #e0e0e0;
+  border-radius: 16rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50rpx);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.resume-input-container {
+  flex: 1;
+  padding: 30rpx;
+  overflow-y: auto;
+}
+
+.resume-textarea {
+  width: 100%;
+  min-height: 400rpx;
+  padding: 20rpx;
+  background: #f9f9f9;
   border-radius: 12rpx;
-  padding: 16rpx 20rpx;
   font-size: 26rpx;
+  line-height: 1.6;
   color: #333;
-  transition: all 0.2s ease;
-  box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.05);
+  border: 2rpx solid #e0e0e0;
 }
 
-.resume-btn-compact:active {
-  transform: scale(0.98);
-  background: #fafafa;
+.resume-actions-bottom {
+  display: flex;
+  gap: 16rpx;
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #eee;
 }
 
-.resume-btn-compact.secondary {
-  border-color: #667eea;
-  color: #667eea;
+.action-btn {
+  flex: 1;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 500;
 }
 
-.resume-btn-compact.secondary:active {
-  background: rgba(102, 126, 234, 0.05);
+.action-btn.secondary {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
 }
 
 /* 开始按钮区域 */

@@ -41,8 +41,8 @@
       <text wx:else>💭 等待您的回答</text>
     </view>
 
-    <!-- 问题文字 -->
-    <scroll-view class="question-text" scroll-y>
+    <!-- 问题文字（条件显示） -->
+    <scroll-view class="question-text" scroll-y wx:if="{{showQuestionText}}">
       <text class="question-content">{{currentQuestionText}}</text>
     </scroll-view>
 
@@ -63,11 +63,11 @@
   <view class="input-section" wx:if="{{!finished && !loading}}">
     <!-- 快捷操作 -->
     <view class="quick-actions">
-      <view class="quick-btn" bindtap="showHistory">
+      <view class="quick-btn" bindtap="showHistoryDrawer">
         <text>📋 查看历史</text>
       </view>
-      <view class="quick-btn" bindtap="requestHint">
-        <text>💡 听不清？</text>
+      <view class="quick-btn" bindtap="toggleQuestionText">
+        <text>{{showQuestionText ? '📝 隐藏原文' : '📝 查看原文'}}</text>
       </view>
     </view>
 

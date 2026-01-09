@@ -10,9 +10,9 @@ Page({
     selectedInterviewerStyle: '',  // 选中的面试官风格
     interviewerStyles: [],  // 面试官风格列表
     recommendedStyle: '',  // 推荐的面试官风格
-    resume: '',
-    showManualInput: false,  // 是否显示手动输入框
-    resumeUploaded: false,   // 是否已上传简历
+    resume: '',  // 手动输入的简历
+    uploadedResume: '',  // 上传文件解析的简历
+    showResumeInput: false,  // 是否显示简历输入浮层
     isPreparingInterview: false,
     loadingTips: [
       '根据您的岗位生成面试题库',
@@ -365,9 +365,41 @@ Page({
     this.setData({ resume: e.detail.value })
   },
 
-  // 手动输入
-  handleManualInput() {
-    this.setData({ showManualInput: true })
+  // 切换简历输入浮层
+  toggleResumeInput() {
+    this.setData({
+      showResumeInput: !this.data.showResumeInput
+    })
+  },
+
+  // 简历输入框内容变化
+  onResumeInput(e) {
+    this.setData({ resume: e.detail.value })
+  },
+
+  // 清空简历
+  clearResume() {
+    this.setData({
+      resume: '',
+      showResumeInput: false
+    })
+    wx.showToast({
+      title: '已清空',
+      icon: 'success',
+      duration: 1500
+    })
+  },
+
+  // 确认简历输入
+  confirmResume() {
+    this.setData({ showResumeInput: false })
+    if (this.data.resume) {
+      wx.showToast({
+        title: '简历信息已保存',
+        icon: 'success',
+        duration: 2000
+      })
+    }
   },
 
   // 上传文件
@@ -408,17 +440,18 @@ Page({
             if (uploadRes.statusCode === 200) {
               const data = JSON.parse(uploadRes.data)
 
-              // 设置简历内容（不显示，仅作为上下文）
+              // 保存上传的简历到 uploadedResume，不影响手动输入的 resume
               self.setData({
-                resume: data.text,
-                showManualInput: false,
-                resumeUploaded: true  // 标记简历已上传
+                uploadedResume: data.text
               })
 
               wx.showToast({
-                title: '简历上传成功',
-                icon: 'success'
+                title: '简历解析成功',
+                icon: 'success',
+                duration: 2000
               })
+
+              console.log('[简历上传] 解析成功，字数:', data.text.length)
             } else {
               const errorData = JSON.parse(uploadRes.data)
               wx.showToast({
@@ -459,7 +492,7 @@ Page({
 
   // 开始面试
   startInterview() {
-    const { selectedPositionId, selectedPositionName, selectedRound, selectedInterviewerStyle, resume, userInfo } = this.data
+    const { selectedPositionId, selectedPositionName, selectedRound, selectedInterviewerStyle, resume, uploadedResume, userInfo } = this.data
 
     if (!selectedPositionId || !selectedRound) {
       wx.showToast({
@@ -480,6 +513,9 @@ Page({
       return
     }
 
+    // 合并手动输入和上传的简历（优先使用手动输入，否则使用上传的）
+    const finalResume = resume || uploadedResume || null
+
     // 显示加载界面
     this.setData({
       isPreparingInterview: true
@@ -492,7 +528,7 @@ Page({
       position_name: selectedPositionName,
       round: selectedRound,
       user_id: app.globalData.userId || null,
-      resume: resume || null,
+      resume: finalResume,
       interviewer_style: selectedInterviewerStyle || null  // 添加面试官风格参数
     }
 

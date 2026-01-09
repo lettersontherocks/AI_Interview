@@ -24,6 +24,7 @@ Page({
     hasEnded: false, // 当前问题是否播放完毕
     autoPlayEnabled: true, // 是否自动播放
     showHistory: false, // 是否显示历史对话
+    showQuestionText: false, // 是否显示问题文字（默认隐藏）
     currentQuestionText: '', // 当前问题文本
     ttsCache: {} // TTS音频缓存 { "问题文本": "文件路径" }
   },
@@ -670,13 +671,12 @@ Page({
     // 空方法，用于阻止事件冒泡
   },
 
-  // 请求提示（听不清）
-  requestHint() {
-    wx.showModal({
-      title: '当前问题',
-      content: this.data.currentQuestionText,
-      showCancel: false,
-      confirmText: '我知道了'
+  // 切换问题文字显示/隐藏
+  toggleQuestionText() {
+    const newValue = !this.data.showQuestionText
+    this.setData({
+      showQuestionText: newValue
     })
+    console.log('[文字显示] 切换为:', newValue ? '显示' : '隐藏')
   }
 })

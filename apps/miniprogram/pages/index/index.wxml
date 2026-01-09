@@ -226,20 +226,63 @@
     </view>
   </view>
 
-  <!-- 简历信息（可选） - 紧凑模式 -->
-  <view class="section resume-section-compact">
-    <view class="section-title-inline">
-      简历信息<text class="optional">(可选)</text>
+  <!-- 简历信息（可选） -->
+  <view class="section">
+    <view class="section-title">
+      简历信息
+      <text class="optional">(可选，有助于更精准的面试)</text>
     </view>
 
-    <!-- 单行按钮 -->
-    <view class="resume-actions">
-      <button class="resume-btn-compact" bindtap="handleManualInput">
-        📝 {{resume ? '已输入' : '输入简历'}}
-      </button>
-      <button class="resume-btn-compact secondary" bindtap="handleUploadFile">
-        📄 上传文件
-      </button>
+    <!-- 简历输入方式选择 -->
+    <view class="resume-options">
+      <!-- 手动输入 -->
+      <view class="resume-option-item">
+        <view wx:if="{{resume}}" class="selected-display" bindtap="toggleResumeInput">
+          <view class="selected-content">
+            <text class="selected-label">📝 已输入简历 ({{resume.length}}字)</text>
+            <text class="change-btn">修改</text>
+          </view>
+        </view>
+        <view wx:else class="expand-trigger" bindtap="toggleResumeInput">
+          <text class="expand-text">📝 手动输入简历</text>
+          <text class="expand-icon">{{showResumeInput ? '▲' : '▼'}}</text>
+        </view>
+      </view>
+
+      <!-- 上传文件 -->
+      <view class="resume-option-item">
+        <view wx:if="{{uploadedResume}}" class="selected-display">
+          <view class="selected-content">
+            <text class="selected-label">📄 已上传简历 ({{uploadedResume.length}}字)</text>
+            <text class="change-btn" bindtap="handleUploadFile">重新上传</text>
+          </view>
+        </view>
+        <view wx:else class="expand-trigger" bindtap="handleUploadFile">
+          <text class="expand-text">📄 上传文件解析</text>
+          <text class="expand-icon">→</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 简历输入浮层 -->
+    <view wx:if="{{showResumeInput}}" class="resume-overlay" bindtap="toggleResumeInput">
+      <view class="resume-dropdown" catchtap="stopPropagation">
+        <view class="resume-input-container">
+          <textarea
+            class="resume-textarea"
+            placeholder="请输入您的简历信息，包括：&#10;• 教育背景（学校、专业、学历）&#10;• 工作经历（公司、职位、时间）&#10;• 项目经验（项目名称、职责、成果）&#10;• 技能特长"
+            value="{{resume}}"
+            bindinput="onResumeInput"
+            maxlength="5000"
+            auto-height
+          />
+          <view class="char-count">{{resume ? resume.length : 0}}/5000</view>
+        </view>
+        <view class="resume-actions-bottom">
+          <button class="action-btn secondary" bindtap="clearResume">清空</button>
+          <button class="action-btn primary" bindtap="confirmResume">确认</button>
+        </view>
+      </view>
     </view>
   </view>
 
