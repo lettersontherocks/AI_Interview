@@ -23,7 +23,8 @@ Page({
     hasPlayed: false, // 当前问题是否已播放过
     autoPlayEnabled: true, // 是否自动播放
     showHistory: false, // 是否显示历史对话
-    currentQuestionText: '' // 当前问题文本
+    currentQuestionText: '', // 当前问题文本
+    ttsCache: {} // TTS音频缓存 { "问题文本": "文件路径" }
   },
 
   recorderManager: null,
@@ -479,10 +480,17 @@ Page({
 
   // 播放当前问题
   playQuestion() {
-    const { currentQuestionText } = this.data
+    const { currentQuestionText, ttsCache } = this.data
 
     if (!currentQuestionText) {
       console.log('[TTS] 无问题文本')
+      return
+    }
+
+    // 检查缓存
+    if (ttsCache[currentQuestionText]) {
+      console.log('[TTS] 使用缓存:', currentQuestionText)
+      this.playAudioFile(ttsCache[currentQuestionText])
       return
     }
 
@@ -515,6 +523,13 @@ Page({
             data: res.data,
             success: () => {
               console.log('[TTS] 音频文件已保存:', filePath)
+
+              // 保存到缓存
+              const newCache = { ...this.data.ttsCache }
+              newCache[currentQuestionText] = filePath
+              this.setData({ ttsCache: newCache })
+              console.log('[TTS] 已添加到缓存')
+
               this.playAudioFile(filePath)
             },
             fail: (err) => {
