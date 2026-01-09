@@ -180,7 +180,7 @@
   </view>
 
   <!-- 面试官风格选择 -->
-  <view class="section style-section" wx:if="{{selectedRound}}">
+  <view class="section style-section">
     <view class="section-title">
       选择面试官风格
       <text class="optional">(可选，不选则自动推荐)</text>
@@ -194,12 +194,11 @@
       </view>
     </view>
 
-    <!-- 展开按钮（未选择时显示推荐） -->
-    <view wx:else class="expand-trigger" bindtap="toggleStyleList">
-      <view class="expand-trigger-content">
-        <text class="expand-text">{{showStyleList ? '收起风格列表' : (recommendedStyle ? '推荐：' + utils.getStyleName(recommendedStyle, interviewerStyles) + '（点击更换）' : '点击选择风格')}}</text>
-        <text class="expand-icon">{{showStyleList ? '▲' : '▼'}}</text>
-      </view>
+    <!-- 展开按钮（未选择时显示推荐或提示） -->
+    <view wx:else class="expand-trigger {{!selectedRound ? 'expand-trigger-disabled' : ''}}" bindtap="toggleStyleList">
+      <text class="expand-text">{{showStyleList ? '收起风格列表' : (selectedRound ? '点击选择风格' : '请先选择面试轮次')}}</text>
+      <text class="expand-icon" wx:if="{{selectedRound}}">{{showStyleList ? '▲' : '▼'}}</text>
+      <text class="lock-icon" wx:else>🔒</text>
     </view>
 
     <!-- 可展开的风格选择区域（浮层覆盖模式） -->
@@ -227,48 +226,20 @@
     </view>
   </view>
 
-  <!-- 简历输入（可选） -->
-  <view class="section">
-    <view class="section-title">
-      简历信息
-      <text class="optional">(可选)</text>
+  <!-- 简历信息（可选） - 紧凑模式 -->
+  <view class="section resume-section-compact">
+    <view class="section-title-inline">
+      简历信息<text class="optional">(可选)</text>
     </view>
 
-    <!-- 上传按钮区 -->
-    <view class="resume-upload-btns">
-      <button class="upload-btn" bindtap="handleManualInput">
-        <text class="btn-icon">📝</text>
-        <text class="btn-text">手动输入</text>
+    <!-- 单行按钮 -->
+    <view class="resume-actions">
+      <button class="resume-btn-compact" bindtap="handleManualInput">
+        📝 {{resume ? '已输入' : '输入简历'}}
       </button>
-      <button class="upload-btn" bindtap="handleUploadFile">
-        <text class="btn-icon">📄</text>
-        <text class="btn-text">上传文件</text>
+      <button class="resume-btn-compact secondary" bindtap="handleUploadFile">
+        📄 上传文件
       </button>
-    </view>
-
-    <!-- 手动输入区域 -->
-    <view wx:if="{{showManualInput}}" class="resume-input-area">
-      <textarea
-        class="resume-input"
-        placeholder="简单介绍你的工作经验、技术栈等，AI会根据简历提问..."
-        maxlength="2000"
-        bindinput="inputResume"
-        value="{{resume}}"
-      />
-      <view class="char-count">{{resume.length}}/2000</view>
-    </view>
-
-    <!-- 已上传简历提示 -->
-    <view wx:if="{{resumeUploaded && !showManualInput}}" class="resume-uploaded-hint">
-      <text class="upload-success-icon">✓</text>
-      <text class="upload-success-text">简历已上传</text>
-      <text class="resume-clear" bindtap="clearResume">清除</text>
-    </view>
-
-    <!-- 手动输入的简历显示字数 -->
-    <view wx:if="{{resume && showManualInput}}" class="resume-manual-hint">
-      <text class="manual-success-icon">✓</text>
-      <text class="manual-success-text">已输入 {{resume.length}} 字</text>
     </view>
   </view>
 

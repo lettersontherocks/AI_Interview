@@ -345,6 +345,16 @@ Page({
 
   // 切换风格列表展开/收起
   toggleStyleList() {
+    // 如果未选择轮次，提示用户
+    if (!this.data.selectedRound) {
+      wx.showToast({
+        title: '请先选择面试轮次',
+        icon: 'none',
+        duration: 2000
+      })
+      return
+    }
+
     this.setData({
       showStyleList: !this.data.showStyleList
     })
