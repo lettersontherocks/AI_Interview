@@ -21,6 +21,7 @@ Page({
     viewMode: 'chat', // 'chat' | 'immersive'
     isPlaying: false, // 是否正在播放语音
     hasPlayed: false, // 当前问题是否已播放过
+    hasEnded: false, // 当前问题是否播放完毕
     autoPlayEnabled: true, // 是否自动播放
     showHistory: false, // 是否显示历史对话
     currentQuestionText: '', // 当前问题文本
@@ -457,8 +458,9 @@ Page({
       viewMode: 'immersive'
     })
 
-    // 如果有当前问题且开启了自动播放，则播放
-    if (this.data.currentQuestionText && this.data.autoPlayEnabled) {
+    // 只在首次进入且开启自动播放且未播放过时才自动播放
+    if (this.data.currentQuestionText && this.data.autoPlayEnabled && !this.data.hasPlayed) {
+      console.log('[模式切换] 首次进入，自动播放')
       this.playQuestion()
     }
   },
@@ -469,8 +471,8 @@ Page({
     this.setData({
       viewMode: 'chat'
     })
-    // 停止播放
-    this.stopAudio()
+    // 暂停播放（不销毁音频上下文，保留缓存）
+    this.pauseAudio()
   },
 
   // 返回
@@ -570,14 +572,16 @@ Page({
         console.log('[音频] 开始播放')
         this.setData({
           isPlaying: true,
-          hasPlayed: true
+          hasPlayed: true,
+          hasEnded: false  // 开始播放时清除结束标记
         })
       })
 
       this.audioContext.onEnded(() => {
         console.log('[音频] 播放结束')
         this.setData({
-          isPlaying: false
+          isPlaying: false,
+          hasEnded: true  // 标记为播放完毕
         })
       })
 

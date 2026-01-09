@@ -49,8 +49,8 @@
     <!-- 播放控制 -->
     <view class="audio-controls" wx:if="{{currentQuestionText && !loading}}">
       <view class="control-btn" bindtap="toggleAudio">
-        <text class="control-icon">{{isPlaying ? '⏸' : (hasPlayed ? '🔁' : '▶️')}}</text>
-        <text class="control-label">{{isPlaying ? '暂停' : (hasPlayed ? '重听' : '播放')}}</text>
+        <text class="control-icon">{{isPlaying ? '⏸' : (hasEnded ? '🔁' : (hasPlayed ? '▶️' : '▶️'))}}</text>
+        <text class="control-label">{{isPlaying ? '暂停' : (hasEnded ? '重听' : (hasPlayed ? '继续' : '播放'))}}</text>
       </view>
       <view class="control-btn" bindtap="toggleAutoPlay">
         <text class="control-icon">{{autoPlayEnabled ? '🔊' : '🔇'}}</text>
