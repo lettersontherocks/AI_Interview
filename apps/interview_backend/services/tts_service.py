@@ -25,7 +25,7 @@ class TTSService:
     def text_to_speech(
         self,
         text: str,
-        voice: str = "longxiaochun",  # 龙小春（女声，通用）
+        voice: str = "longanyang",  # 龙安阳（默认音色）
         format: str = "mp3",
         sample_rate: int = 16000
     ) -> Optional[bytes]:
@@ -34,11 +34,9 @@ class TTSService:
 
         Args:
             text: 要转换的文本
-            voice: 音色选择
-                - longxiaochun: 龙小春（女声，通用）
-                - longxiaojing: 龙小静（女声，温柔）
-                - longxiaobai: 龙小白（男声，阳光）
-                - longye: 龙爷（男声，沉稳）
+            voice: 音色选择（cosyvoice-v3-flash支持的音色）
+                - longanyang: 龙安阳
+                - longyingjing_v3: 龙映静v3
             format: 音频格式 (mp3/wav/pcm)
             sample_rate: 采样率 (8000/16000/22050/24000/44100/48000)
 
@@ -46,14 +44,10 @@ class TTSService:
             音频二进制数据，失败返回None
         """
         try:
-            # 统一使用MP3格式（最通用且稳定）
-            audio_format = AudioFormat.MP3_16000HZ_MONO_128KBPS
-
-            # 创建语音合成器
+            # 创建语音合成器（使用v3-flash模型，快速且稳定）
             synthesizer = SpeechSynthesizer(
-                model="cosyvoice-v1",
-                voice=voice,
-                format=audio_format
+                model="cosyvoice-v3-flash",
+                voice=voice
             )
 
             # 合成音频
