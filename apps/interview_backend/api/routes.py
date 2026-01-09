@@ -426,14 +426,14 @@ async def recognize_voice(audio: UploadFile = File(...)):
 @router.post("/tts/synthesize")
 async def synthesize_speech(
     text: str = Form(...),
-    voice: str = Form("zhiyan_emo")
+    voice: str = Form("longxiaochun")
 ):
     """
     文本转语音接口
 
     Args:
         text: 要转换的文本
-        voice: 音色选择（zhiyan_emo/zhixiaobai/zhixiaoxia/zhixiaomei/zhitian）
+        voice: 音色选择（longxiaochun/longxiaojing/longxiaobai/longye）
 
     Returns:
         MP3音频数据

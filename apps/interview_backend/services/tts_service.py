@@ -25,7 +25,7 @@ class TTSService:
     def text_to_speech(
         self,
         text: str,
-        voice: str = "zhiyan_emo",  # 智言情感语音（女声）
+        voice: str = "longxiaochun",  # 龙小春（女声，通用）
         format: str = "mp3",
         sample_rate: int = 16000
     ) -> Optional[bytes]:
@@ -35,11 +35,10 @@ class TTSService:
         Args:
             text: 要转换的文本
             voice: 音色选择
-                - zhiyan_emo: 智言情感语音（女声，推荐）
-                - zhixiaobai: 知小白（男声，专业）
-                - zhixiaoxia: 知小夏（女声，温柔）
-                - zhixiaomei: 知小美（女声，甜美）
-                - zhitian: 知田（男声，沉稳）
+                - longxiaochun: 龙小春（女声，通用）
+                - longxiaojing: 龙小静（女声，温柔）
+                - longxiaobai: 龙小白（男声，阳光）
+                - longye: 龙爷（男声，沉稳）
             format: 音频格式 (mp3/wav/pcm)
             sample_rate: 采样率 (8000/16000/22050/24000/44100/48000)
 
@@ -112,32 +111,26 @@ class TTSService:
             音色信息字典
         """
         return {
-            "zhiyan_emo": {
-                "name": "智言（女声）",
-                "description": "情感丰富，适合面试场景",
+            "longxiaochun": {
+                "name": "龙小春（女声）",
+                "description": "通用女声，适合各类场景",
                 "gender": "female",
                 "style": "professional"
             },
-            "zhixiaobai": {
-                "name": "知小白（男声）",
-                "description": "专业严谨，适合技术面试",
-                "gender": "male",
-                "style": "professional"
-            },
-            "zhixiaoxia": {
-                "name": "知小夏（女声）",
+            "longxiaojing": {
+                "name": "龙小静（女声）",
                 "description": "温柔友善，适合HR面试",
                 "gender": "female",
                 "style": "friendly"
             },
-            "zhixiaomei": {
-                "name": "知小美（女声）",
-                "description": "甜美亲切",
-                "gender": "female",
-                "style": "friendly"
+            "longxiaobai": {
+                "name": "龙小白（男声）",
+                "description": "阳光活力，适合技术面试",
+                "gender": "male",
+                "style": "professional"
             },
-            "zhitian": {
-                "name": "知田（男声）",
+            "longye": {
+                "name": "龙爷（男声）",
                 "description": "沉稳大气，适合总监面试",
                 "gender": "male",
                 "style": "authoritative"
