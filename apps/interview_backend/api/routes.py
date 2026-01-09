@@ -18,7 +18,7 @@ from services.asr_service import ASRService
 from services.wechat_service import WechatService
 from services.position_service import position_service
 from services.resume_parser_service import resume_parser_service
-from services.tts_service import get_tts_service
+from services.volcengine_tts_service import get_volcengine_tts_service
 from config import settings
 from datetime import datetime, date
 from fastapi.responses import Response
@@ -27,7 +27,8 @@ router = APIRouter()
 interview_service = InterviewService()
 asr_service = ASRService()
 wechat_service = WechatService()
-tts_service = get_tts_service(settings.dashscope_api_key)
+# 切换到火山引擎TTS（豆包）
+tts_service = get_volcengine_tts_service()
 
 
 @router.get("/positions")
@@ -426,21 +427,25 @@ async def recognize_voice(audio: UploadFile = File(...)):
 @router.post("/tts/synthesize")
 async def synthesize_speech(
     text: str = Form(...),
-    voice: str = Form("longxiaochun")
+    voice: str = Form("zh_female_qingxin")
 ):
     """
-    文本转语音接口
+    文本转语音接口（火山引擎豆包TTS）
 
     Args:
         text: 要转换的文本
-        voice: 音色选择（longxiaochun/longxiaojing/longxiaobai/longye）
+        voice: 音色选择
+            - zh_female_qingxin: 清新女声
+            - zh_female_wanwanxiaohe: 湾湾小何（温柔）
+            - zh_male_chunhouxiaoshu: 淳厚小叔（成熟男声）
+            - zh_female_tianmeixiaoyuan: 甜美小媛
 
     Returns:
         MP3音频数据
     """
     try:
-        # 调用TTS服务
-        audio_data = tts_service.text_to_speech(text, voice=voice)
+        # 调用火山引擎TTS服务
+        audio_data = tts_service.text_to_speech(text, voice_type=voice)
 
         if not audio_data:
             raise HTTPException(status_code=500, detail="语音合成失败")
