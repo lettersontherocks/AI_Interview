@@ -82,8 +82,11 @@ Page({
     let currentProgress = 0
     const progressTimer = setInterval(() => {
       if (currentProgress < 90) {
-        // 前90%按对数增长
-        currentProgress += Math.random() * 8
+        // 使用对数曲线：越接近90%增长越慢
+        // 前半部分(0-45%)增长更慢，后半部分(45-90%)逐渐减速
+        const remaining = 90 - currentProgress
+        const increment = remaining * 0.02 + Math.random() * 0.5
+        currentProgress += increment
         currentProgress = Math.min(currentProgress, 90)
         this.setData({ progress: Math.floor(currentProgress) })
       }
