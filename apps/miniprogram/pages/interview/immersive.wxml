@@ -99,7 +99,7 @@
           class="send-button {{canSend ? 'active' : ''}}"
           bindtap="submitAnswer"
         >
-          <text>发送</text>
+          <text class="send-icon">➤</text>
         </view>
       </view>
 

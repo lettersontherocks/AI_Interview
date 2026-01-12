@@ -73,7 +73,7 @@
         class="send-btn {{(!canSend || loading) ? 'send-btn-disabled' : ''}}"
         bindtap="submitAnswer"
       >
-        ▲
+        <text class="send-icon">➤</text>
       </view>
     </view>
 
