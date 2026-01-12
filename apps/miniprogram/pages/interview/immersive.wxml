@@ -19,7 +19,7 @@
   <!-- 面试官区域 -->
   <view class="interviewer-section">
     <!-- 头像 -->
-    <view class="avatar-container {{isPlaying ? 'pulsing' : ''}}">
+    <view class="avatar-container {{isPlaying ? 'pulsing' : ''}} {{loading ? 'thinking' : ''}}">
       <view class="avatar-outer-ring"></view>
       <view class="avatar-middle-ring"></view>
       <view class="avatar">
@@ -33,8 +33,15 @@
       </view>
     </view>
 
+    <!-- 思考动画（移到头像下方） -->
+    <view wx:if="{{loading}}" class="thinking-dots">
+      <view class="dot dot-1"></view>
+      <view class="dot dot-2"></view>
+      <view class="dot dot-3"></view>
+    </view>
+
     <!-- 状态提示 -->
-    <view class="status-text">
+    <view class="status-text {{questionFadeOut ? 'fade-out' : ''}} {{questionVisible ? 'fade-in' : ''}}">
       <text wx:if="{{loading}}">🤔 面试官正在思考...</text>
       <text wx:elif="{{isPlaying}}">🔊 面试官提问中...</text>
       <text wx:elif="{{!currentQuestion || currentQuestion === 0}}">准备开始面试</text>
@@ -42,12 +49,12 @@
     </view>
 
     <!-- 问题文字（条件显示） -->
-    <scroll-view class="question-text" scroll-y wx:if="{{showQuestionText && !loading}}">
+    <scroll-view class="question-text {{questionFadeOut ? 'fade-out' : ''}} {{questionVisible ? 'fade-in' : ''}}" scroll-y wx:if="{{showQuestionText && !loading && questionVisible}}">
       <text class="question-content">{{currentQuestionText}}</text>
     </scroll-view>
 
     <!-- 播放控制 -->
-    <view class="audio-controls" wx:if="{{currentQuestionText && !loading}}">
+    <view class="audio-controls {{questionFadeOut ? 'fade-out' : ''}} {{questionVisible ? 'fade-in' : ''}}" wx:if="{{currentQuestionText && !loading && questionVisible}}">
       <view class="control-btn" bindtap="toggleAudio">
         <text class="control-icon">{{isPlaying ? '⏸' : (hasEnded ? '🔁' : (hasPlayed ? '▶️' : '▶️'))}}</text>
         <text class="control-label">{{isPlaying ? '暂停' : (hasEnded ? '重听' : (hasPlayed ? '继续' : '播放'))}}</text>

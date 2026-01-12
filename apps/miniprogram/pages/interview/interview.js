@@ -26,7 +26,9 @@ Page({
     showHistory: false, // 是否显示历史对话
     showQuestionText: false, // 是否显示问题文字（默认隐藏）
     currentQuestionText: '', // 当前问题文本
-    ttsCache: {} // TTS音频缓存 { "问题文本": "文件路径" }
+    ttsCache: {}, // TTS音频缓存 { "问题文本": "文件路径" }
+    questionFadeOut: false, // 问题淡出动画状态
+    questionVisible: true // 问题是否可见
   },
 
   recorderManager: null,
@@ -348,6 +350,26 @@ Page({
       return
     }
 
+    // 在沉浸模式下，添加淡出动画
+    if (this.data.viewMode === 'immersive') {
+      this.setData({
+        questionFadeOut: true
+      })
+
+      // 等待淡出动画完成后再显示loading状态
+      setTimeout(() => {
+        this.setData({
+          questionVisible: false,
+          loading: true
+        })
+      }, 300) // 300ms淡出动画
+    } else {
+      // 聊天模式直接显示loading
+      this.setData({
+        loading: true
+      })
+    }
+
     // 添加用户回答到消息列表
     const newMessages = [...messages, {
       role: 'candidate',
@@ -356,8 +378,7 @@ Page({
     }]
 
     this.setData({
-      messages: newMessages,
-      loading: true
+      messages: newMessages
     })
 
     // 滚动到底部
@@ -380,8 +401,6 @@ Page({
         answer: text.trim()
       },
       success: (res) => {
-        this.setData({ loading: false })
-
         if (res.statusCode === 200) {
           const { next_question, instant_score, hint, is_finished } = res.data
 
@@ -396,7 +415,8 @@ Page({
             this.setData({
               messages: newMessages,
               finished: true,
-              progress: 100
+              progress: 100,
+              loading: false
             })
           } else {
             // 添加下一个问题
@@ -406,14 +426,47 @@ Page({
             })
 
             const nextQuestionNum = currentQuestion + 1
-            this.setData({
-              messages: newMessages,
-              currentQuestion: nextQuestionNum,
-              progress: this.calculateProgress(nextQuestionNum),
-              currentQuestionText: next_question,  // 更新当前问题文本
-              hasPlayed: false,  // 重置播放状态
-              hasEnded: false    // 重置播放完成状态
-            })
+
+            // 在沉浸模式下，先结束loading，然后淡入新问题
+            if (this.data.viewMode === 'immersive') {
+              // 先清除loading状态
+              this.setData({
+                messages: newMessages,
+                currentQuestion: nextQuestionNum,
+                progress: this.calculateProgress(nextQuestionNum),
+                currentQuestionText: next_question,
+                hasPlayed: false,
+                hasEnded: false,
+                loading: false,
+                questionVisible: false,
+                questionFadeOut: false
+              })
+
+              // 等待100ms后开始淡入
+              setTimeout(() => {
+                this.setData({
+                  questionVisible: true
+                })
+
+                // 如果开启自动播放，则在淡入完成后播放
+                if (this.data.autoPlayEnabled) {
+                  setTimeout(() => {
+                    this.playQuestion()
+                  }, 400) // 等待淡入动画完成
+                }
+              }, 100)
+            } else {
+              // 聊天模式直接更新
+              this.setData({
+                messages: newMessages,
+                currentQuestion: nextQuestionNum,
+                progress: this.calculateProgress(nextQuestionNum),
+                currentQuestionText: next_question,
+                hasPlayed: false,
+                hasEnded: false,
+                loading: false
+              })
+            }
 
             // 滚动到最新消息
             setTimeout(() => {
@@ -421,15 +474,9 @@ Page({
                 scrollToView: `msg-${newMessages.length - 1}`
               })
             }, 100)
-
-            // 如果在沉浸模式且开启自动播放，则自动播放新问题
-            if (this.data.viewMode === 'immersive' && this.data.autoPlayEnabled) {
-              setTimeout(() => {
-                this.playQuestion()
-              }, 500)
-            }
           }
         } else {
+          this.setData({ loading: false })
           wx.showToast({
             title: '提交失败',
             icon: 'none'
