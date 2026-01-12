@@ -70,7 +70,22 @@ class KnowledgeService:
             # 筛选条件
             filter_clauses = []
             if position:
-                filter_clauses.append({"term": {"position": position}})
+                # 处理岗位匹配：支持模糊匹配（如"后端工程师 - Python后端"可以匹配"Python工程师"或"后端工程师"）
+                # 提取岗位关键词
+                position_keywords = position.replace(" - ", " ").split()
+                if len(position_keywords) > 1:
+                    # 有多个词时，使用should查询（任意一个匹配即可）
+                    filter_clauses.append({
+                        "bool": {
+                            "should": [
+                                {"match": {"position": kw}} for kw in position_keywords
+                            ],
+                            "minimum_should_match": 1
+                        }
+                    })
+                else:
+                    # 单个词时，使用match查询（支持模糊匹配）
+                    filter_clauses.append({"match": {"position": position}})
             if round_name:
                 filter_clauses.append({"term": {"round": round_name}})
 
