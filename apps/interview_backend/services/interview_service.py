@@ -635,11 +635,24 @@ class InterviewService:
 
             db.commit()
 
+            # 生成下一个问题的TTS音频（并行处理）
+            audio_url = None
+            try:
+                from services.volcengine_tts_service import get_volcengine_tts_service
+                audio_url = get_volcengine_tts_service().text_to_speech_url(full_response)
+                if audio_url:
+                    print(f"[TTS] 下一个问题音频生成成功: {audio_url}")
+                else:
+                    print("[TTS] 音频生成失败，前端将动态请求")
+            except Exception as e:
+                print(f"[TTS] 音频生成异常: {e}")
+
             return AnswerResponse(
                 next_question=full_response,
                 instant_score=instant_score,
                 hint=hint,
-                is_finished=False
+                is_finished=False,
+                audio_url=audio_url
             )
         else:
             # 面试结束

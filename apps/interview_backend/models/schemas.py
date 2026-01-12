@@ -60,6 +60,7 @@ class AnswerResponse(BaseModel):
     instant_score: Optional[float]
     hint: Optional[str]
     is_finished: bool = False
+    audio_url: Optional[str] = None  # TTS音频URL（预生成）
 
 
 class InterviewReport(BaseModel):

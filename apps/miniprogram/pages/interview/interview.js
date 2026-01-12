@@ -402,7 +402,7 @@ Page({
       },
       success: (res) => {
         if (res.statusCode === 200) {
-          const { next_question, instant_score, hint, is_finished } = res.data
+          const { next_question, instant_score, hint, is_finished, audio_url } = res.data
 
           // 更新上一条消息的评分和提示
           if (instant_score) {
@@ -451,7 +451,14 @@ Page({
                 // 如果开启自动播放，则在淡入完成后播放
                 if (this.data.autoPlayEnabled) {
                   setTimeout(() => {
-                    this.playQuestion()
+                    // 优先使用预生成的音频
+                    if (audio_url) {
+                      console.log('[面试页面] 使用后端预生成的音频:', audio_url)
+                      this.playAudioDirect(audio_url, next_question)
+                    } else {
+                      console.log('[面试页面] 音频未预生成，调用TTS接口')
+                      this.playQuestion()
+                    }
                   }, 400) // 等待淡入动画完成
                 }
               }, 100)
