@@ -92,12 +92,10 @@
       </view>
       <button
         class="record-btn"
-        bindtouchstart="startRecord"
-        bindtouchend="stopRecord"
-        bindtouchcancel="stopRecord"
+        bindtap="toggleRecord"
         disabled="{{loading}}"
       >
-        {{isRecording ? '松开发送' : '按住说话'}}
+        {{isRecording ? '点击结束' : '点击录音'}}
       </button>
     </view>
   </view>
