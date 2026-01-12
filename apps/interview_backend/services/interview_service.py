@@ -397,10 +397,21 @@ class InterviewService:
         db.add(session)
         db.commit()
 
+        # 生成TTS音频（在准备阶段完成）
+        audio_url = None
+        try:
+            from services.volcengine_tts_service import get_volcengine_tts_service
+            audio_url = get_volcengine_tts_service().text_to_speech_url(first_question)
+            print(f"[TTS] 第一个问题音频生成成功: {audio_url}")
+        except Exception as e:
+            print(f"[TTS] 音频生成失败: {e}")
+            # 不影响面试继续，只是没有音频
+
         return InterviewStartResponse(
             session_id=session_id,
             question=first_question,
-            question_type="开场"
+            question_type="开场",
+            audio_url=audio_url
         )
 
     def process_answer(self, request: AnswerRequest, db: Session) -> AnswerResponse:

@@ -192,8 +192,8 @@
 
 .status-main {
   font-size: 32rpx;
-  color: white;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 400;
   text-align: center;
 }
 
@@ -204,7 +204,7 @@
 
 .dot {
   font-size: 32rpx;
-  color: white;
+  color: rgba(255, 255, 255, 0.75);
   animation: blink 1.4s infinite;
 }
 

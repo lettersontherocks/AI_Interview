@@ -127,6 +127,53 @@ class VolcengineTTSService:
             traceback.print_exc()
             return None
 
+    def text_to_speech_url(
+        self,
+        text: str,
+        voice_type: str = "zh_male_shenyeboke_moon_bigtts"
+    ) -> Optional[str]:
+        """
+        文本转语音并保存为文件，返回URL
+
+        Args:
+            text: 要转换的文本
+            voice_type: 音色类型
+
+        Returns:
+            音频文件的访问URL，失败返回None
+        """
+        try:
+            # 调用TTS生成音频数据
+            audio_data = self.text_to_speech(text, voice_type=voice_type)
+            if not audio_data:
+                return None
+
+            # 生成唯一文件名
+            import hashlib
+            import time
+            text_hash = hashlib.md5(text.encode()).hexdigest()[:10]
+            timestamp = int(time.time() * 1000)
+            filename = f"tts_{timestamp}_{text_hash}.mp3"
+
+            # 保存到静态文件目录
+            static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "tts")
+            os.makedirs(static_dir, exist_ok=True)
+
+            file_path = os.path.join(static_dir, filename)
+            with open(file_path, "wb") as f:
+                f.write(audio_data)
+
+            # 返回可访问的URL（相对路径）
+            url = f"/static/tts/{filename}"
+            print(f"[TTS] 音频已保存: {file_path} -> {url}")
+            return url
+
+        except Exception as e:
+            print(f"[TTS] 保存音频文件失败: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return None
+
     def get_available_voices(self) -> dict:
         """
         获取可用的音色列表

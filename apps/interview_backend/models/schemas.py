@@ -44,6 +44,7 @@ class InterviewStartResponse(BaseModel):
     session_id: str
     question: str
     question_type: str = "开场"
+    audio_url: Optional[str] = None  # TTS音频URL
 
 
 class AnswerRequest(BaseModel):

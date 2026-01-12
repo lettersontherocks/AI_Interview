@@ -12,16 +12,16 @@ Page({
 
     // 提示文案（正式+俏皮混合）
     tips: [
-      '📋 正在分析岗位要求...',
-      '🎯 智能匹配面试题库...',
-      '💡 准备个性化问题...',
-      '☕ 面试官正在喝口水...',
-      '📚 翻阅您的简历中...',
-      '🎤 调试语音系统...',
-      '✨ 营造专业面试氛围...',
-      '🔍 精选最适合的题目...',
-      '💼 面试官整理思路中...',
-      '🎨 优化面试体验...'
+      '正在分析岗位要求',
+      '智能匹配面试题库',
+      '准备个性化问题',
+      '面试官正在喝口水',
+      '翻阅您的简历中',
+      '调试语音系统',
+      '营造专业面试氛围',
+      '精选最适合的题目',
+      '面试官整理思路中',
+      '优化面试体验'
     ],
 
     currentTipIndex: 0,
@@ -123,10 +123,10 @@ Page({
         console.log('[准备页面] 响应数据:', res.data)
 
         if (res.statusCode === 200) {
-          const { session_id, question } = res.data
+          const { session_id, question, audio_url } = res.data
 
           // 准备完成
-          this.onPrepareComplete(session_id, question)
+          this.onPrepareComplete(session_id, question, audio_url)
         } else {
           // 显示详细错误信息
           const errorMsg = res.data?.detail || '面试准备失败，请重试'
@@ -142,8 +142,8 @@ Page({
   },
 
   // 准备完成
-  onPrepareComplete(sessionId, firstQuestion) {
-    console.log('[准备页面] 准备完成:', { sessionId, firstQuestion })
+  onPrepareComplete(sessionId, firstQuestion, audioUrl) {
+    console.log('[准备页面] 准备完成:', { sessionId, firstQuestion, audioUrl })
 
     // 清除定时器
     if (this.data.tipTimer) {
@@ -155,18 +155,36 @@ Page({
 
     // 显示完成状态
     this.setData({
-      currentTip: '✓ 一切准备就绪',
       hintText: '马上开始您的精彩面试',
-      progress: 100,
       isReady: true,
       sessionId,
-      firstQuestion
+      firstQuestion,
+      audioUrl
     })
 
-    // 1秒后跳转到面试页
+    // 平滑过渡到100%（如果还没到100%）
+    const currentProgress = this.data.progress
+    if (currentProgress < 100) {
+      let progress = currentProgress
+      const completeTimer = setInterval(() => {
+        progress += (100 - currentProgress) * 0.15
+        if (progress >= 99.5) {
+          clearInterval(completeTimer)
+          this.setData({ progress: 100 })
+        } else {
+          this.setData({ progress: Math.floor(progress) })
+        }
+      }, 50)
+    } else {
+      // 已经到达100%，直接设置
+      this.setData({ progress: 100 })
+    }
+
+    // 1秒后跳转到面试页，传递音频URL
     setTimeout(() => {
+      const audioParam = audioUrl ? `&audioUrl=${encodeURIComponent(audioUrl)}` : ''
       wx.redirectTo({
-        url: `/pages/interview/interview?sessionId=${sessionId}&firstQuestion=${encodeURIComponent(firstQuestion)}&resume=false`
+        url: `/pages/interview/interview?sessionId=${sessionId}&firstQuestion=${encodeURIComponent(firstQuestion)}&resume=false${audioParam}`
       })
     }, 1000)
   },

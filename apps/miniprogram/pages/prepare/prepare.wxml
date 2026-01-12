@@ -26,8 +26,8 @@
       </view>
     </view>
 
-    <!-- 状态文字 -->
-    <view class="status-text">
+    <!-- 状态文字（准备就绪时隐藏） -->
+    <view class="status-text" wx:if="{{!isReady}}">
       <text class="status-main">{{currentTip}}</text>
       <view class="dots">
         <text class="dot dot-1">.</text>

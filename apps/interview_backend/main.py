@@ -1,7 +1,9 @@
 """面试后端主程序"""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
+import os
 
 from database.db import init_db
 from api.routes import router
@@ -37,6 +39,11 @@ app.add_middleware(
 
 # 注册路由
 app.include_router(router, prefix="/api/v1", tags=["interview"])
+
+# 挂载静态文件目录（用于TTS音频文件）
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
 @app.get("/")

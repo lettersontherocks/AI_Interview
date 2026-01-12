@@ -44,7 +44,7 @@ Page({
   },
 
   onLoad(options) {
-    const { sessionId, firstQuestion, resume } = options
+    const { sessionId, firstQuestion, resume, audioUrl } = options
 
     // 初始化录音管理器
     this.initRecorder()
@@ -55,6 +55,8 @@ Page({
     } else {
       // 新面试
       const questionText = decodeURIComponent(firstQuestion)
+      const decodedAudioUrl = audioUrl ? decodeURIComponent(audioUrl) : null
+
       this.setData({
         sessionId,
         messages: [{
@@ -66,7 +68,14 @@ Page({
         // 默认沉浸模式，首次加载时自动播放第一个问题
         if (this.data.viewMode === 'immersive' && this.data.autoPlayEnabled) {
           setTimeout(() => {
-            this.playQuestion()
+            // 如果有预生成的音频，直接使用；否则调用TTS接口
+            if (decodedAudioUrl) {
+              console.log('[面试页面] 使用准备阶段生成的音频:', decodedAudioUrl)
+              this.playAudioDirect(decodedAudioUrl, questionText)
+            } else {
+              console.log('[面试页面] 音频未预生成，调用TTS接口')
+              this.playQuestion()
+            }
           }, 500)
         }
       })
@@ -595,6 +604,32 @@ Page({
       }
     })
   },
+
+  // 直接播放已生成的音频（从URL）
+  playAudioDirect(audioUrl, questionText) {
+    console.log('[TTS] 直接播放预生成音频:', audioUrl)
+
+    // 将相对路径转换为完整URL
+    // 注意：静态文件路径不包含 /api/v1，需要移除
+    let fullUrl
+    if (audioUrl.startsWith('http')) {
+      fullUrl = audioUrl
+    } else {
+      // 从 baseUrl 中移除 /api/v1 后缀
+      const serverUrl = app.globalData.baseUrl.replace(/\/api\/v1$/, '')
+      fullUrl = `${serverUrl}${audioUrl}`
+    }
+    console.log('[TTS] 完整音频URL:', fullUrl)
+
+    // 保存到缓存（使用完整URL）
+    const newCache = { ...this.data.ttsCache }
+    newCache[questionText] = fullUrl
+    this.setData({ ttsCache: newCache })
+
+    // 直接播放服务器URL
+    this.playAudioFile(fullUrl)
+  },
+
 
   // 播放音频文件
   playAudioFile(filePath) {
