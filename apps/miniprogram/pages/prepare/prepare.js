@@ -120,10 +120,10 @@ Page({
         console.log('[准备页面] 响应数据:', res.data)
 
         if (res.statusCode === 200) {
-          const { session_id, first_question } = res.data
+          const { session_id, question } = res.data
 
           // 准备完成
-          this.onPrepareComplete(session_id, first_question)
+          this.onPrepareComplete(session_id, question)
         } else {
           // 显示详细错误信息
           const errorMsg = res.data?.detail || '面试准备失败，请重试'
