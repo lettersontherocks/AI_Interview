@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/prepare/prepare",
     "pages/interview/interview",
     "pages/report/report",
     "pages/profile/profile",

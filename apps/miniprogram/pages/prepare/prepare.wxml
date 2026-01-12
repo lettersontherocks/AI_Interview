@@ -1,0 +1,55 @@
+<!-- 面试准备页面 -->
+<view class="prepare-container">
+  <!-- 背景装饰 -->
+  <view class="bg-decoration">
+    <view class="circle circle-1"></view>
+    <view class="circle circle-2"></view>
+    <view class="circle circle-3"></view>
+  </view>
+
+  <!-- 主内容 -->
+  <view class="content">
+    <!-- 面试官头像动画 -->
+    <view class="interviewer-avatar {{isReady ? 'ready' : ''}}">
+      <view class="avatar-outer">
+        <view class="avatar-middle">
+          <view class="avatar-inner">
+            <text class="avatar-icon">👔</text>
+          </view>
+        </view>
+      </view>
+      <!-- 加载动画波纹 -->
+      <view class="loading-waves" wx:if="{{!isReady}}">
+        <view class="wave wave-1"></view>
+        <view class="wave wave-2"></view>
+        <view class="wave wave-3"></view>
+      </view>
+    </view>
+
+    <!-- 状态文字 -->
+    <view class="status-text">
+      <text class="status-main">{{currentTip}}</text>
+      <view class="dots">
+        <text class="dot dot-1">.</text>
+        <text class="dot dot-2">.</text>
+        <text class="dot dot-3">.</text>
+      </view>
+    </view>
+
+    <!-- 进度条 -->
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{progress}}%"></view>
+    </view>
+
+    <!-- 提示信息 -->
+    <view class="hint-text">
+      <text>{{hintText}}</text>
+    </view>
+
+    <!-- 准备就绪提示 -->
+    <view class="ready-prompt" wx:if="{{isReady}}">
+      <view class="ready-icon">✓</view>
+      <text class="ready-text">准备完成！即将开始</text>
+    </view>
+  </view>
+</view>

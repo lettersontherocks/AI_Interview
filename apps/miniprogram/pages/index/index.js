@@ -516,10 +516,23 @@ Page({
     // 合并手动输入和上传的简历（优先使用手动输入，否则使用上传的）
     const finalResume = resume || uploadedResume || null
 
+    // 跳转到准备页面，由准备页面负责调用接口和显示动画
+    wx.navigateTo({
+      url: `/pages/prepare/prepare?position_id=${selectedPositionId}&position_name=${encodeURIComponent(selectedPositionName)}&round=${encodeURIComponent(selectedRound)}&resume=${encodeURIComponent(finalResume || '')}&interviewer_style=${encodeURIComponent(selectedInterviewerStyle || '')}`
+    })
+  },
+
+  // 旧的实现（已废弃，保留备份）
+  startInterviewOld() {
+    const { selectedPositionId, selectedPositionName, selectedRound, selectedInterviewerStyle, resume, uploadedResume, userInfo } = this.data
+
     // 显示加载界面
     this.setData({
       isPreparingInterview: true
     })
+
+    // 合并手动输入和上传的简历
+    const finalResume = resume || uploadedResume || null
 
     // 调用开始面试接口
     const requestUrl = `${app.globalData.baseUrl}/interview/start`
@@ -529,7 +542,7 @@ Page({
       round: selectedRound,
       user_id: app.globalData.userId || null,
       resume: finalResume,
-      interviewer_style: selectedInterviewerStyle || null  // 添加面试官风格参数
+      interviewer_style: selectedInterviewerStyle || null
     }
 
     console.log('[开始面试] 请求URL:', requestUrl)
@@ -538,7 +551,7 @@ Page({
     wx.request({
       url: requestUrl,
       method: 'POST',
-      timeout: 180000, // 超时时间设置为180秒（3分钟）- 真机调试需要更长时间
+      timeout: 180000,
       header: {
         'content-type': 'application/json'
       },

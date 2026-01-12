@@ -42,7 +42,7 @@
     </view>
 
     <!-- 问题文字（条件显示） -->
-    <scroll-view class="question-text" scroll-y wx:if="{{showQuestionText}}">
+    <scroll-view class="question-text" scroll-y wx:if="{{showQuestionText && !loading}}">
       <text class="question-content">{{currentQuestionText}}</text>
     </scroll-view>
 
