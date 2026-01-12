@@ -309,6 +309,17 @@ Page({
     }
   },
 
+  // 切换录音状态（点击式录音）
+  toggleRecord() {
+    if (this.data.isRecording) {
+      // 正在录音，点击结束
+      this.stopRecord()
+    } else {
+      // 未录音，点击开始
+      this.startRecord()
+    }
+  },
+
   // 提交文字回答（统一的提交方法，文字和语音都用这个）
   submitTextAnswer(text) {
     const { sessionId, messages, currentQuestion } = this.data

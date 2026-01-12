@@ -98,20 +98,17 @@
 
       <!-- 语音输入 -->
       <view wx:else class="voice-input-box">
-        <view class="record-status">
-          <text wx:if="{{!isRecording}}">按住说话</text>
-          <view wx:else class="recording-indicator">
+        <view class="record-status" wx:if="{{isRecording}}">
+          <view class="recording-indicator">
             <view class="recording-dot"></view>
             <text>录音中 {{recordDuration}}s</text>
           </view>
         </view>
         <button
           class="record-button {{isRecording ? 'recording' : ''}}"
-          bindtouchstart="startRecord"
-          bindtouchend="stopRecord"
-          bindtouchcancel="stopRecord"
+          bindtap="toggleRecord"
         >
-          {{isRecording ? '松开发送' : '按住说话'}}
+          {{isRecording ? '点击结束' : '点击录音'}}
         </button>
       </view>
     </view>
