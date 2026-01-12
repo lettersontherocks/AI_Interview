@@ -62,6 +62,13 @@ Page({
           content: questionText
         }],
         currentQuestionText: questionText
+      }, () => {
+        // 默认沉浸模式，首次加载时自动播放第一个问题
+        if (this.data.viewMode === 'immersive' && this.data.autoPlayEnabled) {
+          setTimeout(() => {
+            this.playQuestion()
+          }, 500)
+        }
       })
     }
   },
@@ -393,7 +400,10 @@ Page({
             this.setData({
               messages: newMessages,
               currentQuestion: nextQuestionNum,
-              progress: this.calculateProgress(nextQuestionNum)
+              progress: this.calculateProgress(nextQuestionNum),
+              currentQuestionText: next_question,  // 更新当前问题文本
+              hasPlayed: false,  // 重置播放状态
+              hasEnded: false    // 重置播放完成状态
             })
 
             // 滚动到最新消息
@@ -402,6 +412,13 @@ Page({
                 scrollToView: `msg-${newMessages.length - 1}`
               })
             }, 100)
+
+            // 如果在沉浸模式且开启自动播放，则自动播放新问题
+            if (this.data.viewMode === 'immersive' && this.data.autoPlayEnabled) {
+              setTimeout(() => {
+                this.playQuestion()
+              }, 500)
+            }
           }
         } else {
           wx.showToast({
