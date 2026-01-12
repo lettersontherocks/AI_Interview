@@ -18,7 +18,7 @@ Page({
     recordDuration: 0,
     recognizedText: '', // 识别后的文字
     // 沉浸模式相关
-    viewMode: 'chat', // 'chat' | 'immersive'
+    viewMode: 'immersive', // 'chat' | 'immersive' - 默认沉浸模式
     isPlaying: false, // 是否正在播放语音
     hasPlayed: false, // 当前问题是否已播放过
     hasEnded: false, // 当前问题是否播放完毕
