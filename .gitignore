@@ -23,10 +23,19 @@ wheels/
 .installed.cfg
 *.egg
 
-# Environment
+# Environment Variables - 敏感信息
 .env
 .env.local
+.env.production
+.env.development
+.env.test
 *.db
+
+# 音频和上传文件
+audio_outputs/
+uploads/
+*.mp3
+*.wav
 
 # IDE
 .vscode/

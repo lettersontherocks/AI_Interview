@@ -3,16 +3,16 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: ai_interview
-      POSTGRES_USER: interview_user
-      POSTGRES_PASSWORD: interview_pass_2024
+      POSTGRES_DB: ${POSTGRES_DB:-ai_interview}
+      POSTGRES_USER: ${POSTGRES_USER:-interview_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?请在.env文件中设置POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - ai-interview-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U interview_user -d ai_interview"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-interview_user} -d ${POSTGRES_DB:-ai_interview}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,15 +21,35 @@ services:
   interview-backend:
     image: ai_interview-interview-backend:latest
     ports:
-      - "8003:8003"
+      - "${PORT:-8003}:8003"
+    env_file:
+      - .env
     environment:
-      - DASHSCOPE_API_KEY=sk-088194a0fd464b2199940e165f9ae1ac
-      - VOLCENGINE_APP_ID=6819739508
-      - VOLCENGINE_ACCESS_TOKEN=3CNF4EuZmtnDsC7reNH5TOTH32yLZ_7D
-      - DATABASE_URL=postgresql://interview_user:interview_pass_2024@postgres:5432/ai_interview
-      - FREE_DAILY_LIMIT=2
-      - VIP_MONTHLY_PRICE=29.9
-      - SINGLE_INTERVIEW_PRICE=9.9
+      # 数据库配置
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-ai_interview}
+      - POSTGRES_USER=${POSTGRES_USER:-interview_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?请在.env文件中设置POSTGRES_PASSWORD}
+
+      # AI服务
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY:?请在.env文件中设置DASHSCOPE_API_KEY}
+
+      # 语音服务
+      - VOLCENGINE_APP_ID=${VOLCENGINE_APP_ID:-}
+      - VOLCENGINE_ACCESS_TOKEN=${VOLCENGINE_ACCESS_TOKEN:-}
+
+      # 业务配置
+      - FREE_DAILY_LIMIT=${FREE_DAILY_LIMIT:-2}
+      - VIP_MONTHLY_PRICE=${VIP_MONTHLY_PRICE:-9.98}
+      - SINGLE_INTERVIEW_PRICE=${SINGLE_INTERVIEW_PRICE:-0.99}
+
+      # Elasticsearch
+      - ES_HOST=${ES_HOST:-http://47.93.141.137:9200}
+
+      # 应用配置
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
