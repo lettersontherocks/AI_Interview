@@ -1,0 +1,118 @@
+<!-- pages/interview/interview.wxml -->
+<view class="container">
+  <!-- 模式选择：聊天模式 or 沉浸模式 -->
+  <view wx:if="{{viewMode === 'chat'}}" class="chat-mode">
+    <!-- 顶部进度 -->
+    <view class="progress-bar">
+      <view class="progress-fill animated" style="width: {{progress}}%"></view>
+    </view>
+    <view class="progress-header">
+      <view class="progress-text">
+        <text wx:if="{{finished}}">✅ 面试已完成</text>
+        <text wx:else>💬 第 {{currentQuestion}} 题 · 面试进行中</text>
+      </view>
+      <view class="view-mode-switch" bindtap="switchToImmersive">
+        <text class="switch-icon">🎭</text>
+        <text class="switch-text">沉浸</text>
+      </view>
+    </view>
+
+  <!-- 对话记录 -->
+  <scroll-view class="chat-area" scroll-y scroll-into-view="{{scrollToView}}" scroll-with-animation>
+    <view
+      class="message-item {{item.role}}"
+      wx:for="{{messages}}"
+      wx:key="index"
+      id="msg-{{index}}"
+    >
+      <view class="message-avatar">
+        <text wx:if="{{item.role === 'interviewer'}}">👔</text>
+        <text wx:else>👤</text>
+      </view>
+      <view class="message-content">
+        <view class="message-text">{{item.content}}</view>
+        <!-- 隐藏实时分数，只在最终报告中显示 -->
+        <!-- <view wx:if="{{item.score}}" class="message-feedback">
+          <view class="score">评分: {{item.score}}/10</view>
+          <view wx:if="{{item.hint}}" class="hint">{{item.hint}}</view>
+        </view> -->
+      </view>
+    </view>
+
+    <!-- 加载中 -->
+    <view wx:if="{{loading}}" class="message-item interviewer">
+      <view class="message-avatar">👔</view>
+      <view class="message-content">
+        <view class="typing-indicator">
+          <span></span><span></span><span></span>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 输入区域 -->
+  <view class="input-area" wx:if="{{!finished}}">
+    <!-- 模式切换按钮 -->
+    <view class="mode-toggle" bindtap="toggleInputMode">
+      <text class="mode-icon">{{inputMode === 'text' ? '🎤' : '⌨️'}}</text>
+    </view>
+
+    <!-- 文字输入模式 -->
+    <view class="text-input-wrapper" wx:if="{{inputMode === 'text'}}">
+      <textarea
+        class="answer-input"
+        placeholder="输入回答...（也可点击🎤语音输入）"
+        placeholder-class="input-placeholder"
+        bindinput="inputAnswer"
+        value="{{currentAnswer}}"
+        auto-height
+        maxlength="1000"
+        disabled="{{loading}}"
+      />
+      <view
+        class="send-btn {{(!canSend || loading) ? 'send-btn-disabled' : ''}}"
+        bindtap="submitAnswer"
+      >
+        <text class="send-icon">➤</text>
+      </view>
+    </view>
+
+    <!-- 语音输入模式 -->
+    <view class="voice-input-wrapper" wx:else>
+      <view class="voice-status" wx:if="{{!isRecording}}">
+        <text class="voice-hint">按住说话</text>
+      </view>
+      <view class="voice-status recording" wx:else>
+        <view class="recording-animation">
+          <view class="wave"></view>
+          <view class="wave"></view>
+          <view class="wave"></view>
+        </view>
+        <text class="recording-time">{{recordDuration}}s</text>
+      </view>
+      <button
+        class="record-btn"
+        bindtap="toggleRecord"
+        disabled="{{loading}}"
+      >
+        {{isRecording ? '点击结束' : '点击录音'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 完成提示 -->
+  <view class="finish-area" wx:if="{{finished}}">
+    <view class="finish-icon">✅</view>
+    <view class="finish-title">面试已完成</view>
+    <view class="finish-subtitle">正在生成面试报告...</view>
+    <button class="view-report-btn primary-btn" bindtap="viewReport">
+      查看报告
+    </button>
+  </view>
+  </view>
+
+  <!-- 沉浸模式 -->
+  <view wx:elif="{{viewMode === 'immersive'}}">
+    <include src="./immersive.wxml" />
+  </view>
+</view>
