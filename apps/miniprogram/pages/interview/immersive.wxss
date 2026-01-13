@@ -71,6 +71,39 @@
   font-weight: 500;
 }
 
+/* 侧边控制面板 */
+.side-controls {
+  position: fixed;
+  right: 20rpx;
+  top: 200rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  z-index: 90;
+}
+
+.side-control-item {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10rpx);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.side-control-item:active {
+  transform: scale(0.9);
+  background: rgba(240, 240, 240, 0.95);
+}
+
+.side-control-icon {
+  font-size: 40rpx;
+}
+
 /* 面试官区域 */
 .interviewer-section {
   flex: 1;

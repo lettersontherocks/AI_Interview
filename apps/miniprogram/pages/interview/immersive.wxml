@@ -16,6 +16,22 @@
     </view>
   </view>
 
+  <!-- 侧边控制面板 -->
+  <view class="side-controls" wx:if="{{currentQuestionText && !loading}}">
+    <view class="side-control-item" bindtap="toggleAudio">
+      <text class="side-control-icon">{{isPlaying ? '⏸' : (hasEnded ? '🔁' : '▶️')}}</text>
+    </view>
+    <view class="side-control-item" bindtap="toggleAutoPlay">
+      <text class="side-control-icon">{{autoPlayEnabled ? '🔊' : '🔇'}}</text>
+    </view>
+    <view class="side-control-item" bindtap="showHistoryDrawer">
+      <text class="side-control-icon">📋</text>
+    </view>
+    <view class="side-control-item" bindtap="toggleQuestionText">
+      <text class="side-control-icon">{{showQuestionText ? '👁' : '📝'}}</text>
+    </view>
+  </view>
+
   <!-- 面试官区域 -->
   <view class="interviewer-section">
     <!-- 头像 -->
@@ -52,32 +68,10 @@
     <scroll-view class="question-text {{questionFadeOut ? 'fade-out' : ''}} {{questionVisible ? 'fade-in' : ''}}" scroll-y wx:if="{{showQuestionText && !loading && questionVisible}}">
       <text class="question-content">{{currentQuestionText}}</text>
     </scroll-view>
-
-    <!-- 播放控制 -->
-    <view class="audio-controls {{questionFadeOut ? 'fade-out' : ''}} {{questionVisible ? 'fade-in' : ''}}" wx:if="{{currentQuestionText && !loading && questionVisible}}">
-      <view class="control-btn" bindtap="toggleAudio">
-        <text class="control-icon">{{isPlaying ? '⏸' : (hasEnded ? '🔁' : (hasPlayed ? '▶️' : '▶️'))}}</text>
-        <text class="control-label">{{isPlaying ? '暂停' : (hasEnded ? '重听' : (hasPlayed ? '继续' : '播放'))}}</text>
-      </view>
-      <view class="control-btn" bindtap="toggleAutoPlay">
-        <text class="control-icon">{{autoPlayEnabled ? '🔊' : '🔇'}}</text>
-        <text class="control-label">{{autoPlayEnabled ? '自动播放' : '手动播放'}}</text>
-      </view>
-    </view>
   </view>
 
   <!-- 输入区域 -->
   <view class="input-section" wx:if="{{!finished && !loading}}">
-    <!-- 快捷操作 -->
-    <view class="quick-actions">
-      <view class="quick-btn" bindtap="showHistoryDrawer">
-        <text>📋 查看历史</text>
-      </view>
-      <view class="quick-btn" bindtap="toggleQuestionText">
-        <text>{{showQuestionText ? '📝 隐藏原文' : '📝 查看原文'}}</text>
-      </view>
-    </view>
-
     <!-- 输入框 -->
     <view class="input-wrapper">
       <!-- 语音模式切换 -->
