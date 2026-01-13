@@ -5,7 +5,8 @@
     "pages/interview/interview",
     "pages/report/report",
     "pages/profile/profile",
-    "pages/history/history"
+    "pages/history/history",
+    "pages/vip/vip"
   ],
   "permission": {
     "scope.record": {

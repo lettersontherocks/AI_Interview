@@ -98,13 +98,10 @@ Page({
     this.setData({ selectedPrice: type })
   },
 
-  // 购买VIP（暂未开通）
-  purchaseVip() {
-    wx.showModal({
-      title: '即将上线',
-      content: '会员功能正在开发中，敬请期待！',
-      showCancel: false,
-      confirmText: '知道了'
+  // 跳转到VIP页面
+  goToVipPage() {
+    wx.navigateTo({
+      url: '/pages/vip/vip'
     })
   },
 
@@ -200,7 +197,7 @@ Page({
   aboutUs() {
     wx.showModal({
       title: 'AI面试练习',
-      content: '版本: 1.0.0\n基于Claude AI的智能面试练习平台\n帮助求职者提升面试技能',
+      content: '版本: 1.0.0\n智能面试练习平台\n帮助求职者提升面试技能',
       showCancel: false
     })
   },

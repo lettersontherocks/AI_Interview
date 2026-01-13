@@ -1,0 +1,192 @@
+<!-- pages/vip/vip.wxml -->
+<view class="container">
+  <!-- 头部 -->
+  <view class="header">
+    <view class="header-bg"></view>
+    <view class="header-content">
+      <text class="header-title">开通会员 无限练习</text>
+      <text class="header-subtitle">专业模拟面试 · 即时AI反馈 · 快速提升技能</text>
+    </view>
+  </view>
+
+  <!-- 当前状态 -->
+  <view class="status-card" wx:if="{{userInfo.vip_type}}">
+    <view class="status-icon">{{userInfo.vip_type === 'super' ? '🌟' : '⭐'}}</view>
+    <view class="status-info">
+      <text class="status-title">{{userInfo.vip_type === 'super' ? '超级VIP' : '普通VIP'}}</text>
+      <text class="status-desc">到期时间: {{userInfo.vip_expire_date || '长期有效'}}</text>
+    </view>
+  </view>
+
+  <!-- 单次付费选项 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">💰 单次购买</text>
+      <text class="section-desc">按需付费，灵活使用</text>
+    </view>
+    <view class="single-purchase-card" bindtap="selectPlan" data-type="single" data-price="1.99">
+      <view class="single-purchase-left">
+        <text class="single-purchase-title">单次面试</text>
+        <text class="single-purchase-desc">1次完整AI模拟面试</text>
+      </view>
+      <view class="single-purchase-right">
+        <text class="single-purchase-price">¥1.99</text>
+        <text class="single-purchase-btn">立即购买</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 普通VIP -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">⭐ 普通VIP</text>
+      <text class="section-desc">每天2次免费面试</text>
+    </view>
+    <view class="plan-grid">
+      <view
+        class="plan-item {{selectedPlan === 'normal_month' ? 'active' : ''}}"
+        bindtap="selectPlan"
+        data-type="normal_month"
+        data-price="9.99"
+      >
+        <text class="plan-duration">月度</text>
+        <text class="plan-price">¥9.99</text>
+        <text class="plan-unit">/月</text>
+      </view>
+      <view
+        class="plan-item {{selectedPlan === 'normal_quarter' ? 'active' : ''}}"
+        bindtap="selectPlan"
+        data-type="normal_quarter"
+        data-price="19.99"
+      >
+        <view class="plan-badge">省33%</view>
+        <text class="plan-duration">季度</text>
+        <text class="plan-price">¥19.99</text>
+        <text class="plan-unit">/3个月</text>
+      </view>
+      <view
+        class="plan-item {{selectedPlan === 'normal_half' ? 'active' : ''}}"
+        bindtap="selectPlan"
+        data-type="normal_half"
+        data-price="29.99"
+      >
+        <view class="plan-badge">省50%</view>
+        <text class="plan-duration">半年</text>
+        <text class="plan-price">¥29.99</text>
+        <text class="plan-unit">/6个月</text>
+      </view>
+      <view
+        class="plan-item {{selectedPlan === 'normal_year' ? 'active' : ''}}"
+        bindtap="selectPlan"
+        data-type="normal_year"
+        data-price="49.99"
+      >
+        <view class="plan-badge">省58%</view>
+        <text class="plan-duration">年度</text>
+        <text class="plan-price">¥49.99</text>
+        <text class="plan-unit">/年</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 超级VIP -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">🌟 超级VIP</text>
+      <text class="section-desc">无限次免费面试</text>
+    </view>
+    <view class="plan-grid">
+      <view
+        class="plan-item super {{selectedPlan === 'super_month' ? 'active' : ''}}"
+        bindtap="selectPlan"
+        data-type="super_month"
+        data-price="28.88"
+      >
+        <text class="plan-duration">月度</text>
+        <text class="plan-price">¥28.88</text>
+        <text class="plan-unit">/月</text>
+      </view>
+      <view
+        class="plan-item super {{selectedPlan === 'super_quarter' ? 'active' : ''}}"
+        bindtap="selectPlan"
+        data-type="super_quarter"
+        data-price="58.88"
+      >
+        <view class="plan-badge super-badge">省32%</view>
+        <text class="plan-duration">季度</text>
+        <text class="plan-price">¥58.88</text>
+        <text class="plan-unit">/3个月</text>
+      </view>
+      <view
+        class="plan-item super {{selectedPlan === 'super_half' ? 'active' : ''}}"
+        bindtap="selectPlan"
+        data-type="super_half"
+        data-price="128.88"
+      >
+        <view class="plan-badge super-badge">省63%</view>
+        <text class="plan-duration">半年</text>
+        <text class="plan-price">¥128.88</text>
+        <text class="plan-unit">/6个月</text>
+      </view>
+      <view
+        class="plan-item super {{selectedPlan === 'super_year' ? 'active' : ''}}"
+        bindtap="selectPlan"
+        data-type="super_year"
+        data-price="228.88"
+      >
+        <view class="plan-badge super-badge">省74%</view>
+        <text class="plan-duration">年度</text>
+        <text class="plan-price">¥228.88</text>
+        <text class="plan-unit">/年</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 权益对比 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">📊 权益对比</text>
+    </view>
+    <view class="compare-table">
+      <view class="compare-row header-row">
+        <view class="compare-cell">权益</view>
+        <view class="compare-cell">免费</view>
+        <view class="compare-cell">普通VIP</view>
+        <view class="compare-cell">超级VIP</view>
+      </view>
+      <view class="compare-row">
+        <view class="compare-cell">每日免费次数</view>
+        <view class="compare-cell">1次</view>
+        <view class="compare-cell">2次</view>
+        <view class="compare-cell">无限</view>
+      </view>
+      <view class="compare-row">
+        <view class="compare-cell">AI即时反馈</view>
+        <view class="compare-cell">✓</view>
+        <view class="compare-cell">✓</view>
+        <view class="compare-cell">✓</view>
+      </view>
+      <view class="compare-row">
+        <view class="compare-cell">面试报告</view>
+        <view class="compare-cell">✓</view>
+        <view class="compare-cell">✓</view>
+        <view class="compare-cell">✓</view>
+      </view>
+      <view class="compare-row">
+        <view class="compare-cell">历史记录</view>
+        <view class="compare-cell">✓</view>
+        <view class="compare-cell">✓</view>
+        <view class="compare-cell">✓</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 购买按钮 -->
+  <view class="purchase-footer" wx:if="{{selectedPlan}}">
+    <view class="purchase-info">
+      <text class="purchase-plan-name">{{selectedPlanName}}</text>
+      <text class="purchase-price">¥{{selectedPrice}}</text>
+    </view>
+    <button class="purchase-btn" bindtap="confirmPurchase">立即购买</button>
+  </view>
+</view>

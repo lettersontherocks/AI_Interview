@@ -5,33 +5,24 @@
     <image class="avatar" src="{{userInfo.avatar || '/assets/default-avatar.png'}}" mode="aspectFill"></image>
     <view class="user-info">
       <text class="nickname">{{userInfo.nickname || '未登录'}}</text>
-      <view class="vip-badge" wx:if="{{userInfo.is_vip}}">
-        <text class="vip-icon">👑</text>
-        <text class="vip-text">VIP会员</text>
+      <view class="vip-badge" wx:if="{{userInfo.vip_type}}">
+        <text class="vip-icon">{{userInfo.vip_type === 'super' ? '🌟' : '⭐'}}</text>
+        <text class="vip-text">{{userInfo.vip_type === 'super' ? '超级VIP' : '普通VIP'}}</text>
       </view>
-      <text class="quota-text" wx:else>今日剩余: {{userInfo.free_count_today || 0}}/{{freeLimit}}次</text>
+      <text class="quota-text" wx:else>今日剩余: {{userInfo.free_count_today || 0}}/1次</text>
     </view>
   </view>
 
-  <!-- VIP购买卡片 -->
-  <view class="vip-card" wx:if="{{!userInfo.is_vip}}">
-    <view class="vip-header">
-      <text class="vip-title">开通VIP 无限练习</text>
-      <text class="vip-subtitle">专业模拟 · 即时反馈 · 职业提升</text>
-    </view>
-    <view class="price-options">
-      <view class="price-item {{selectedPrice === 'month' ? 'active' : ''}}" bindtap="selectPrice" data-type="month">
-        <text class="price-label">月度会员</text>
-        <text class="price-value">¥29.9</text>
-        <text class="price-desc">无限次练习</text>
-      </view>
-      <view class="price-item {{selectedPrice === 'single' ? 'active' : ''}}" bindtap="selectPrice" data-type="single">
-        <text class="price-label">单次购买</text>
-        <text class="price-value">¥9.9</text>
-        <text class="price-desc">1次完整面试</text>
+  <!-- VIP小卡片 -->
+  <view class="vip-mini-card" bindtap="goToVipPage">
+    <view class="vip-mini-left">
+      <text class="vip-mini-icon">👑</text>
+      <view class="vip-mini-info">
+        <text class="vip-mini-title">{{userInfo.vip_type === 'super' ? '超级VIP' : (userInfo.vip_type === 'normal' ? '普通VIP' : '开通VIP会员')}}</text>
+        <text class="vip-mini-desc">{{userInfo.vip_type ? '查看会员详情' : '无限练习 专业提升'}}</text>
       </view>
     </view>
-    <button class="purchase-btn" bindtap="purchaseVip">立即开通</button>
+    <view class="vip-mini-arrow">›</view>
   </view>
 
   <!-- 面试记录 -->

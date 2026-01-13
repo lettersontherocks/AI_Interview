@@ -1,0 +1,316 @@
+/* pages/vip/vip.wxss */
+.container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding-bottom: 140rpx;
+}
+
+/* 头部 */
+.header {
+  position: relative;
+  height: 300rpx;
+  overflow: hidden;
+}
+
+.header-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.header-content {
+  position: relative;
+  z-index: 1;
+  padding: 60rpx 40rpx;
+  text-align: center;
+  color: white;
+}
+
+.header-title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: bold;
+  margin-bottom: 15rpx;
+}
+
+.header-subtitle {
+  display: block;
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+/* 当前状态卡片 */
+.status-card {
+  margin: -60rpx 30rpx 20rpx;
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+}
+
+.status-icon {
+  font-size: 60rpx;
+}
+
+.status-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.status-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.status-desc {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 区块 */
+.section {
+  margin: 20rpx 30rpx;
+}
+
+.section-header {
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.section-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 单次购买卡片 */
+.single-purchase-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.3s;
+}
+
+.single-purchase-card:active {
+  transform: scale(0.98);
+}
+
+.single-purchase-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.single-purchase-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.single-purchase-desc {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.single-purchase-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10rpx;
+}
+
+.single-purchase-price {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #ff6b6b;
+}
+
+.single-purchase-btn {
+  font-size: 22rpx;
+  color: #667eea;
+  padding: 8rpx 20rpx;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 20rpx;
+}
+
+/* 方案网格 */
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.plan-item {
+  position: relative;
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx 20rpx;
+  text-align: center;
+  border: 3rpx solid transparent;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.plan-item:active {
+  transform: scale(0.97);
+}
+
+.plan-item.active {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.2);
+}
+
+.plan-item.super.active {
+  border-color: #ffd700;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05) 0%, rgba(255, 193, 7, 0.05) 100%);
+  box-shadow: 0 4rpx 16rpx rgba(255, 215, 0, 0.3);
+}
+
+.plan-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+  color: white;
+  font-size: 20rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 20rpx;
+  font-weight: bold;
+  box-shadow: 0 2rpx 8rpx rgba(255, 107, 107, 0.4);
+}
+
+.plan-badge.super-badge {
+  background: linear-gradient(135deg, #ffd700 0%, #ffc107 100%);
+  color: #333;
+}
+
+.plan-duration {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.plan-price {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.plan-item.super .plan-price {
+  background: linear-gradient(135deg, #ffd700 0%, #ffc107 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.plan-unit {
+  font-size: 22rpx;
+  color: #999;
+}
+
+/* 对比表格 */
+.compare-table {
+  background: white;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.compare-row {
+  display: flex;
+}
+
+.compare-row.header-row {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.compare-row.header-row .compare-cell {
+  color: white;
+  font-weight: bold;
+}
+
+.compare-cell {
+  flex: 1;
+  padding: 20rpx 10rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #333;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.compare-row:last-child .compare-cell {
+  border-bottom: none;
+}
+
+/* 购买底栏 */
+.purchase-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.08);
+  z-index: 100;
+}
+
+.purchase-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.purchase-plan-name {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.purchase-price {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #ff6b6b;
+}
+
+.purchase-btn {
+  flex-shrink: 0;
+  width: 240rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.4);
+}
+
+.purchase-btn::after {
+  border: none;
+}

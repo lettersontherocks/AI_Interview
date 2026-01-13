@@ -22,7 +22,8 @@ class User(Base):
     openid = Column(String(100), unique=True, nullable=False)
     nickname = Column(String(100))
     avatar = Column(String(500))
-    is_vip = Column(Boolean, default=False)
+    is_vip = Column(Boolean, default=False)  # 保留兼容性
+    vip_type = Column(String(20))  # None, 'normal', 'super'
     vip_expire_date = Column(DateTime)
     free_count_today = Column(Integer, default=0)
     last_free_date = Column(DateTime)
@@ -73,7 +74,7 @@ class Payment(Base):
     id = Column(Integer, primary_key=True, index=True)
     order_id = Column(String(100), unique=True, index=True, nullable=False)
     user_id = Column(String(50), index=True, nullable=False)
-    payment_type = Column(String(20), nullable=False)  # vip_monthly, single_interview
+    payment_type = Column(String(30), nullable=False)  # single, normal_month, normal_quarter, normal_half, normal_year, super_month, super_quarter, super_half, super_year
     amount = Column(Float, nullable=False)
     status = Column(String(20), default="pending")  # pending, paid, failed
     transaction_id = Column(String(100))  # 微信支付交易号
