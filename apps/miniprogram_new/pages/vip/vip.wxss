@@ -1,7 +1,7 @@
 /* pages/vip/vip.wxss */
 .container {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: linear-gradient(135deg, #fff9f0 0%, #f0f9ff 100%);
   padding-bottom: 140rpx;
 }
 
@@ -16,7 +16,7 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
 }
 
 .header-content {
@@ -66,12 +66,12 @@
 .status-title {
   font-size: 32rpx;
   font-weight: bold;
-  color: #333;
+  color: #ff6b6b;
 }
 
 .status-desc {
   font-size: 24rpx;
-  color: #666;
+  color: #a8a29e;
 }
 
 /* 区块 */
@@ -87,14 +87,14 @@
   display: block;
   font-size: 32rpx;
   font-weight: bold;
-  color: #333;
+  color: #ff6b6b;
   margin-bottom: 8rpx;
 }
 
 .section-desc {
   display: block;
   font-size: 24rpx;
-  color: #999;
+  color: #a8a29e;
 }
 
 /* 单次购买卡片 */
@@ -122,12 +122,12 @@
 .single-purchase-title {
   font-size: 28rpx;
   font-weight: bold;
-  color: #333;
+  color: #ff6b6b;
 }
 
 .single-purchase-desc {
   font-size: 22rpx;
-  color: #999;
+  color: #a8a29e;
 }
 
 .single-purchase-right {
@@ -145,9 +145,9 @@
 
 .single-purchase-btn {
   font-size: 22rpx;
-  color: #667eea;
+  color: #ff6b6b;
   padding: 8rpx 20rpx;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(255, 154, 158, 0.1);
   border-radius: 20rpx;
 }
 
@@ -178,9 +178,9 @@
 }
 
 .plan-item.active {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
-  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.2);
+  border-color: #ff9a9e;
+  background: rgba(255, 154, 158, 0.05);
+  box-shadow: 0 4rpx 16rpx rgba(255, 154, 158, 0.2);
 }
 
 .plan-item.super.active {
@@ -209,13 +209,13 @@
 
 .plan-duration {
   font-size: 24rpx;
-  color: #999;
+  color: #a8a29e;
 }
 
 .plan-price {
   font-size: 40rpx;
   font-weight: bold;
-  color: #333;
+  color: #ff6b6b;
 }
 
 .plan-item.super .plan-price {
@@ -242,7 +242,7 @@
 }
 
 .compare-row.header-row {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
 }
 
 .compare-row.header-row .compare-cell {
@@ -255,8 +255,8 @@
   padding: 20rpx 10rpx;
   text-align: center;
   font-size: 24rpx;
-  color: #333;
-  border-bottom: 1rpx solid #f0f0f0;
+  color: #5a4a42;
+  border-bottom: 1rpx solid #ffecd2;
 }
 
 .compare-row:last-child .compare-cell {
@@ -269,13 +269,13 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
   padding: 20rpx 30rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   align-items: center;
   gap: 20rpx;
-  box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4rpx 12rpx rgba(255, 154, 158, 0.1);
   z-index: 100;
 }
 
@@ -287,8 +287,9 @@
 }
 
 .purchase-plan-name {
-  font-size: 24rpx;
-  color: #666;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #ff6b6b;
 }
 
 .purchase-price {
@@ -302,13 +303,13 @@
   width: 240rpx;
   height: 80rpx;
   line-height: 80rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
   color: white;
   border: none;
   border-radius: 40rpx;
   font-size: 28rpx;
   font-weight: bold;
-  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4rpx 12rpx rgba(255, 154, 158, 0.4);
 }
 
 .purchase-btn::after {

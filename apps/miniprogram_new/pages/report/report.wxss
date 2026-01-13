@@ -8,8 +8,8 @@
 .score-card {
   text-align: center;
   padding: 60rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+  color: #5a4a42;
 }
 
 .score-title {
@@ -54,7 +54,7 @@
 
 .bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
   transition: width 0.5s;
 }
 
@@ -63,7 +63,7 @@
   text-align: right;
   font-size: 28rpx;
   font-weight: bold;
-  color: #667eea;
+  color: #ff6b6b;
 }
 
 .suggestions-card {
@@ -79,7 +79,7 @@
 .suggestion-number {
   width: 40rpx;
   height: 40rpx;
-  background: #667eea;
+  background: #ff9a9e;
   color: white;
   border-radius: 50%;
   display: flex;

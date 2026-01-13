@@ -47,7 +47,7 @@
     }
   },
   "compileType": "miniprogram",
-  "libVersion": "2.19.4",
+  "libVersion": "3.13.0",
   "appid": "wxb326a0fb316acd2f",
   "projectname": "ai-interview",
   "isGameTourist": false,
