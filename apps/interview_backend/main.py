@@ -28,12 +28,12 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS配置
+# CORS配置 - 从config读取
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 生产环境应该限制具体域名
+    allow_origins=settings.get_allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

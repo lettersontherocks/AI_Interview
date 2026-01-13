@@ -19,6 +19,7 @@ from services.wechat_service import WechatService
 from services.position_service import position_service
 from services.resume_parser_service import resume_parser_service
 from services.volcengine_tts_service import get_volcengine_tts_service
+from services.knowledge_service import knowledge_service
 from config import settings
 from datetime import datetime, date
 from fastapi.responses import Response
@@ -59,9 +60,9 @@ async def get_interviewer_styles(round: str = None):
             "recommended": "friendly"  // 如果提供了round
         }
     """
-    styles = interview_service.get_all_interviewer_styles()
+    styles_tuple = interview_service.get_all_interviewer_styles()
 
-    result = {"styles": styles}
+    result = {"styles": list(styles_tuple)}
 
     # 如果提供了轮次，返回推荐风格
     if round:
@@ -473,3 +474,32 @@ async def get_voices():
         音色信息字典
     """
     return tts_service.get_available_voices()
+
+
+@router.get("/admin/cache-stats")
+async def get_cache_stats():
+    """
+    获取系统缓存统计信息（管理员接口）
+
+    Returns:
+        缓存命中率、缓存大小等统计数据
+    """
+    return {
+        "knowledge_service": knowledge_service.get_cache_stats(),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+
+@router.post("/admin/clear-cache")
+async def clear_cache():
+    """
+    清除系统缓存（管理员接口）
+
+    使用场景：题库更新后需要清除缓存
+    """
+    knowledge_service.clear_cache()
+    return {
+        "status": "success",
+        "message": "缓存已清空",
+        "timestamp": datetime.utcnow().isoformat()
+    }

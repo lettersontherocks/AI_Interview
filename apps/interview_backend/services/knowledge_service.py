@@ -4,6 +4,8 @@ from elasticsearch import Elasticsearch
 from config import settings
 import dashscope
 from dashscope import TextEmbedding
+from functools import lru_cache
+from datetime import datetime, timedelta
 
 
 class KnowledgeService:
@@ -21,6 +23,13 @@ class KnowledgeService:
 
         # 配置 DashScope（用于向量化查询）
         dashscope.api_key = settings.dashscope_api_key
+
+        # 缓存统计信息
+        self._cache_stats = {
+            "position_queries_hit": 0,
+            "position_queries_miss": 0,
+            "last_cache_clear": datetime.utcnow()
+        }
 
     def _get_query_vector(self, text: str) -> Optional[List[float]]:
         """将文本转换为向量
@@ -191,6 +200,22 @@ class KnowledgeService:
             traceback.print_exc()
             return []
 
+    @lru_cache(maxsize=128)
+    def _cached_search_by_position(self, position: str, limit: int) -> tuple:
+        """
+        缓存版本的岗位题目查询（使用tuple以支持缓存）
+
+        注意：lru_cache 要求参数必须是可哈希的，所以返回 tuple
+        """
+        results = self.search_questions(
+            query=position,
+            position=position,
+            size=limit,
+            search_type="hybrid"
+        )
+        # 将结果转为 tuple，使其可被缓存
+        return tuple(results)
+
     def search_by_position(
         self,
         position: str,
@@ -199,6 +224,8 @@ class KnowledgeService:
         """
         根据岗位获取参考题目（用于面试开始时）
 
+        ⚡ 带缓存优化：相同岗位的查询结果会被缓存，避免重复 ES 查询
+
         Args:
             position: 岗位名称
             limit: 返回数量
@@ -206,12 +233,24 @@ class KnowledgeService:
         Returns:
             问题列表
         """
-        return self.search_questions(
-            query=position,
-            position=position,
-            size=limit,
-            search_type="hybrid"
-        )
+        # 检查是否命中缓存
+        cache_info = self._cached_search_by_position.cache_info()
+        hits_before = cache_info.hits
+
+        # 调用缓存函数
+        cached_results = self._cached_search_by_position(position, limit)
+
+        # 统计缓存命中情况
+        cache_info_after = self._cached_search_by_position.cache_info()
+        if cache_info_after.hits > hits_before:
+            self._cache_stats["position_queries_hit"] += 1
+            print(f"[缓存命中] 岗位题库: {position} (limit={limit})")
+        else:
+            self._cache_stats["position_queries_miss"] += 1
+            print(f"[缓存未命中] 岗位题库: {position} (limit={limit}), 查询 ES")
+
+        # 转回 list 返回
+        return list(cached_results)
 
     def search_related_questions(
         self,
@@ -248,6 +287,37 @@ class KnowledgeService:
             return self.es.ping()
         except:
             return False
+
+    def get_cache_stats(self) -> Dict:
+        """
+        获取缓存统计信息
+
+        Returns:
+            缓存命中率等统计数据
+        """
+        cache_info = self._cached_search_by_position.cache_info()
+        total_queries = self._cache_stats["position_queries_hit"] + self._cache_stats["position_queries_miss"]
+        hit_rate = (self._cache_stats["position_queries_hit"] / total_queries * 100) if total_queries > 0 else 0
+
+        return {
+            "position_cache": {
+                "hits": cache_info.hits,
+                "misses": cache_info.misses,
+                "maxsize": cache_info.maxsize,
+                "currsize": cache_info.currsize,
+                "hit_rate": f"{hit_rate:.2f}%"
+            },
+            "total_queries": total_queries,
+            "last_cache_clear": self._cache_stats["last_cache_clear"].isoformat()
+        }
+
+    def clear_cache(self):
+        """
+        清除所有缓存（在题库更新时调用）
+        """
+        self._cached_search_by_position.cache_clear()
+        self._cache_stats["last_cache_clear"] = datetime.utcnow()
+        print("[缓存清除] 知识库缓存已清空")
 
 
 # 全局单例

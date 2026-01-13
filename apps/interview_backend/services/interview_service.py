@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Optional, List, Dict
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
+from functools import lru_cache
 
 from database.db import InterviewSession, InterviewReport, User
 from models.schemas import (
@@ -84,8 +85,14 @@ class InterviewService:
         keywords_list = list(keywords)[:5]
         return " ".join(keywords_list) if keywords_list else ""
 
-    def _get_interviewer_style(self, style: str = "friendly") -> dict:
-        """获取面试官风格配置"""
+    @staticmethod
+    @lru_cache(maxsize=8)
+    def _get_interviewer_style(style: str = "friendly") -> dict:
+        """
+        获取面试官风格配置
+
+        ⚡ 静态缓存：面试官风格是固定配置，永久缓存
+        """
         styles = {
             "friendly": {
                 "name": "友好型",
@@ -114,8 +121,15 @@ class InterviewService:
         }
         return styles.get(style, styles["friendly"])
 
-    def get_all_interviewer_styles(self) -> List[Dict]:
-        """获取所有面试官风格（供前端选择）"""
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def get_all_interviewer_styles() -> tuple:
+        """
+        获取所有面试官风格（供前端选择）
+
+        ⚡ 静态缓存：风格列表是固定配置，永久缓存
+        返回 tuple 以支持 lru_cache
+        """
         styles_config = {
             "friendly": {
                 "name": "友好型",
@@ -148,7 +162,7 @@ class InterviewService:
                 "icon": config["icon"]
             })
 
-        return result
+        return tuple(result)
 
     def get_recommended_style(self, round: str) -> str:
         """根据面试轮次获取推荐的面试官风格"""

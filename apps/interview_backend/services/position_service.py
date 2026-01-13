@@ -2,27 +2,50 @@
 import json
 import os
 from typing import List, Dict, Optional
+from functools import lru_cache
 
 
 class PositionService:
-    """岗位配置管理服务"""
+    """岗位配置管理服务
+
+    ⚡ 优化：使用类变量缓存配置，避免重复加载 JSON 文件
+    """
+
+    # 类级别缓存（所有实例共享，应用启动时加载一次）
+    _config_cache = None
+    _position_map_cache = None
 
     def __init__(self):
-        # 加载岗位配置文件
-        config_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'positions.json')
-        with open(config_path, 'r', encoding='utf-8') as f:
-            self.config = json.load(f)
+        # 如果缓存不存在，则加载配置
+        if PositionService._config_cache is None:
+            print("[岗位配置] 首次加载 positions.json")
+            config_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'positions.json')
+            with open(config_path, 'r', encoding='utf-8') as f:
+                PositionService._config_cache = json.load(f)
+            print(f"[岗位配置] 已加载 {len(PositionService._config_cache.get('categories', []))} 个分类")
+        else:
+            print("[岗位配置] 使用缓存数据")
 
-        # 构建岗位ID到岗位信息的映射（方便快速查找）
-        self.position_map = {}
-        self._build_position_map()
+        # 使用缓存的配置
+        self.config = PositionService._config_cache
+
+        # 如果position_map缓存不存在，则构建
+        if PositionService._position_map_cache is None:
+            print("[岗位配置] 构建岗位映射表")
+            PositionService._position_map_cache = {}
+            self._build_position_map()
+        else:
+            print("[岗位配置] 使用缓存的映射表")
+
+        # 使用缓存的映射
+        self.position_map = PositionService._position_map_cache
 
     def _build_position_map(self):
         """构建岗位ID映射表"""
         for category in self.config['categories']:
             for position in category['positions']:
                 # 添加父级岗位
-                self.position_map[position['id']] = {
+                PositionService._position_map_cache[position['id']] = {
                     'id': position['id'],
                     'name': position['name'],
                     'description': position['description'],
@@ -34,7 +57,7 @@ class PositionService:
 
                 # 添加子级岗位
                 for sub_position in position.get('sub_positions', []):
-                    self.position_map[sub_position['id']] = {
+                    PositionService._position_map_cache[sub_position['id']] = {
                         'id': sub_position['id'],
                         'name': sub_position['name'],
                         'description': sub_position['description'],
@@ -45,6 +68,7 @@ class PositionService:
                         'is_parent': False,
                         'has_children': False
                     }
+        print(f"[岗位配置] 映射表构建完成，共 {len(PositionService._position_map_cache)} 个岗位")
 
     def get_all_categories(self) -> List[Dict]:
         """获取所有岗位分类"""
@@ -109,6 +133,17 @@ class PositionService:
     def validate_position_id(self, position_id: str) -> bool:
         """验证岗位ID是否有效"""
         return position_id in self.position_map
+
+    @classmethod
+    def clear_cache(cls):
+        """
+        清除缓存（在配置文件更新时调用）
+
+        注意：清除后需要重新创建 position_service 实例
+        """
+        cls._config_cache = None
+        cls._position_map_cache = None
+        print("[岗位配置] 缓存已清除")
 
 
 # 全局单例
