@@ -24,8 +24,8 @@
       <view class="quota-text">
         <text wx:if="{{!userInfo}}">请先登录</text>
         <text wx:elif="{{userInfo.vip_type === 'super'}}">🌟 超级VIP · 无限次</text>
-        <text wx:elif="{{userInfo.vip_type === 'normal'}}">⭐ 普通VIP · 今日剩余 {{userInfo.free_count_today}}/2 次</text>
-        <text wx:else>今日剩余: {{userInfo.free_count_today}}/1 次</text>
+        <text wx:elif="{{userInfo.vip_type === 'normal'}}">⭐ 普通VIP · 今日剩余 {{remainingCount}}/{{userInfo.daily_limit}} 次</text>
+        <text wx:else>今日剩余: {{remainingCount}}/{{userInfo.daily_limit}} 次</text>
       </view>
       <button wx:if="{{!userInfo}}" class="login-btn" bindtap="handleLogin">
         点击登录

@@ -53,7 +53,10 @@ class Settings(BaseSettings):
     wechat_pay_key: str = ""
 
     # ==================== 业务配置 ====================
-    free_daily_limit: int = 2  # 免费用户每天次数
+    free_user_daily_limit: int = 1  # 普通用户每天次数
+    normal_vip_daily_limit: int = 2  # 普通VIP每天次数
+    # 超级VIP无限次，无需配置
+
     vip_monthly_price: float = 9.98  # 月度会员价格
     single_interview_price: float = 0.99  # 单次面试价格
 

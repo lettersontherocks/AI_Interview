@@ -28,6 +28,16 @@ router = APIRouter()
 interview_service = InterviewService()
 asr_service = ASRService()
 wechat_service = WechatService()
+
+
+def get_user_daily_limit(vip_type: str) -> int:
+    """根据VIP类型获取每日配额"""
+    if vip_type == 'super':
+        return 999  # 超级VIP无限次
+    elif vip_type == 'normal':
+        return settings.normal_vip_daily_limit
+    else:
+        return settings.free_user_daily_limit
 # 切换到火山引擎TTS（豆包）
 tts_service = get_volcengine_tts_service()
 
@@ -149,8 +159,12 @@ async def start_interview(request: InterviewStartRequest, db: Session = Depends(
         # 检查今日免费次数（统一使用 UTC 时间进行日期比较）
         today_utc = datetime.utcnow().date()
         if user.last_free_date and user.last_free_date.date() == today_utc:
-            if user.free_count_today >= settings.free_daily_limit and not user.is_vip:
-                raise HTTPException(status_code=403, detail="今日免费次数已用完，请购买会员或单次面试")
+            # 根据VIP类型获取配额
+            daily_limit = get_user_daily_limit(user.vip_type)
+            if user.vip_type == 'super':
+                pass  # 超级VIP无限制
+            elif user.free_count_today >= daily_limit:
+                raise HTTPException(status_code=403, detail=f"今日免费次数已用完（{daily_limit}次/天），请购买会员")
         else:
             # 重置今日计数
             user.free_count_today = 0
@@ -165,8 +179,8 @@ async def start_interview(request: InterviewStartRequest, db: Session = Depends(
         )
         print(f"[DEBUG] interview_service.start_interview 返回成功")
 
-        # 更新免费次数（非VIP用户）
-        if not user.is_vip:
+        # 更新免费次数（超级VIP除外）
+        if user.vip_type != 'super':
             user.free_count_today += 1
             db.commit()
 
@@ -242,8 +256,10 @@ async def wx_login(request: WxLoginRequest, db: Session = Depends(get_db)):
                 nickname=existing_user.nickname,
                 avatar=existing_user.avatar,
                 is_vip=existing_user.is_vip,
+                vip_type=existing_user.vip_type,
                 vip_expire_date=existing_user.vip_expire_date,
                 free_count_today=existing_user.free_count_today,
+                daily_limit=get_user_daily_limit(existing_user.vip_type),
                 created_at=existing_user.created_at
             )
 
@@ -266,8 +282,10 @@ async def wx_login(request: WxLoginRequest, db: Session = Depends(get_db)):
             nickname=user.nickname,
             avatar=user.avatar,
             is_vip=user.is_vip,
+            vip_type=user.vip_type,
             vip_expire_date=user.vip_expire_date,
             free_count_today=user.free_count_today,
+            daily_limit=get_user_daily_limit(user.vip_type),
             created_at=user.created_at
         )
     except HTTPException:
@@ -289,8 +307,10 @@ async def register_user(request: UserRegisterRequest, db: Session = Depends(get_
                 nickname=existing_user.nickname,
                 avatar=existing_user.avatar,
                 is_vip=existing_user.is_vip,
+                vip_type=existing_user.vip_type,
                 vip_expire_date=existing_user.vip_expire_date,
                 free_count_today=existing_user.free_count_today,
+                daily_limit=get_user_daily_limit(existing_user.vip_type),
                 created_at=existing_user.created_at
             )
 
@@ -313,8 +333,10 @@ async def register_user(request: UserRegisterRequest, db: Session = Depends(get_
             nickname=user.nickname,
             avatar=user.avatar,
             is_vip=user.is_vip,
+            vip_type=user.vip_type,
             vip_expire_date=user.vip_expire_date,
             free_count_today=user.free_count_today,
+            daily_limit=get_user_daily_limit(user.vip_type),
             created_at=user.created_at
         )
     except Exception as e:

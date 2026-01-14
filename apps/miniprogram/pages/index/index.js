@@ -4,6 +4,7 @@ const app = getApp()
 Page({
   data: {
     userInfo: null,
+    remainingCount: 2,  // 剩余次数
     selectedPositionId: '',
     selectedPositionName: '',
     selectedRound: '',
@@ -45,10 +46,24 @@ Page({
   // 加载用户信息
   loadUserInfo() {
     if (app.globalData.userInfo) {
-      this.setData({
-        userInfo: app.globalData.userInfo
-      })
+      this.updateUserInfo(app.globalData.userInfo)
     }
+  },
+
+  // 更新用户信息并计算剩余次数
+  updateUserInfo(userInfo) {
+    let remainingCount
+    if (userInfo.vip_type === 'super') {
+      remainingCount = 999  // 超级VIP无限次
+    } else {
+      // 使用后端返回的daily_limit
+      const dailyLimit = userInfo.daily_limit || 1
+      remainingCount = Math.max(0, dailyLimit - userInfo.free_count_today)
+    }
+    this.setData({
+      userInfo: userInfo,
+      remainingCount: remainingCount
+    })
   },
 
   // 加载岗位列表
@@ -178,7 +193,7 @@ Page({
           app.globalData.userInfo = res.data
           wx.setStorageSync('userId', res.data.user_id)
 
-          this.setData({ userInfo: res.data })
+          this.updateUserInfo(res.data)
           wx.showToast({
             title: '登录成功',
             icon: 'success'
@@ -521,10 +536,12 @@ Page({
     }
 
     // 检查配额（已登录用户）
-    if (!userInfo.is_vip && userInfo.free_count_today >= 2) {
+    // 使用后端返回的daily_limit
+    const dailyLimit = userInfo.daily_limit || 1
+    if (userInfo.vip_type !== 'super' && userInfo.free_count_today >= dailyLimit) {
       wx.showModal({
         title: '次数不足',
-        content: '今日免费次数已用完，会员功能即将上线，敬请期待！',
+        content: `今日免费次数已用完（${dailyLimit}次/天），会员功能即将上线，敬请期待！`,
         showCancel: false,
         confirmText: '知道了'
       })

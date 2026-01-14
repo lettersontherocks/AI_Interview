@@ -83,8 +83,10 @@ class UserInfo(BaseModel):
     nickname: Optional[str]
     avatar: Optional[str]
     is_vip: bool = False
+    vip_type: Optional[str] = None  # None, 'normal', 'super'
     vip_expire_date: Optional[datetime] = None
     free_count_today: int = 0
+    daily_limit: int = 1  # 每日配额限制
     created_at: datetime
 
 

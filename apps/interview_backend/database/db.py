@@ -29,6 +29,7 @@ class User(Base):
     nickname = Column(String(100))
     avatar = Column(String(500))
     is_vip = Column(Boolean, default=False)
+    vip_type = Column(String(20))  # None, 'normal', 'super'
     vip_expire_date = Column(DateTime)
     free_count_today = Column(Integer, default=0)
     last_free_date = Column(DateTime)
