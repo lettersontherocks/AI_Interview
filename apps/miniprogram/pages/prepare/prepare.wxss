@@ -64,9 +64,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 60rpx;
   position: relative;
   z-index: 1;
+  width: 100%;
+  height: 100vh;
 }
 
 /* 面试官头像 */
@@ -257,11 +260,10 @@
 
 /* 准备就绪提示 */
 .ready-prompt {
-  position: absolute;
-  bottom: 120rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 60rpx;
   animation: slideUp 0.5s ease-out;
 }
 

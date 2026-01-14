@@ -8,18 +8,33 @@ import Combine
 import AVFoundation
 
 class InterviewViewModel: ObservableObject {
+    // MARK: - TranscriptItem
+    struct TranscriptItem: Identifiable {
+        let id = UUID().uuidString
+        let role: String
+        let content: String
+        let score: Double?
+        let hint: String?
+        let audioUrl: String?
+    }
+
     @Published var sessionId: String
     @Published var currentQuestion: String
-    @Published var questionNumber: Int = 1
+    @Published var currentQuestionNumber: Int = 1
     @Published var userAnswer: String = ""
-    @Published var transcript: [(role: String, content: String, score: Double?)] = []
+    @Published var transcript: [TranscriptItem] = []
     @Published var isRecording = false
-    @Published var isPlaying = false
+    @Published var isPlayingAudio = false
+    @Published var playingAudioUrl: String?
     @Published var isLoading = false
     @Published var instantScore: Double?
     @Published var hint: String?
     @Published var isFinished = false
     @Published var errorMessage: String?
+    @Published var elapsedTime: TimeInterval = 0
+
+    private var startTime: Date?
+    private var timer: Timer?
 
     private var audioService = AudioService.shared
     private var recordingURL: URL?
@@ -28,9 +43,19 @@ class InterviewViewModel: ObservableObject {
     init(sessionId: String, firstQuestion: String, audioUrl: String? = nil) {
         self.sessionId = sessionId
         self.currentQuestion = firstQuestion
+        self.startTime = Date()
 
         // 添加第一个问题到对话记录
-        transcript.append((role: "interviewer", content: firstQuestion, score: nil))
+        transcript.append(TranscriptItem(
+            role: "interviewer",
+            content: firstQuestion,
+            score: nil,
+            hint: nil,
+            audioUrl: audioUrl
+        ))
+
+        // 启动计时器
+        startTimer()
 
         // 自动播放第一个问题的音频
         if let audioUrl = audioUrl {
@@ -39,6 +64,23 @@ class InterviewViewModel: ObservableObject {
 
         print("🎙️ [Interview] 面试会话初始化")
         print("   会话ID: \(sessionId)")
+    }
+
+    private func startTimer() {
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self, let startTime = self.startTime else { return }
+            self.elapsedTime = Date().timeIntervalSince(startTime)
+        }
+    }
+
+    var formattedElapsedTime: String {
+        let minutes = Int(elapsedTime) / 60
+        let seconds = Int(elapsedTime) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    deinit {
+        timer?.invalidate()
     }
 
     // MARK: - Recording
@@ -92,7 +134,13 @@ class InterviewViewModel: ObservableObject {
         print("   回答: \(answer.prefix(50))...")
 
         // 添加用户回答到对话记录
-        transcript.append((role: "candidate", content: answer, score: nil))
+        transcript.append(TranscriptItem(
+            role: "candidate",
+            content: answer,
+            score: nil,
+            hint: nil,
+            audioUrl: nil
+        ))
 
         APIService.shared.submitAnswer(request: request) { [weak self] result in
             DispatchQueue.main.async {
@@ -116,12 +164,6 @@ class InterviewViewModel: ObservableObject {
         self.instantScore = response.instantScore
         self.hint = response.hint
 
-        // 更新上一条回答的评分
-        if let score = response.instantScore, transcript.count > 0 {
-            let lastIndex = transcript.count - 1
-            transcript[lastIndex].score = score
-        }
-
         print("📊 [Interview] 即时评分: \(response.instantScore ?? 0)")
 
         if response.isFinished {
@@ -129,8 +171,15 @@ class InterviewViewModel: ObservableObject {
             print("🏁 [Interview] 面试结束")
         } else if let nextQuestion = response.nextQuestion {
             self.currentQuestion = nextQuestion
-            self.questionNumber += 1
-            transcript.append((role: "interviewer", content: nextQuestion, score: nil))
+            self.currentQuestionNumber += 1
+
+            transcript.append(TranscriptItem(
+                role: "interviewer",
+                content: nextQuestion,
+                score: nil,
+                hint: nil,
+                audioUrl: response.audioUrl
+            ))
 
             print("❓ [Interview] 下一个问题: \(nextQuestion.prefix(50))...")
 
@@ -144,15 +193,18 @@ class InterviewViewModel: ObservableObject {
     // MARK: - Audio Playback
 
     func playAudio(url: String) {
-        isPlaying = true
+        isPlayingAudio = true
+        playingAudioUrl = url
         audioService.playFromURL(urlString: url) { [weak self] in
-            self?.isPlaying = false
+            self?.isPlayingAudio = false
+            self?.playingAudioUrl = nil
         }
     }
 
     func stopAudio() {
         audioService.stopPlaying()
-        isPlaying = false
+        isPlayingAudio = false
+        playingAudioUrl = nil
     }
 
     // MARK: - Interview Control
