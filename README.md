@@ -1,10 +1,10 @@
 # AI 面试练习平台
 
-基于 Claude API 的智能面试模拟系统，支持微信小程序和 iOS 双端应用。
+基于阿里云通义千问 Qwen 的智能面试模拟系统，支持微信小程序和 iOS 双端应用。
 
 ## 项目简介
 
-AI 面试练习平台是一个完整的面试模拟系统，通过 Claude 3.5 Sonnet 提供真实的 AI 面试官体验。系统包含后端 API 服务、微信小程序和 iOS 原生应用，为求职者提供专业的面试练习环境。
+AI 面试练习平台是一个完整的面试模拟系统，通过阿里云通义千问 Qwen 提供真实的 AI 面试官体验。系统包含后端 API 服务、微信小程序和 iOS 原生应用，为求职者提供专业的面试练习环境。
 
 ### 核心价值
 
@@ -158,7 +158,7 @@ ai_interview/
 - Python 3.9+ / FastAPI
 - PostgreSQL 14+
 - SQLAlchemy 2.0+ ORM
-- Claude API 3.5 Sonnet
+- 阿里云通义千问 Qwen（qwen-max / qwen-plus）
 - 火山引擎 TTS（语音合成）
 - 百度 ASR（语音识别）
 
@@ -181,7 +181,7 @@ ai_interview/
 
 - Python 3.9+
 - PostgreSQL 14+
-- Claude API Key
+- 阿里云 DashScope API Key
 - 微信开发者工具（开发小程序）
 - Xcode 14+（开发 iOS）
 
@@ -190,8 +190,8 @@ ai_interview/
 创建 `apps/interview_backend/.env`：
 
 ```bash
-# Claude API
-ANTHROPIC_API_KEY=sk-ant-xxx
+# 阿里云 DashScope API（通义千问）
+DASHSCOPE_API_KEY=sk-xxx
 
 # 数据库
 DATABASE_URL=postgresql://user:password@localhost:5432/ai_interview
@@ -413,8 +413,8 @@ docker-compose up -d
 
 ## 常见问题
 
-**Q: Claude API 调用失败？**
-A: 检查 API Key 配置、网络连接和 API 配额
+**Q: Qwen API 调用失败？**
+A: 检查 DASHSCOPE_API_KEY 配置、网络连接和 API 配额
 
 **Q: 微信小程序登录失败？**
 A: 确认 AppID/AppSecret 配置正确，服务器域名已配置
@@ -431,7 +431,7 @@ A: 确认 PostgreSQL 运行正常，连接字符串格式正确
 
 1. **完整的产品闭环**：从面试准备到报告生成，完整的用户体验
 2. **多端支持**：微信小程序 + iOS 原生应用，覆盖主流平台
-3. **AI 驱动**：基于 Claude 3.5 Sonnet，提供真实的面试体验
+3. **AI 驱动**：基于阿里云通义千问 Qwen，提供真实的面试体验
 4. **商业化就绪**：VIP 系统、支付集成，可直接上线运营
 5. **可扩展性**：模块化设计，易于添加新岗位和功能
 
