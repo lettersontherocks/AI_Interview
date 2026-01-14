@@ -7,37 +7,37 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		303DAA3F294AC681007F25CA /* AIInterviewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA3E294AC681007F25CA; };
-		303DAA41294AC681007F25CA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA40294AC681007F25CA; };
-		303DAA43294AC681007F25CA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA42294AC681007F25CA; };
-		303DAA45294AC681007F25CA /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA44294AC681007F25CA; };
-		303DAA47294AC681007F25CA /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA46294AC681007F25CA; };
-		303DAA49294AC681007F25CA /* Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA48294AC681007F25CA; };
-		303DAA4B294AC681007F25CA /* InterviewSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA4A294AC681007F25CA; };
-		303DAA4D294AC681007F25CA /* InterviewReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA4C294AC681007F25CA; };
-		303DAA4F294AC681007F25CA /* InterviewerStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA4E294AC681007F25CA; };
-		303DAA51294AC681007F25CA /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA50294AC681007F25CA; };
-		303DAA53294AC681007F25CA /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA52294AC681007F25CA; };
-		303DAA55294AC681007F25CA /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA54294AC681007F25CA; };
-		303DAA57294AC681007F25CA /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA56294AC681007F25CA; };
-		303DAA59294AC681007F25CA /* IndexViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA58294AC681007F25CA; };
-		303DAA5B294AC681007F25CA /* PrepareViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA5A294AC681007F25CA; };
-		303DAA5D294AC681007F25CA /* InterviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA5C294AC681007F25CA; };
-		303DAA5F294AC681007F25CA /* ReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA5E294AC681007F25CA; };
-		303DAA61294AC681007F25CA /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA60294AC681007F25CA; };
-		303DAA63294AC681007F25CA /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA62294AC681007F25CA; };
-		303DAA65294AC681007F25CA /* VIPViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA64294AC681007F25CA; };
-		303DAA67294AC681007F25CA /* IndexView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA66294AC681007F25CA; };
-		303DAA69294AC681007F25CA /* PrepareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA68294AC681007F25CA; };
-		303DAA6B294AC681007F25CA /* InterviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA6A294AC681007F25CA; };
-		303DAA6D294AC681007F25CA /* RecordingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA6C294AC681007F25CA; };
-		303DAA6F294AC681007F25CA /* ReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA6E294AC681007F25CA; };
-		303DAA71294AC681007F25CA /* ScoreRadarChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA70294AC681007F25CA; };
-		303DAA73294AC681007F25CA /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA72294AC681007F25CA; };
-		303DAA75294AC681007F25CA /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA74294AC681007F25CA; };
-		303DAA77294AC681007F25CA /* HistoryListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA76294AC681007F25CA; };
-		303DAA79294AC681007F25CA /* VIPView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA78294AC681007F25CA; };
-		303DAA7B294AC681007F25CA /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA7A294AC681007F25CA; };
+		303DAA3F294AC681007F25CA /* AIInterviewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA3E294AC681007F25CA /* AIInterviewApp.swift */; };
+		303DAA41294AC681007F25CA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA40294AC681007F25CA /* ContentView.swift */; };
+		303DAA43294AC681007F25CA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA42294AC681007F25CA /* Extensions.swift */; };
+		303DAA45294AC681007F25CA /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA44294AC681007F25CA /* Constants.swift */; };
+		303DAA47294AC681007F25CA /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA46294AC681007F25CA /* User.swift */; };
+		303DAA49294AC681007F25CA /* Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA48294AC681007F25CA /* Position.swift */; };
+		303DAA4B294AC681007F25CA /* InterviewSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA4A294AC681007F25CA /* InterviewSession.swift */; };
+		303DAA4D294AC681007F25CA /* InterviewReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA4C294AC681007F25CA /* InterviewReport.swift */; };
+		303DAA4F294AC681007F25CA /* InterviewerStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA4E294AC681007F25CA /* InterviewerStyle.swift */; };
+		303DAA51294AC681007F25CA /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA50294AC681007F25CA /* APIService.swift */; };
+		303DAA53294AC681007F25CA /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA52294AC681007F25CA /* AudioService.swift */; };
+		303DAA55294AC681007F25CA /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA54294AC681007F25CA /* AuthService.swift */; };
+		303DAA57294AC681007F25CA /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA56294AC681007F25CA /* StorageService.swift */; };
+		303DAA59294AC681007F25CA /* IndexViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA58294AC681007F25CA /* IndexViewModel.swift */; };
+		303DAA5B294AC681007F25CA /* PrepareViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA5A294AC681007F25CA /* PrepareViewModel.swift */; };
+		303DAA5D294AC681007F25CA /* InterviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA5C294AC681007F25CA /* InterviewViewModel.swift */; };
+		303DAA5F294AC681007F25CA /* ReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA5E294AC681007F25CA /* ReportViewModel.swift */; };
+		303DAA61294AC681007F25CA /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA60294AC681007F25CA /* ProfileViewModel.swift */; };
+		303DAA63294AC681007F25CA /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA62294AC681007F25CA /* HistoryViewModel.swift */; };
+		303DAA65294AC681007F25CA /* VIPViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA64294AC681007F25CA /* VIPViewModel.swift */; };
+		303DAA67294AC681007F25CA /* IndexView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA66294AC681007F25CA /* IndexView.swift */; };
+		303DAA69294AC681007F25CA /* PrepareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA68294AC681007F25CA /* PrepareView.swift */; };
+		303DAA6B294AC681007F25CA /* InterviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA6A294AC681007F25CA /* InterviewView.swift */; };
+		303DAA6D294AC681007F25CA /* RecordingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA6C294AC681007F25CA /* RecordingButton.swift */; };
+		303DAA6F294AC681007F25CA /* ReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA6E294AC681007F25CA /* ReportView.swift */; };
+		303DAA71294AC681007F25CA /* ScoreRadarChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA70294AC681007F25CA /* ScoreRadarChart.swift */; };
+		303DAA73294AC681007F25CA /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA72294AC681007F25CA /* ProfileView.swift */; };
+		303DAA75294AC681007F25CA /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA74294AC681007F25CA /* HistoryView.swift */; };
+		303DAA77294AC681007F25CA /* HistoryListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA76294AC681007F25CA /* HistoryListItem.swift */; };
+		303DAA79294AC681007F25CA /* VIPView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA78294AC681007F25CA /* VIPView.swift */; };
+		303DAA7B294AC681007F25CA /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DAA7A294AC681007F25CA /* LoadingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -87,6 +87,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		303DAA36294AC681007F25CA = {
+			isa = PBXGroup;
+			children = (
+				303DAA38294AC681007F25CA /* AIInterviewApp */,
+				303DAA39294AC681007F25CA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
 		303DAA38294AC681007F25CA /* AIInterviewApp */ = {
 			isa = PBXGroup;
 			children = (
@@ -101,13 +109,20 @@
 			path = AIInterviewApp;
 			sourceTree = "<group>";
 		};
+		303DAA39294AC681007F25CA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				303DAA3C294AC681007F25CA /* AIInterviewApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		303DAA85294AC681007F25CA /* App */ = {
 			isa = PBXGroup;
 			children = (
 				303DAA3E294AC681007F25CA /* AIInterviewApp.swift */,
 				303DAA40294AC681007F25CA /* ContentView.swift */,
 			);
-			name = App;
 			path = App;
 			sourceTree = "<group>";
 		};
@@ -120,7 +135,6 @@
 				303DAA4C294AC681007F25CA /* InterviewReport.swift */,
 				303DAA4E294AC681007F25CA /* InterviewerStyle.swift */,
 			);
-			name = Models;
 			path = Models;
 			sourceTree = "<group>";
 		};
@@ -132,7 +146,6 @@
 				303DAA54294AC681007F25CA /* AuthService.swift */,
 				303DAA56294AC681007F25CA /* StorageService.swift */,
 			);
-			name = Services;
 			path = Services;
 			sourceTree = "<group>";
 		};
@@ -142,7 +155,6 @@
 				303DAA44294AC681007F25CA /* Constants.swift */,
 				303DAA42294AC681007F25CA /* Extensions.swift */,
 			);
-			name = Utils;
 			path = Utils;
 			sourceTree = "<group>";
 		};
@@ -157,7 +169,6 @@
 				303DAA62294AC681007F25CA /* HistoryViewModel.swift */,
 				303DAA64294AC681007F25CA /* VIPViewModel.swift */,
 			);
-			name = ViewModels;
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
@@ -173,7 +184,6 @@
 				303DAA91294AC681007F25CA /* Report */,
 				303DAA92294AC681007F25CA /* VIP */,
 			);
-			name = Views;
 			path = Views;
 			sourceTree = "<group>";
 		};
@@ -182,7 +192,6 @@
 			children = (
 				303DAA7A294AC681007F25CA /* LoadingView.swift */,
 			);
-			name = Components;
 			path = Components;
 			sourceTree = "<group>";
 		};
@@ -192,7 +201,6 @@
 				303DAA74294AC681007F25CA /* HistoryView.swift */,
 				303DAA76294AC681007F25CA /* HistoryListItem.swift */,
 			);
-			name = History;
 			path = History;
 			sourceTree = "<group>";
 		};
@@ -201,7 +209,6 @@
 			children = (
 				303DAA66294AC681007F25CA /* IndexView.swift */,
 			);
-			name = Index;
 			path = Index;
 			sourceTree = "<group>";
 		};
@@ -211,7 +218,6 @@
 				303DAA6A294AC681007F25CA /* InterviewView.swift */,
 				303DAA6C294AC681007F25CA /* RecordingButton.swift */,
 			);
-			name = Interview;
 			path = Interview;
 			sourceTree = "<group>";
 		};
@@ -220,7 +226,6 @@
 			children = (
 				303DAA68294AC681007F25CA /* PrepareView.swift */,
 			);
-			name = Prepare;
 			path = Prepare;
 			sourceTree = "<group>";
 		};
@@ -229,7 +234,6 @@
 			children = (
 				303DAA72294AC681007F25CA /* ProfileView.swift */,
 			);
-			name = Profile;
 			path = Profile;
 			sourceTree = "<group>";
 		};
@@ -239,7 +243,6 @@
 				303DAA6E294AC681007F25CA /* ReportView.swift */,
 				303DAA70294AC681007F25CA /* ScoreRadarChart.swift */,
 			);
-			name = Report;
 			path = Report;
 			sourceTree = "<group>";
 		};
@@ -248,24 +251,7 @@
 			children = (
 				303DAA78294AC681007F25CA /* VIPView.swift */,
 			);
-			name = VIP;
 			path = VIP;
-			sourceTree = "<group>";
-		};
-		303DAA39294AC681007F25CA /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				303DAA3C294AC681007F25CA /* AIInterviewApp.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		303DAA36294AC681007F25CA /* Root */ = {
-			isa = PBXGroup;
-			children = (
-				303DAA38294AC681007F25CA /* AIInterviewApp */,
-				303DAA39294AC681007F25CA /* Products */,
-			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -298,7 +284,7 @@
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					303DAA3A294AC681007F25CA /* AIInterviewApp */ = {
+					303DAA3A294AC681007F25CA = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
@@ -311,7 +297,7 @@
 				en,
 				Base,
 			);
-			mainGroup = 303DAA36294AC681007F25CA /* Root */;
+			mainGroup = 303DAA36294AC681007F25CA;
 			productRefGroup = 303DAA39294AC681007F25CA /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -429,7 +415,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -498,7 +484,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

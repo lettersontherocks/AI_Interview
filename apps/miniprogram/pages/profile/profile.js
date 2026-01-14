@@ -4,6 +4,7 @@ const app = getApp()
 Page({
   data: {
     userInfo: {},
+    remainingCount: 0,
     freeLimit: 2,
     selectedPrice: 'month',
     historyList: []
@@ -36,10 +37,24 @@ Page({
       method: 'GET',
       success: (res) => {
         if (res.statusCode === 200) {
+          const userInfo = res.data
+
+          // 计算剩余次数
+          let remainingCount = 0
+          if (userInfo.vip_type === 'super') {
+            remainingCount = 999  // 超级VIP无限次
+          } else {
+            const dailyLimit = userInfo.daily_limit || 1
+            remainingCount = Math.max(0, dailyLimit - userInfo.free_count_today)
+          }
+
           this.setData({
-            userInfo: res.data
+            userInfo: userInfo,
+            remainingCount: remainingCount
           })
-          app.globalData.userInfo = res.data
+          app.globalData.userInfo = userInfo
+
+          console.log('✅ [个人中心] 用户信息已更新，剩余次数:', remainingCount)
         }
       },
       fail: () => {

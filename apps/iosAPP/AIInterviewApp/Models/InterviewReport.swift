@@ -122,6 +122,17 @@ struct InterviewHistoryItem: Codable, Identifiable {
         case isFinished = "is_finished"
     }
 
+    // 普通初始化器（用于测试和预览）
+    init(sessionId: String, position: String, round: String, createdAt: Date, totalScore: Double? = nil, isFinished: Bool) {
+        self.id = sessionId
+        self.sessionId = sessionId
+        self.position = position
+        self.round = round
+        self.totalScore = totalScore
+        self.createdAt = createdAt
+        self.isFinished = isFinished
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.sessionId = try container.decode(String.self, forKey: .sessionId)

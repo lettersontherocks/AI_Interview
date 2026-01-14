@@ -70,43 +70,47 @@ App({
   // 微信登录
   wxLogin(callback) {
     console.log('开始微信登录流程...')
+    console.log('当前API地址:', this.globalData.baseUrl)
 
     // 第一步：获取用户信息（头像、昵称）
     wx.getUserProfile({
       desc: '用于完善用户资料',
       success: (profileRes) => {
-        console.log('获取用户信息成功:', profileRes.userInfo)
+        console.log('✅ 获取用户信息成功:', profileRes.userInfo)
         const { nickName, avatarUrl } = profileRes.userInfo
 
         // 第二步：获取登录凭证 code
         wx.login({
           success: (loginRes) => {
-            console.log('wx.login成功，code:', loginRes.code)
+            console.log('✅ wx.login成功，code:', loginRes.code)
             if (loginRes.code) {
               // 发送 code 到后台换取 openId
               this.registerUser(loginRes.code, nickName, avatarUrl, callback)
             } else {
-              console.error('获取code失败:', loginRes.errMsg)
-              wx.showToast({
+              console.error('❌ 获取code失败:', loginRes.errMsg)
+              wx.showModal({
                 title: '登录失败',
-                icon: 'none'
+                content: '获取微信登录凭证失败，请重试',
+                showCancel: false
               })
             }
           },
           fail: (err) => {
-            console.error('wx.login失败:', err)
-            wx.showToast({
+            console.error('❌ wx.login失败:', err)
+            wx.showModal({
               title: '登录失败',
-              icon: 'none'
+              content: `wx.login调用失败: ${err.errMsg}`,
+              showCancel: false
             })
           }
         })
       },
       fail: (err) => {
-        console.error('获取用户信息失败:', err)
-        wx.showToast({
-          title: '需要授权才能使用',
-          icon: 'none'
+        console.error('❌ 获取用户信息失败:', err)
+        wx.showModal({
+          title: '需要授权',
+          content: '请授权获取您的头像和昵称，以便使用面试功能',
+          showCancel: false
         })
       }
     })
@@ -146,11 +150,23 @@ App({
 
           if (callback) callback(res.data)
         } else {
-          console.error('注册失败，状态码:', res.statusCode, '响应:', res)
-          wx.showToast({
-            title: `登录失败: ${res.data.detail || '未知错误'}`,
-            icon: 'none',
-            duration: 3000
+          console.error('登录失败，状态码:', res.statusCode, '响应:', res)
+
+          // 详细的错误信息
+          let errorMsg = '登录失败'
+          if (res.data && res.data.detail) {
+            errorMsg = res.data.detail
+          } else if (res.statusCode === 400) {
+            errorMsg = '获取微信openid失败，请检查小程序配置'
+          } else if (res.statusCode === 500) {
+            errorMsg = '服务器错误，请稍后重试'
+          }
+
+          wx.showModal({
+            title: '登录失败',
+            content: errorMsg,
+            showCancel: false,
+            confirmText: '知道了'
           })
         }
       },

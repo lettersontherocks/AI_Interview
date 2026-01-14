@@ -40,14 +40,49 @@ Page({
   },
 
   onShow() {
-    this.loadUserInfo()
+    // 页面显示时刷新用户信息（确保配额是最新的）
+    this.refreshUserInfo()
   },
 
-  // 加载用户信息
+  // 加载用户信息（从本地缓存）
   loadUserInfo() {
     if (app.globalData.userInfo) {
       this.updateUserInfo(app.globalData.userInfo)
     }
+  },
+
+  // 刷新用户信息（从后端获取最新数据）
+  refreshUserInfo() {
+    const userInfo = app.globalData.userInfo
+    if (!userInfo || !userInfo.user_id) {
+      // 未登录，只显示本地数据
+      this.loadUserInfo()
+      return
+    }
+
+    // 静默刷新，不显示loading
+    wx.request({
+      url: `${app.globalData.baseUrl}/user/${userInfo.user_id}`,
+      method: 'GET',
+      success: (res) => {
+        if (res.statusCode === 200) {
+          const latestUserInfo = res.data
+          // 更新全局和本地用户信息
+          app.globalData.userInfo = latestUserInfo
+          this.updateUserInfo(latestUserInfo)
+          console.log('✅ [首页] 用户信息已刷新，剩余次数:', this.data.remainingCount)
+        } else {
+          // 刷新失败，使用本地缓存数据
+          console.warn('⚠️ [首页] 刷新用户信息失败，使用缓存数据')
+          this.loadUserInfo()
+        }
+      },
+      fail: (err) => {
+        // 网络错误，使用本地缓存数据
+        console.warn('⚠️ [首页] 网络错误，使用缓存数据:', err)
+        this.loadUserInfo()
+      }
+    })
   },
 
   // 更新用户信息并计算剩余次数
@@ -173,45 +208,10 @@ Page({
 
   // 登录（简化版 - 不使用微信授权）
   handleLogin() {
-    wx.showLoading({ title: '登录中...' })
-
-    wx.request({
-      url: `${app.globalData.baseUrl}/user/register`,
-      method: 'POST',
-      header: {
-        'content-type': 'application/json'
-      },
-      data: {
-        openid: 'user_' + Date.now(),
-        nickname: '用户' + Math.floor(Math.random() * 10000),
-        avatar: ''
-      },
-      success: (res) => {
-        wx.hideLoading()
-        if (res.statusCode === 200) {
-          app.globalData.userId = res.data.user_id
-          app.globalData.userInfo = res.data
-          wx.setStorageSync('userId', res.data.user_id)
-
-          this.updateUserInfo(res.data)
-          wx.showToast({
-            title: '登录成功',
-            icon: 'success'
-          })
-        } else {
-          wx.showToast({
-            title: '登录失败',
-            icon: 'none'
-          })
-        }
-      },
-      fail: (err) => {
-        wx.hideLoading()
-        wx.showToast({
-          title: '网络错误',
-          icon: 'none'
-        })
-      }
+    // 调用微信登录
+    app.wxLogin((userInfo) => {
+      // 登录成功回调
+      this.updateUserInfo(userInfo)
     })
   },
 
@@ -535,18 +535,66 @@ Page({
       return
     }
 
-    // 检查配额（已登录用户）
-    // 使用后端返回的daily_limit
-    const dailyLimit = userInfo.daily_limit || 1
-    if (userInfo.vip_type !== 'super' && userInfo.free_count_today >= dailyLimit) {
-      wx.showModal({
-        title: '次数不足',
-        content: `今日免费次数已用完（${dailyLimit}次/天），会员功能即将上线，敬请期待！`,
-        showCancel: false,
-        confirmText: '知道了'
-      })
-      return
-    }
+    // 先刷新用户信息，确保配额数据是最新的
+    wx.showLoading({ title: '检查中...' })
+
+    wx.request({
+      url: `${app.globalData.baseUrl}/user/${userInfo.user_id}`,
+      method: 'GET',
+      success: (res) => {
+        wx.hideLoading()
+
+        if (res.statusCode === 200) {
+          const latestUserInfo = res.data
+
+          // 更新本地用户信息
+          app.globalData.userInfo = latestUserInfo
+          this.updateUserInfo(latestUserInfo)
+
+          // 检查最新的配额
+          const dailyLimit = latestUserInfo.daily_limit || 1
+          if (latestUserInfo.vip_type !== 'super' && latestUserInfo.free_count_today >= dailyLimit) {
+            // 次数不足，引导用户购买VIP
+            wx.showModal({
+              title: '今日面试次数已用完',
+              content: `今日免费次数已用完（${dailyLimit}次/天）\n\n开通VIP会员，享受更多面试机会！`,
+              cancelText: '取消',
+              confirmText: '开通VIP',
+              confirmColor: '#667eea',
+              success: (modalRes) => {
+                if (modalRes.confirm) {
+                  // 跳转到VIP页面
+                  wx.navigateTo({
+                    url: '/pages/vip/vip'
+                  })
+                }
+              }
+            })
+            return
+          }
+
+          // 配额充足，继续开始面试
+          this.proceedToInterview()
+        } else {
+          wx.showToast({
+            title: '获取用户信息失败',
+            icon: 'none'
+          })
+        }
+      },
+      fail: (err) => {
+        wx.hideLoading()
+        wx.showToast({
+          title: '网络错误',
+          icon: 'none'
+        })
+      }
+    })
+  },
+
+  // 继续开始面试（配额检查通过后）
+  proceedToInterview() {
+    const { selectedPositionId, selectedPositionName, selectedRound, selectedInterviewerStyle, resume, uploadedResume } = this.data
 
     // 合并手动输入和上传的简历（优先使用手动输入，否则使用上传的）
     const finalResume = resume || uploadedResume || null

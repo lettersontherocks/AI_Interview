@@ -5,11 +5,15 @@
     <image class="avatar" src="{{userInfo.avatar || '/assets/default-avatar.png'}}" mode="aspectFill"></image>
     <view class="user-info">
       <text class="nickname">{{userInfo.nickname || '未登录'}}</text>
-      <view class="vip-badge" wx:if="{{userInfo.vip_type}}">
-        <text class="vip-icon">{{userInfo.vip_type === 'super' ? '🌟' : '⭐'}}</text>
-        <text class="vip-text">{{userInfo.vip_type === 'super' ? '超级VIP' : '普通VIP'}}</text>
+      <view class="vip-badge" wx:if="{{userInfo.vip_type === 'super'}}">
+        <text class="vip-icon">🌟</text>
+        <text class="vip-text">超级VIP · 无限次</text>
       </view>
-      <text class="quota-text" wx:else>今日剩余: {{userInfo.free_count_today || 0}}/1次</text>
+      <view class="vip-badge" wx:elif="{{userInfo.vip_type === 'normal'}}">
+        <text class="vip-icon">⭐</text>
+        <text class="vip-text">普通VIP · 今日剩余 {{remainingCount}}/{{userInfo.daily_limit}}次</text>
+      </view>
+      <text class="quota-text" wx:else>今日剩余: {{remainingCount}}/{{userInfo.daily_limit || 1}}次</text>
     </view>
   </view>
 

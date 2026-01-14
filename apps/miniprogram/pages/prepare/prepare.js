@@ -127,8 +127,43 @@ Page({
 
           // 准备完成
           this.onPrepareComplete(session_id, question, audio_url)
+        } else if (res.statusCode === 403) {
+          // 配额不足 - 引导用户购买VIP
+          const errorMsg = res.data?.detail || '今日面试次数已用完'
+          console.error('[准备页面] 配额不足:', errorMsg)
+
+          // 清除定时器
+          if (this.data.tipTimer) {
+            clearInterval(this.data.tipTimer)
+          }
+          if (this.data.progressTimer) {
+            clearInterval(this.data.progressTimer)
+          }
+
+          wx.showModal({
+            title: '今日面试次数已用完',
+            content: `${errorMsg}\n\n开通VIP会员，享受更多面试机会！`,
+            cancelText: '返回',
+            confirmText: '开通VIP',
+            confirmColor: '#667eea',
+            success: (modalRes) => {
+              if (modalRes.confirm) {
+                // 返回首页并跳转到VIP页面
+                wx.navigateBack({
+                  success: () => {
+                    wx.navigateTo({
+                      url: '/pages/vip/vip'
+                    })
+                  }
+                })
+              } else {
+                // 返回首页
+                wx.navigateBack()
+              }
+            }
+          })
         } else {
-          // 显示详细错误信息
+          // 其他错误 - 允许重试
           const errorMsg = res.data?.detail || '面试准备失败，请重试'
           console.error('[准备页面] 错误信息:', errorMsg)
           this.onPrepareError(errorMsg)

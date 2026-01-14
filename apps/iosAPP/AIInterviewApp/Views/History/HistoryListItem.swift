@@ -12,7 +12,7 @@ struct HistoryListItem: View {
         VStack(alignment: .leading, spacing: 12) {
             // 头部: 岗位和状态
             HStack {
-                Text(item.positionName)
+                Text(item.position)
                     .font(.headline)
                     .foregroundColor(.primary)
 
@@ -178,7 +178,7 @@ struct HistoryListItem_Previews: PreviewProvider {
             // 已完成
             HistoryListItem(item: InterviewHistoryItem(
                 sessionId: "1",
-                positionName: "iOS开发工程师",
+                position: "iOS开发工程师",
                 round: "技术一面",
                 createdAt: Date(),
                 totalScore: 85.5,
@@ -188,7 +188,7 @@ struct HistoryListItem_Previews: PreviewProvider {
             // 未完成
             HistoryListItem(item: InterviewHistoryItem(
                 sessionId: "2",
-                positionName: "前端开发工程师",
+                position: "前端开发工程师",
                 round: "技术二面",
                 createdAt: Date(),
                 totalScore: nil,

@@ -12,7 +12,7 @@ class ProfileViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showingLogoutAlert = false
 
-    private var authService: AuthService
+    var authService: AuthService
     private var cancellables = Set<AnyCancellable>()
 
     init(authService: AuthService) {
@@ -20,6 +20,14 @@ class ProfileViewModel: ObservableObject {
 
         // 监听用户变化
         authService.$currentUser
+            .assign(to: &$user)
+    }
+
+    func updateAuthService(_ service: AuthService) {
+        self.authService = service
+        // 重新订阅用户变化
+        cancellables.removeAll()
+        service.$currentUser
             .assign(to: &$user)
     }
 

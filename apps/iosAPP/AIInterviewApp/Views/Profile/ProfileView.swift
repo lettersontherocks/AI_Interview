@@ -60,8 +60,8 @@ struct ProfileView: View {
             }
         }
         .onAppear {
-            // 传递正确的authService
-            viewModel.authService = authService
+            // 使用环境中的authService
+            viewModel.updateAuthService(authService)
         }
     }
 
