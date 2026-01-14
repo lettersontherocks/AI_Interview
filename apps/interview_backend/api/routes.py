@@ -137,33 +137,36 @@ async def start_interview(request: InterviewStartRequest, db: Session = Depends(
         if not position_service.validate_position_id(request.position_id):
             raise HTTPException(status_code=400, detail=f"无效的岗位ID: {request.position_id}")
 
-        # 检查用户配额（仅对已登录用户）
-        user = None
-        if request.user_id:
-            user = db.query(User).filter(User.user_id == request.user_id).first()
+        # 要求用户必须登录
+        if not request.user_id:
+            raise HTTPException(status_code=401, detail="请先登录后再使用面试功能")
 
-            if user:
-                # 检查今日免费次数（统一使用 UTC 时间进行日期比较）
-                today_utc = datetime.utcnow().date()
-                if user.last_free_date and user.last_free_date.date() == today_utc:
-                    if user.free_count_today >= settings.free_daily_limit and not user.is_vip:
-                        raise HTTPException(status_code=403, detail="今日免费次数已用完，请购买会员或单次面试")
-                else:
-                    # 重置今日计数
-                    user.free_count_today = 0
-                    user.last_free_date = datetime.utcnow()
-                    db.commit()  # 立即提交重置，避免后续异常导致未保存
+        # 检查用户是否存在
+        user = db.query(User).filter(User.user_id == request.user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="用户不存在，请重新登录")
+
+        # 检查今日免费次数（统一使用 UTC 时间进行日期比较）
+        today_utc = datetime.utcnow().date()
+        if user.last_free_date and user.last_free_date.date() == today_utc:
+            if user.free_count_today >= settings.free_daily_limit and not user.is_vip:
+                raise HTTPException(status_code=403, detail="今日免费次数已用完，请购买会员或单次面试")
+        else:
+            # 重置今日计数
+            user.free_count_today = 0
+            user.last_free_date = datetime.utcnow()
+            db.commit()  # 立即提交重置，避免后续异常导致未保存
 
         print(f"[DEBUG] 开始调用 interview_service.start_interview")
-        # 开始面试（允许未登录用户，如果没有指定风格则自动选择）
+        # 开始面试
         response = interview_service.start_interview(
             request,
             db
         )
         print(f"[DEBUG] interview_service.start_interview 返回成功")
 
-        # 更新免费次数（仅对已登录用户）
-        if user and not user.is_vip:
+        # 更新免费次数（非VIP用户）
+        if not user.is_vip:
             user.free_count_today += 1
             db.commit()
 

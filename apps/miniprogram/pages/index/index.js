@@ -502,8 +502,26 @@ Page({
       return
     }
 
-    // 检查配额（仅对已登录用户）
-    if (userInfo && !userInfo.is_vip && userInfo.free_count_today >= 2) {
+    // 检查是否已登录
+    if (!userInfo) {
+      wx.showModal({
+        title: '需要登录',
+        content: '请先登录后再使用面试功能',
+        showCancel: true,
+        cancelText: '取消',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            // 触发登录
+            this.handleLogin()
+          }
+        }
+      })
+      return
+    }
+
+    // 检查配额（已登录用户）
+    if (!userInfo.is_vip && userInfo.free_count_today >= 2) {
       wx.showModal({
         title: '次数不足',
         content: '今日免费次数已用完，会员功能即将上线，敬请期待！',
