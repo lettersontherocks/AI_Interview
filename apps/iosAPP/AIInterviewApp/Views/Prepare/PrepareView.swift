@@ -14,10 +14,12 @@ struct PrepareView: View {
     @State private var firstQuestion: String?
 
     init(position: Position, round: String, style: InterviewerStyle?) {
+        // 注意：userId 将在 startInterview 时从 authService 获取
         _viewModel = StateObject(wrappedValue: PrepareViewModel(
             position: position,
             round: round,
-            style: style
+            style: style,
+            userId: "" // 临时空值，实际使用时从 authService 获取
         ))
     }
 
@@ -264,16 +266,19 @@ struct PrepareView: View {
             return
         }
 
+        // 更新 viewModel 的 userId
+        viewModel.userId = userId
+
         print("🚀 [Prepare] 启动面试")
         print("   岗位: \(viewModel.position.name)")
         print("   轮次: \(viewModel.round)")
         print("   风格: \(viewModel.style?.name ?? "默认")")
 
-        viewModel.startInterview(userId: userId) { result in
+        viewModel.startInterview { result in
             switch result {
             case .success(let response):
                 self.sessionId = response.sessionId
-                self.firstQuestion = response.firstQuestion
+                self.firstQuestion = response.question // 注意：API 返回的字段是 question，不是 firstQuestion
                 self.showingInterviewView = true
                 print("✅ [Prepare] 面试开始成功")
                 print("   SessionID: \(response.sessionId)")
@@ -295,8 +300,11 @@ struct PrepareView_Previews: PreviewProvider {
                 name: "iOS开发工程师",
                 description: "负责iOS应用开发",
                 keywords: ["Swift", "SwiftUI", "UIKit"],
-                categoryId: "1",
-                categoryName: "技术岗"
+                categoryName: "技术岗",
+                isParent: false,
+                hasChildren: false,
+                parentId: nil,
+                parentName: nil
             ),
             round: "技术一面",
             style: nil

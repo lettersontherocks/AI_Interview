@@ -24,6 +24,11 @@ services:
       - "${PORT:-8003}:8003"
     env_file:
       - .env
+    volumes:
+      # 日志目录挂载到宿主机（持久化日志）
+      - ./logs:/app/logs
+      # 静态文件目录（TTS音频）
+      - ./static:/app/static
     environment:
       # 数据库配置
       - POSTGRES_HOST=postgres

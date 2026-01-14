@@ -74,6 +74,12 @@ class Settings(BaseSettings):
     # CORS配置
     allowed_origins: str = "*"  # 生产环境应改为具体域名
 
+    # ==================== 日志配置 ====================
+    log_dir: str = "logs"  # 日志目录
+    log_json_format: bool = False  # 是否使用JSON格式（生产环境建议True）
+    log_retention_days: int = 30  # 日志保留天数
+    log_max_bytes: int = 100 * 1024 * 1024  # 单个日志文件最大大小（100MB）
+
     @property
     def get_allowed_origins(self) -> list:
         """获取允许的CORS来源列表"""

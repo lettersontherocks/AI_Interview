@@ -310,8 +310,11 @@ struct InterviewView_Previews: PreviewProvider {
                 name: "iOS开发工程师",
                 description: "负责iOS应用开发",
                 keywords: ["Swift", "SwiftUI"],
-                categoryId: "1",
-                categoryName: "技术岗"
+                categoryName: "技术岗",
+                isParent: false,
+                hasChildren: false,
+                parentId: nil,
+                parentName: nil
             )
         )
     }

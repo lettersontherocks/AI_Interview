@@ -19,6 +19,7 @@ class InterviewViewModel: ObservableObject {
     }
 
     @Published var sessionId: String
+    @Published var position: Position
     @Published var currentQuestion: String
     @Published var currentQuestionNumber: Int = 1
     @Published var userAnswer: String = ""
@@ -40,8 +41,9 @@ class InterviewViewModel: ObservableObject {
     private var recordingURL: URL?
     private var cancellables = Set<AnyCancellable>()
 
-    init(sessionId: String, firstQuestion: String, audioUrl: String? = nil) {
+    init(sessionId: String, firstQuestion: String, position: Position, audioUrl: String? = nil) {
         self.sessionId = sessionId
+        self.position = position
         self.currentQuestion = firstQuestion
         self.startTime = Date()
 
@@ -209,8 +211,33 @@ class InterviewViewModel: ObservableObject {
 
     // MARK: - Interview Control
 
-    func finishInterview() {
-        submitAnswer("", finish: true)
+    func finishInterview(completion: @escaping (Bool) -> Void) {
+        isLoading = true
+
+        let request = AnswerRequest(
+            sessionId: sessionId,
+            answer: "",
+            finishInterview: true
+        )
+
+        APIService.shared.submitAnswer(request: request) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                switch result {
+                case .success(let response):
+                    self?.isFinished = true
+                    completion(true)
+                case .failure(let error):
+                    self?.errorMessage = "结束面试失败: \(error.localizedDescription)"
+                    completion(false)
+                }
+            }
+        }
+    }
+
+    func skipQuestion() {
+        // 跳过当前问题，提交空答案
+        submitAnswer("跳过")
     }
 
     func cleanup() {
