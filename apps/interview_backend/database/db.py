@@ -28,8 +28,7 @@ class User(Base):
     openid = Column(String(100), unique=True, nullable=False)
     nickname = Column(String(100))
     avatar = Column(String(500))
-    is_vip = Column(Boolean, default=False)  # 保留兼容性
-    vip_type = Column(String(20))  # None, 'normal', 'super'
+    is_vip = Column(Boolean, default=False)
     vip_expire_date = Column(DateTime)
     free_count_today = Column(Integer, default=0)
     last_free_date = Column(DateTime)

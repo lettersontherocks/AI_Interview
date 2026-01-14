@@ -82,8 +82,7 @@ class UserInfo(BaseModel):
     openid: str
     nickname: Optional[str]
     avatar: Optional[str]
-    is_vip: bool = False  # 保留兼容性
-    vip_type: Optional[str] = None  # None, 'normal', 'super'
+    is_vip: bool = False
     vip_expire_date: Optional[datetime] = None
     free_count_today: int = 0
     created_at: datetime
