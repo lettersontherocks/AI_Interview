@@ -108,6 +108,10 @@ class IndexViewModel: ObservableObject {
         selectedStyle = nil
     }
 
+    func retry() {
+        loadData()
+    }
+
     // MARK: - Search
 
     func searchPositions() {

@@ -13,6 +13,8 @@ struct InterviewReport: Codable, Identifiable {
     let technicalSkill: Double
     let communication: Double
     let logicThinking: Double
+    let problemSolving: Double
+    let projectExperience: Double
     let experience: Double
     let suggestions: [String]
     let transcript: [TranscriptItem]
@@ -24,6 +26,8 @@ struct InterviewReport: Codable, Identifiable {
         case technicalSkill = "technical_skill"
         case communication
         case logicThinking = "logic_thinking"
+        case problemSolving = "problem_solving"
+        case projectExperience = "project_experience"
         case experience
         case suggestions
         case transcript
@@ -38,6 +42,8 @@ struct InterviewReport: Codable, Identifiable {
         self.technicalSkill = try container.decode(Double.self, forKey: .technicalSkill)
         self.communication = try container.decode(Double.self, forKey: .communication)
         self.logicThinking = try container.decode(Double.self, forKey: .logicThinking)
+        self.problemSolving = try container.decode(Double.self, forKey: .problemSolving)
+        self.projectExperience = try container.decode(Double.self, forKey: .projectExperience)
         self.experience = try container.decode(Double.self, forKey: .experience)
         self.suggestions = try container.decode([String].self, forKey: .suggestions)
         self.transcript = try container.decode([TranscriptItem].self, forKey: .transcript)
@@ -45,6 +51,21 @@ struct InterviewReport: Codable, Identifiable {
         let dateString = try container.decode(String.self, forKey: .createdAt)
         let formatter = ISO8601DateFormatter()
         self.createdAt = formatter.date(from: dateString) ?? Date()
+    }
+
+    /// 格式化的创建时间（对应小程序的 formatDate）
+    var formattedCreatedAt: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M月d日 HH:mm"
+        formatter.locale = Locale(identifier: "zh_CN")
+        return formatter.string(from: createdAt)
+    }
+
+    /// 面试时长（分钟）
+    var duration: Int {
+        // 根据对话数量估算时长，每个问答约2-3分钟
+        let estimatedMinutes = transcript.count / 2 * 2
+        return max(estimatedMinutes, 5) // 最少5分钟
     }
 
     /// 评分等级
@@ -145,5 +166,13 @@ struct InterviewHistoryItem: Codable, Identifiable {
         let dateString = try container.decode(String.self, forKey: .createdAt)
         let formatter = ISO8601DateFormatter()
         self.createdAt = formatter.date(from: dateString) ?? Date()
+    }
+
+    /// 格式化的创建时间（对应小程序的 formatDate）
+    var formattedCreatedAt: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M月d日 HH:mm"
+        formatter.locale = Locale(identifier: "zh_CN")
+        return formatter.string(from: createdAt)
     }
 }
