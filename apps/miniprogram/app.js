@@ -17,6 +17,9 @@ App({
 
     // 检查登录状态
     this.checkLogin()
+
+    // 清理旧的音频文件
+    this.cleanupOldAudioFiles()
   },
 
   // 初始化 API 地址
@@ -179,5 +182,60 @@ App({
         })
       }
     })
+  },
+
+  // 清理旧的音频文件
+  cleanupOldAudioFiles() {
+    const fs = wx.getFileSystemManager()
+    const userDataPath = wx.env.USER_DATA_PATH
+
+    try {
+      // 读取用户数据目录下的所有文件
+      fs.readdir({
+        dirPath: userDataPath,
+        success: (res) => {
+          const audioFiles = res.files.filter(file => file.startsWith('tts_') && file.endsWith('.mp3'))
+
+          if (audioFiles.length === 0) {
+            console.log('[全局音频清理] 无音频文件需要清理')
+            return
+          }
+
+          console.log(`[全局音频清理] 发现 ${audioFiles.length} 个音频文件`)
+
+          let cleanedCount = 0
+          let failedCount = 0
+          const now = Date.now()
+          const ONE_DAY = 24 * 60 * 60 * 1000 // 24小时
+
+          audioFiles.forEach(fileName => {
+            const filePath = `${userDataPath}/${fileName}`
+
+            try {
+              // 获取文件信息
+              const stat = fs.statSync(filePath)
+              const fileAge = now - stat.mtime
+
+              // 删除超过24小时的音频文件
+              if (fileAge > ONE_DAY) {
+                fs.unlinkSync(filePath)
+                cleanedCount++
+                console.log(`[全局音频清理] 已删除旧文件: ${fileName} (${Math.floor(fileAge / ONE_DAY)}天前)`)
+              }
+            } catch (err) {
+              failedCount++
+              console.warn(`[全局音频清理] 处理文件失败 (${fileName}):`, err.errMsg)
+            }
+          })
+
+          console.log(`[全局音频清理] 完成 - 清理: ${cleanedCount}, 保留: ${audioFiles.length - cleanedCount - failedCount}, 失败: ${failedCount}`)
+        },
+        fail: (err) => {
+          console.warn('[全局音频清理] 读取目录失败:', err.errMsg)
+        }
+      })
+    } catch (err) {
+      console.warn('[全局音频清理] 初始化失败:', err)
+    }
   }
 })

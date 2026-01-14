@@ -32,6 +32,7 @@ Page({
   },
 
   recorderManager: null,
+  audioFileList: [], // 跟踪本次会话创建的所有音频文件
 
   // 计算动态进度（使用渐进式进度条，而不是固定百分比）
   calculateProgress(questionCount) {
@@ -50,6 +51,17 @@ Page({
 
     // 初始化录音管理器
     this.initRecorder()
+
+    // 启用退出前确认（仅在面试未完成时）
+    wx.enableAlertBeforeUnload({
+      message: '面试尚未完成，确定要退出吗？',
+      success: () => {
+        console.log('[面试页面] 已启用退出确认')
+      },
+      fail: (err) => {
+        console.warn('[面试页面] 启用退出确认失败:', err)
+      }
+    })
 
     if (resume === 'true') {
       // 恢复未完成的面试
@@ -411,7 +423,9 @@ Page({
           }
 
           if (is_finished) {
-            // 面试结束
+            // 面试结束 - 禁用退出确认
+            wx.disableAlertBeforeUnload()
+
             this.setData({
               messages: newMessages,
               finished: true,
@@ -525,24 +539,53 @@ Page({
     })
   },
 
-  // 页面卸载时确认
+  // 页面卸载时清理
   onUnload() {
-    if (!this.data.finished) {
-      wx.showModal({
-        title: '提示',
-        content: '面试尚未完成，确定要退出吗？',
-        success: (res) => {
-          if (!res.confirm) {
-            // 阻止返回
-            return false
-          }
-        }
-      })
-    }
+    // 禁用退出确认
+    wx.disableAlertBeforeUnload()
+
     // 停止音频播放
     if (this.audioContext) {
       this.audioContext.destroy()
     }
+
+    // 清理本次会话创建的所有音频文件
+    this.cleanupAudioFiles()
+
+    console.log('[面试页面] 页面已卸载，资源已清理')
+  },
+
+  // 清理音频文件
+  cleanupAudioFiles() {
+    if (this.audioFileList.length === 0) {
+      console.log('[音频清理] 无需清理')
+      return
+    }
+
+    const fs = wx.getFileSystemManager()
+    let cleanedCount = 0
+    let failedCount = 0
+
+    console.log(`[音频清理] 开始清理 ${this.audioFileList.length} 个音频文件`)
+
+    this.audioFileList.forEach((filePath) => {
+      // 只清理本地文件，不清理服务器URL
+      if (!filePath.startsWith('http')) {
+        try {
+          fs.unlinkSync(filePath)
+          cleanedCount++
+          console.log(`[音频清理] 已删除: ${filePath}`)
+        } catch (err) {
+          failedCount++
+          console.warn(`[音频清理] 删除失败 (${filePath}):`, err.errMsg)
+        }
+      }
+    })
+
+    console.log(`[音频清理] 完成 - 成功: ${cleanedCount}, 失败: ${failedCount}`)
+
+    // 清空列表
+    this.audioFileList = []
   },
 
   // ========== 沉浸模式相关方法 ==========
@@ -573,9 +616,39 @@ Page({
     this.pauseAudio()
   },
 
-  // 返回
+  // 返回（自定义返回按钮）
   onBack() {
-    this.switchToChatMode()
+    if (!this.data.finished) {
+      wx.showModal({
+        title: '确认退出',
+        content: '面试尚未完成，确定要退出吗？',
+        cancelText: '继续面试',
+        confirmText: '退出',
+        success: (res) => {
+          if (res.confirm) {
+            // 用户确认退出
+            this.exitInterview()
+          }
+          // 用户取消，不做任何操作
+        }
+      })
+    } else {
+      // 已完成，直接返回
+      wx.navigateBack()
+    }
+  },
+
+  // 执行退出操作
+  exitInterview() {
+    // 禁用退出确认（用户已确认）
+    wx.disableAlertBeforeUnload()
+
+    // 停止音频播放
+    if (this.audioContext) {
+      this.audioContext.destroy()
+    }
+
+    wx.navigateBack()
   },
 
   // 播放当前问题
@@ -623,6 +696,9 @@ Page({
             data: res.data,
             success: () => {
               console.log('[TTS] 音频文件已保存:', filePath)
+
+              // 记录文件路径用于清理
+              this.audioFileList.push(filePath)
 
               // 保存到缓存
               const newCache = { ...this.data.ttsCache }

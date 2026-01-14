@@ -183,20 +183,67 @@ Page({
   clearCache() {
     wx.showModal({
       title: '确认清除',
-      content: '确定要清除本地缓存吗？',
+      content: '将清除本地缓存和音频文件，是否继续？',
       success: (res) => {
         if (res.confirm) {
+          wx.showLoading({ title: '清理中...' })
+
+          // 1. 清理音频文件
+          this.cleanupAllAudioFiles()
+
+          // 2. 清除存储
           wx.clearStorage({
             success: () => {
+              wx.hideLoading()
               wx.showToast({
                 title: '清除成功',
                 icon: 'success'
+              })
+            },
+            fail: () => {
+              wx.hideLoading()
+              wx.showToast({
+                title: '清除失败',
+                icon: 'none'
               })
             }
           })
         }
       }
     })
+  },
+
+  // 清理所有音频文件
+  cleanupAllAudioFiles() {
+    const fs = wx.getFileSystemManager()
+    const userDataPath = wx.env.USER_DATA_PATH
+
+    try {
+      fs.readdir({
+        dirPath: userDataPath,
+        success: (res) => {
+          const audioFiles = res.files.filter(file => file.startsWith('tts_') && file.endsWith('.mp3'))
+
+          let cleanedCount = 0
+          audioFiles.forEach(fileName => {
+            const filePath = `${userDataPath}/${fileName}`
+            try {
+              fs.unlinkSync(filePath)
+              cleanedCount++
+            } catch (err) {
+              console.warn(`删除音频文件失败: ${fileName}`, err)
+            }
+          })
+
+          console.log(`✅ [清理缓存] 已删除 ${cleanedCount} 个音频文件`)
+        },
+        fail: (err) => {
+          console.warn('[清理缓存] 读取音频目录失败:', err)
+        }
+      })
+    } catch (err) {
+      console.warn('[清理缓存] 清理音频文件失败:', err)
+    }
   },
 
   // 联系客服

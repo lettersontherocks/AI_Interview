@@ -7,6 +7,9 @@
       <view class="progress-fill animated" style="width: {{progress}}%"></view>
     </view>
     <view class="progress-header">
+      <view class="back-btn-chat" bindtap="onBack">
+        <text class="back-icon">←</text>
+      </view>
       <view class="progress-text">
         <text wx:if="{{finished}}">✅ 面试已完成</text>
         <text wx:else>💬 第 {{currentQuestion}} 题 · 面试进行中</text>

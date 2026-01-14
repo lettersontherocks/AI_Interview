@@ -36,6 +36,25 @@ page {
   background: white;
 }
 
+.back-btn-chat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
+  height: 60rpx;
+  margin-right: 10rpx;
+}
+
+.back-btn-chat .back-icon {
+  font-size: 36rpx;
+  color: #667eea;
+  font-weight: bold;
+}
+
+.back-btn-chat:active {
+  opacity: 0.6;
+}
+
 .progress-text {
   font-size: 26rpx;
   color: #999;
