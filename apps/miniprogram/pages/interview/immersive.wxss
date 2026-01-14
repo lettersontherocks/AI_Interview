@@ -110,7 +110,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 60rpx 40rpx 40rpx;
   position: relative;
 }
@@ -121,6 +121,8 @@
   width: 280rpx;
   height: 280rpx;
   margin-bottom: 60rpx;
+  margin-top: 100rpx;
+  flex-shrink: 0;
 }
 
 /* 头像外圈 */

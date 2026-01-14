@@ -231,6 +231,7 @@ struct InterviewView: View {
             .resizable()
             .frame(width: 36, height: 36)
             .foregroundColor(isInterviewer ? .primaryColor : .blue)
+            .padding(.top, 4) // 稍微向下偏移，让头像与文本顶部对齐更自然
     }
 
     // MARK: - Recording Area
